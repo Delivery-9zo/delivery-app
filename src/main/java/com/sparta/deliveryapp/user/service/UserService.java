@@ -19,7 +19,6 @@ public class UserService {
 
   @Transactional
   public void signUp(SignUpRequestDto requestDto) {
-
     // 이메일 중복 체크
     Optional<User> user = userRepository.findByEmail(requestDto.getUserEmail());
 
@@ -30,7 +29,7 @@ public class UserService {
     // 비밀번호 암호화 할 예정
     String password = passwordEncoder.encode(requestDto.getPassword());
 
-    userRepository.save(new User(requestDto, requestDto.getPassword()));
+    userRepository.save(new User(requestDto, password));
   }
 
   public void signIn(SignInRequestDto requestDto) {

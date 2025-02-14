@@ -15,6 +15,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Getter
@@ -25,7 +27,7 @@ import lombok.Setter;
 public class User {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
+  @UuidGenerator
   private UUID userId;
 
 
@@ -49,7 +51,6 @@ public class User {
 
 
   public User(SignUpRequestDto requestDto, String password) {
-    this.userId = requestDto.getUserId();
     this.userName = requestDto.getUserName();
     this.nickName = requestDto.getNickName();
     this.password = password;
