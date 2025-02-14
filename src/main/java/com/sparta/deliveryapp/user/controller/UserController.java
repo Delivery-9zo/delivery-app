@@ -4,15 +4,21 @@ package com.sparta.deliveryapp.user.controller;
 import com.sparta.deliveryapp.user.dto.SignInRequestDto;
 import com.sparta.deliveryapp.user.dto.SignInResponseDto;
 import com.sparta.deliveryapp.user.dto.SignUpRequestDto;
+import com.sparta.deliveryapp.user.dto.UserUpdateRequestDto;
+import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import com.sparta.deliveryapp.user.service.UserService;
 import jakarta.validation.Valid;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,7 +38,7 @@ public class UserController {
 
     userService.signUp(requestDto);
 
-    return ResponseEntity.ok("Message: 회원가입이 완료되었습니다.");
+    return ResponseEntity.ok("Message"+": 회원가입이 완료되었습니다.");
   }
 
   @PostMapping("/sign-in")
@@ -50,6 +56,16 @@ public class UserController {
         .header("Authorization",token)
         .body(response);
   }
+
+  @PutMapping("/{email}")
+  public ResponseEntity<Map<String,String>> updateUser(@PathVariable String email, @RequestBody UserUpdateRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    userService.updateUser(email,requestDto,userDetails.getUser());
+
+    return ResponseEntity.ok(Collections.singletonMap("message", "사용자 정보가 성공적으로 업데이트되었습니다."));
+  }
+
+
+
 
 
 

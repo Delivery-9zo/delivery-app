@@ -2,12 +2,11 @@ package com.sparta.deliveryapp.user.entity;
 
 
 import com.sparta.deliveryapp.user.dto.SignUpRequestDto;
+import com.sparta.deliveryapp.user.dto.UserUpdateRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.util.UUID;
@@ -15,7 +14,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UuidGenerator;
 
 @Entity
@@ -57,5 +55,12 @@ public class User {
     this.userAddress = requestDto.getAddress();
     this.email = requestDto.getUserEmail();
     this.role = requestDto.getRole();
+  }
+
+  public void update(UserUpdateRequestDto requestDto,String password) {
+    this.userName = requestDto.getUserName();
+    this.nickName = requestDto.getNickName();
+    this.password = password;
+    this.userAddress = requestDto.getAddress();
   }
 }

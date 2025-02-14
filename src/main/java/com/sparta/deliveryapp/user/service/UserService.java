@@ -2,12 +2,13 @@ package com.sparta.deliveryapp.user.service;
 
 import com.sparta.deliveryapp.user.dto.SignInRequestDto;
 import com.sparta.deliveryapp.user.dto.SignUpRequestDto;
+import com.sparta.deliveryapp.user.dto.UserUpdateRequestDto;
 import com.sparta.deliveryapp.user.entity.User;
 import com.sparta.deliveryapp.user.jwt.JwtUtil;
 import com.sparta.deliveryapp.user.repository.UserRepository;
-import jakarta.validation.Valid;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,5 +46,20 @@ public class UserService {
     String token = jwtUtil.createToken(user.getEmail(),user.getRole());
 
     return token;
+  }
+
+  @Transactional
+  public void updateUser(String email,UserUpdateRequestDto requestDto, User user) {
+    User findUser = userRepository.findByEmail(email)
+        .orElseThrow(()-> new IllegalArgumentException("회원이 존재하지 않습니다."));
+
+    if (!findUser.getUserId().equals(user.getUserId())) {
+      throw new AccessDeniedException("사용자 정보를 수정할 권한이 없습니다.");
+    }
+
+    String password = passwordEncoder.encode(requestDto.getPassword());
+
+    findUser.update(requestDto,password);
+    userRepository.save(findUser);
   }
 }
