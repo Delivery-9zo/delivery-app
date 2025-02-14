@@ -1,5 +1,6 @@
 package com.sparta.deliveryapp.user.service;
 
+import com.sparta.deliveryapp.user.dto.SignInRequestDto;
 import com.sparta.deliveryapp.user.dto.SignUpRequestDto;
 import com.sparta.deliveryapp.user.entity.User;
 import com.sparta.deliveryapp.user.repository.UserRepository;
@@ -30,5 +31,14 @@ public class UserService {
     String password = passwordEncoder.encode(requestDto.getPassword());
 
     userRepository.save(new User(requestDto, requestDto.getPassword()));
+  }
+
+  public void signIn(SignInRequestDto requestDto) {
+    User user = userRepository.findById(requestDto.getUserId())
+        .orElseThrow(() -> new IllegalArgumentException("없는 유저 입니다."));
+
+    if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
+      throw new IllegalArgumentException("비밀번호가 다릅니다.");
+    }
   }
 }
