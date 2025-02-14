@@ -29,7 +29,7 @@ public class SignUpRequestDto {
   @NotNull(message = "Role cannot be null")
   private UserRole role;
 
-  private String userAddress;
+  private String address;
 
   @NotEmpty(message = "Email cannot be empty")
   @Email(message = "Invalid email format")

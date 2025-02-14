@@ -53,7 +53,7 @@ public class User {
     this.userName = requestDto.getUserName();
     this.nickName = requestDto.getNickName();
     this.password = password;
-    this.userAddress = requestDto.getUserAddress();
+    this.userAddress = requestDto.getAddress();
     this.email = requestDto.getUserEmail();
     this.role = requestDto.getRole();
   }
