@@ -1,0 +1,44 @@
+spring:
+  config:
+      import: optional:file:.env[.properties]
+  profiles:
+    active: local
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  sql:
+    init:
+      mode: always
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  docker:
+    compose:
+      enabled: true
+      start:
+        command: up
+      stop:
+        command: stop
+        timeout: 10s
+
+---
+spring:
+  config:
+    activate:
+      on-profile: aws
+  docker:
+    compose:
+      enabled: false
+
