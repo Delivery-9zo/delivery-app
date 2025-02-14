@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SignInRequestDto {
 
-  @NotNull(message = "User ID cannot be null")
-  private UUID userId;
+  @NotNull(message = "User Email cannot be null")
+  private String email;
 
   @NotEmpty(message = "Password cannot be empty")
   private String password;
