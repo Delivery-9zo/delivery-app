@@ -15,7 +15,6 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -31,8 +30,8 @@ public class JwtUtil {
   // 토큰 만료시간
   private final long TOKEN_TIME = 60 * 60 * 1000L; // 60분
 
-  @Value("${jwt.secret.key}") // Base64 Encode 한 SecretKey
-  private String secretKey;
+
+  private String secretKey = "7Iqk7YyM66W07YOA7L2U65Sp7YG065+9U3ByaW5n6rCV7J2Y7Yqc7YSw7LWc7JuQ67mI7J6F64uI64ukLg==";
   private Key key;
   private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 

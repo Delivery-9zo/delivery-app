@@ -1,6 +1,6 @@
 package com.sparta.deliveryapp.config;
 
-import com.sparta.deliveryapp.user.jwt.JwtAuthenticationFilter;
+
 import com.sparta.deliveryapp.user.jwt.JwtAuthorizationFilter;
 import com.sparta.deliveryapp.user.jwt.JwtUtil;
 import com.sparta.deliveryapp.user.security.UserDetailsServiceImpl;
@@ -36,12 +36,6 @@ public class WebSecurityConfig {
     return configuration.getAuthenticationManager();
   }
 
-  @Bean
-  public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-    JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil);
-    filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
-    return filter;
-  }
 
   @Bean
   public JwtAuthorizationFilter jwtAuthorizationFilter() {
@@ -66,8 +60,7 @@ public class WebSecurityConfig {
         );
 
 
-    http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
-    http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+    http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
   }
