@@ -19,6 +19,8 @@ spring:
   sql:
     init:
       mode: always
+  secrets:
+    secretKey: ${SECRET_KEY:defaultSecretKey}
 ---
 spring:
   config:
