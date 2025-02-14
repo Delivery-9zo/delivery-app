@@ -1,23 +1,51 @@
 package com.sparta.deliveryapp.config;
 
+import com.sparta.deliveryapp.user.jwt.JwtAuthenticationFilter;
+import com.sparta.deliveryapp.user.jwt.JwtAuthorizationFilter;
+import com.sparta.deliveryapp.user.jwt.JwtUtil;
+import com.sparta.deliveryapp.user.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
+  private final JwtUtil jwtUtil;
+  private final UserDetailsServiceImpl userDetailsService;
+  private final AuthenticationConfiguration authenticationConfiguration;
+
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
+  }
+
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+    return configuration.getAuthenticationManager();
+  }
+
+  @Bean
+  public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
+    JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil);
+    filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
+    return filter;
+  }
+
+  @Bean
+  public JwtAuthorizationFilter jwtAuthorizationFilter() {
+    return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
   }
 
 
@@ -37,8 +65,10 @@ public class WebSecurityConfig {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
 
-    // 추후 session 없앤 후 jwt filter 추가
-    // 설정된 보안 필터 체인을 반환합니다.
+
+    http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
+    http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
     return http.build();
   }
 
