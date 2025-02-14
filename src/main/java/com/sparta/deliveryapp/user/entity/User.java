@@ -1,6 +1,7 @@
 package com.sparta.deliveryapp.user.entity;
 
 
+import com.sparta.deliveryapp.user.dto.SignUpRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -47,4 +48,13 @@ public class User {
   private UserRole role;
 
 
+  public User(SignUpRequestDto requestDto, String password) {
+    this.userId = requestDto.getUserId();
+    this.userName = requestDto.getUserName();
+    this.nickName = requestDto.getNickName();
+    this.password = password;
+    this.userAddress = requestDto.getUserAddress();
+    this.email = requestDto.getUserEmail();
+    this.role = requestDto.getRole();
+  }
 }
