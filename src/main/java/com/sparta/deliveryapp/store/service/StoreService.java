@@ -33,10 +33,11 @@ public class StoreService {
 
     // 주소를 기반으로 위경도 추출
 
+
     // StoreEntity 생성 및 엔티티에서 빠진 컬럼 추가
 
     //레포지토리를 이용해서 db에 저장
 
   }
-  
+
 }
