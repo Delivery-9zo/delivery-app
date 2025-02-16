@@ -18,7 +18,7 @@ import java.util.UUID;
 public class OrderResponseDto {
 
     private UUID orderId;
-    private UUID menuId;
+    private UUID itemId;
     private OrderType orderType;
     private LocalDateTime orderTime;
     private String email;
@@ -29,7 +29,7 @@ public class OrderResponseDto {
 
     public OrderResponseDto(Order updateOrder) {
         this.orderId = updateOrder.getOrderId();
-        this.menuId = updateOrder.getMenuId();
+        this.itemId = updateOrder.getItemId();
         this.orderType = updateOrder.getOrderType();
         this.orderTime = updateOrder.getOrderTime();
         this.email = updateOrder.getEmail();
