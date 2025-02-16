@@ -24,8 +24,8 @@ public class Order {
     @UuidGenerator
     private UUID orderId;
 
-    @Column(name = "menu_id", nullable = false)
-    private UUID menuId;
+    @Column(name = "item_id", nullable = false)
+    private UUID itemId;
 
     @Enumerated(value = EnumType.STRING)
     private OrderType orderType;
