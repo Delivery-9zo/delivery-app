@@ -5,6 +5,7 @@ import com.sparta.deliveryapp.order.dto.OrderResponseDto;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.entity.OrderState;
 import com.sparta.deliveryapp.order.repository.OrderRespository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ public class OrderService {
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
     private final OrderRespository orderRespository;
 
+    @Transactional
     public OrderResponseDto updateOrderStateToCancel(UUID orderId, OrderRequestDto orderRequestDto) {
 
         logger.info("주문 상태 ToCancel 업데이트 시작 : orderId={}", orderId);
