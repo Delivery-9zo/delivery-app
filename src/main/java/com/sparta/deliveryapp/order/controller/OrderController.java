@@ -20,7 +20,7 @@ public class OrderController {
 
     // 주문상태 변경(WAIT -> CANCEL)
     // user PR 후, 권한 확인
-    @PutMapping("/state/{orderId}")
+    @PutMapping("/cancel/{orderId}")
     public ResponseEntity<?> updateOrderStateToCancel(@PathVariable("orderId")  UUID orderId,
                                                                          @RequestBody OrderRequestDto orderRequestDto) {
         try {
