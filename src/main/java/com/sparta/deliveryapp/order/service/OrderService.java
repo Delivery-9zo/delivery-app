@@ -1,6 +1,6 @@
 package com.sparta.deliveryapp.order.service;
 
-import com.sparta.deliveryapp.order.controller.OrderRequestDto;
+import com.sparta.deliveryapp.order.dto.OrderRequestDto;
 import com.sparta.deliveryapp.order.dto.OrderResponseDto;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.entity.OrderState;
