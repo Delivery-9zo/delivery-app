@@ -22,6 +22,7 @@ public class OrderService {
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
     private final OrderRespository orderRespository;
 
+    // 주문 취소(WAIT -> CANCEL)
     @Transactional
     public OrderResponseDto updateOrderStateToCancel(UUID orderId, OrderRequestDto orderRequestDto) {
 
@@ -30,15 +31,12 @@ public class OrderService {
         try {
             Order order = orderRespository.findById(orderId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 주문정보가 없습니다."));
-
-            // 주문과 주문상세 1:N 관계를 설정 추가 필요
-
             if (orderRequestDto.getOrderState() == null) {
                 throw new IllegalArgumentException("주문 상태가 필요합니다.");
             } else if (!orderRequestDto.getOrderState().equals(OrderState.WAIT)) {
                 throw new IllegalArgumentException("주문대기 상태가 아니므로 주문수정이 불가합니다.");
             }
-            // user PR 후, 권한 확인
+            // user PR 후, 권한 확인(CUSTOMER, MANAGER, OWNER 가능)
             //else if() {
             //    throw new AccessDeniedException("주문 상태를 수정할 권한이 없습니다.");
             //}
