@@ -15,10 +15,10 @@ import java.util.UUID;
 public class OrderRequestDto {
 
     private UUID orderId;
+    private UUID userId;
     private UUID itemId;
     private OrderType orderType;
     private LocalDateTime orderTime;
-    private String email;
     private int totalPrice;
     private String userAddress;
     private String orderMemo;
