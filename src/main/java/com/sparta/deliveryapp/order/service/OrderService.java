@@ -5,11 +5,14 @@ import com.sparta.deliveryapp.order.dto.OrderResponseDto;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.entity.OrderState;
 import com.sparta.deliveryapp.order.repository.OrderRespository;
+import com.sparta.deliveryapp.user.entity.User;
+import com.sparta.deliveryapp.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -21,10 +24,11 @@ import java.util.UUID;
 public class OrderService {
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
     private final OrderRespository orderRespository;
+    private final UserRepository userRepository;
 
     // 주문 취소(WAIT -> CANCEL)
     @Transactional
-    public OrderResponseDto updateOrderStateToCancel(UUID orderId, OrderRequestDto orderRequestDto) {
+    public OrderResponseDto updateOrderStateToCancel(UUID orderId, OrderRequestDto orderRequestDto, User user) {
 
         logger.info("주문 상태 ToCancel 업데이트 시작 : orderId={}", orderId);
 
@@ -36,10 +40,13 @@ public class OrderService {
             } else if (!orderRequestDto.getOrderState().equals(OrderState.WAIT)) {
                 throw new IllegalArgumentException("주문대기 상태가 아니므로 주문수정이 불가합니다.");
             }
-            // user PR 후, 권한 확인(CUSTOMER, MANAGER, OWNER 가능)
-            //else if() {
-            //    throw new AccessDeniedException("주문 상태를 수정할 권한이 없습니다.");
-            //}
+
+            User findUser = userRepository.findByEmail(user.getEmail())
+                    .orElseThrow(()-> new IllegalArgumentException("주문한 회원이 존재하지 않습니다."));
+
+            if (findUser.getRole().equals("MASTER")) {
+                throw new AccessDeniedException("주문 상태를 수정할 권한이 없습니다.");
+            }
 
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime orderTimeFiveMinutesLater = orderRequestDto.getOrderTime().plusMinutes(5);
