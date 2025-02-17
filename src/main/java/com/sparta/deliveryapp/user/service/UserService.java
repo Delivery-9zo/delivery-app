@@ -37,7 +37,11 @@ public class UserService {
 
   public String signIn(SignInRequestDto requestDto) {
     User user = userRepository.findByEmail(requestDto.getEmail())
-        .orElseThrow(() -> new IllegalArgumentException("없는 유저 입니다."));
+        .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+
+    if(user.getDeletedAt() != null){
+      throw new IllegalArgumentException("이 사용자는 삭제된 사용자 입니다.");
+    }
 
     if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
       throw new IllegalArgumentException("비밀번호가 다릅니다.");
@@ -53,11 +57,19 @@ public class UserService {
     User findUser = userRepository.findByEmail(email)
         .orElseThrow(()-> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
+    if(findUser.getDeletedAt() != null){
+      throw new IllegalArgumentException("이 사용자는 삭제된 사용자 입니다.");
+    }
+
     if (!findUser.getUserId().equals(user.getUserId())) {
       throw new AccessDeniedException("사용자 정보를 수정할 권한이 없습니다.");
     }
 
-    String password = passwordEncoder.encode(requestDto.getPassword());
+    // 비밀번호 암호화 처리 (변경된 경우에만)
+    String password = null;
+    if (requestDto.getPassword() != null && !requestDto.getPassword().isEmpty()) {
+      password = passwordEncoder.encode(requestDto.getPassword());
+    }
 
     findUser.update(requestDto,password);
     userRepository.save(findUser);
