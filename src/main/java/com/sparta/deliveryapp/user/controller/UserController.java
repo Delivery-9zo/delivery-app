@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -31,14 +32,14 @@ public class UserController {
   private final UserService userService;
 
   @PostMapping("/sign-up")
-  public ResponseEntity<String> signUp(@Valid @RequestBody SignUpRequestDto requestDto,
+  public ResponseEntity<Map<String,String>> signUp(@Valid @RequestBody SignUpRequestDto requestDto,
       BindingResult bindingResult) {
 
     checkValidationErrors(bindingResult);
 
     userService.signUp(requestDto);
 
-    return ResponseEntity.ok("Message"+": 회원가입이 완료되었습니다.");
+    return ResponseEntity.ok(Collections.singletonMap("message","사용자가 성공적으로 생성되었습니다."));
   }
 
   @PostMapping("/sign-in")
@@ -64,6 +65,13 @@ public class UserController {
     return ResponseEntity.ok(Collections.singletonMap("message", "사용자 정보가 성공적으로 업데이트되었습니다."));
   }
 
+
+  @DeleteMapping("/{email}")
+  public ResponseEntity<Map<String,String>> deleteUser(@PathVariable String email, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    userService.deleteUser(email,userDetails.getUser());
+
+    return ResponseEntity.ok(Collections.singletonMap("message","사용자 정보가 성공적으로 삭제되었습니다."));
+  }
 
 
 

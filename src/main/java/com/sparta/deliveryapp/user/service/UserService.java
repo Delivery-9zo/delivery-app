@@ -62,4 +62,18 @@ public class UserService {
     findUser.update(requestDto,password);
     userRepository.save(findUser);
   }
+
+  @Transactional
+  public void deleteUser(String email, User user) {
+    User findUser = userRepository.findByEmail(email)
+        .orElseThrow(()-> new IllegalArgumentException("회원이 존재하지 않습니다."));
+
+    if (!findUser.getUserId().equals(user.getUserId())) {
+      throw new AccessDeniedException("사용자 정보를 수정할 권한이 없습니다.");
+    }
+
+    findUser.delete();
+
+    userRepository.save(findUser);
+  }
 }

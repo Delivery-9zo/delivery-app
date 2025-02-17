@@ -60,4 +60,9 @@ public abstract class BaseEntity {
 //    // 예시로, Spring Security로 현재 사용자 가져오기
 //    return SecurityContextHolder.getContext().getAuthentication().getName();
 //  }
+
+  // soft 삭제를 위한 set 추가
+  public void setDeleteAt(LocalDateTime deletedAt){
+    this.deletedAt = deletedAt;
+  }
 }
