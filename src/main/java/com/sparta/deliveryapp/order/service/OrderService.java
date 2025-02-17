@@ -38,20 +38,20 @@ public class OrderService {
             if (orderRequestDto.getOrderState() == null) {
                 throw new IllegalArgumentException("주문 상태가 필요합니다.");
             } else if (!orderRequestDto.getOrderState().equals(OrderState.WAIT)) {
-                throw new IllegalArgumentException("주문대기 상태가 아니므로 주문수정이 불가합니다.");
+                throw new IllegalArgumentException("주문완료 상태가 아니므로 주문취소가 불가합니다.");
             }
 
             User findUser = userRepository.findByEmail(user.getEmail())
                     .orElseThrow(()-> new IllegalArgumentException("주문한 회원이 존재하지 않습니다."));
 
             if (findUser.getRole().equals("MASTER")) {
-                throw new AccessDeniedException("주문 상태를 수정할 권한이 없습니다.");
+                throw new AccessDeniedException("주문을 취소할 권한(MASTER)이 없습니다.");
             }
 
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime orderTimeFiveMinutesLater = orderRequestDto.getOrderTime().plusMinutes(5);
             if (now.isAfter(orderTimeFiveMinutesLater)) {
-                throw new IllegalArgumentException("주문 생성 5분 이내에만 취소 가능합니다.");
+                throw new IllegalArgumentException("주문취소는 주문완료 후 5분 이내에만 취소 가능합니다.");
             } else {
                 // 5분 이내
                 order.setOrderState(OrderState.CANCEL);
