@@ -22,8 +22,7 @@ public class OrderController {
     private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
     private final OrderService orderService;
 
-    // 주문 취소(WAIT -> CANCEL)
-    // user PR 후, 권한 확인
+    // 주문 취소(SUCCESS -> CANCEL)
     @PutMapping("/cancel/{orderId}")
     public ResponseEntity<?> updateOrderStateToCancel(@PathVariable("orderId")  UUID orderId,
                                                       @RequestBody OrderRequestDto orderRequestDto,
