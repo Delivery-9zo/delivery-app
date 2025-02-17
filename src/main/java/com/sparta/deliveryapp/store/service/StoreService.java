@@ -97,5 +97,5 @@ public class StoreService {
     LocalTime localTime = LocalTime.parse(timeString, formatter);
     return localTime;
   }
-  
+
 }
