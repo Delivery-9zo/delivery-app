@@ -73,4 +73,14 @@ public abstract class BaseEntity {
   public void setDeleteAt(LocalDateTime deletedAt){
     this.deletedAt = deletedAt;
   }
+  // TODO: 추후 SecurityContext 가져와야함
+//  private String getCurrentUser() {
+//    // 예시로, Spring Security로 현재 사용자 가져오기
+//    return SecurityContextHolder.getContext().getAuthentication().getName();
+//  }
+
+  // soft 삭제를 위한 set 추가
+  public void setDeleteAt(LocalDateTime deletedAt){
+    this.deletedAt = deletedAt;
+  }
 }
