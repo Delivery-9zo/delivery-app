@@ -1,7 +1,7 @@
 package com.sparta.deliveryapp.order.controller;
 
-import com.sparta.deliveryapp.order.dto.OrderRequestDto;
-import com.sparta.deliveryapp.order.dto.OrderResponseDto;
+import com.sparta.deliveryapp.order.dto.OrderToCanceledRequestDto;
+import com.sparta.deliveryapp.order.dto.OrderToCanceledResponseDto;
 import com.sparta.deliveryapp.order.service.OrderService;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -25,11 +25,11 @@ public class OrderController {
     // 주문 취소(SUCCESS -> CANCEL)
     @PutMapping("/cancel/{orderId}")
     public ResponseEntity<?> updateOrderStateToCancel(@PathVariable("orderId")  UUID orderId,
-                                                      @RequestBody OrderRequestDto orderRequestDto,
+                                                      @RequestBody OrderToCanceledRequestDto orderToCanceledRequestDto,
                                                       @AuthenticationPrincipal UserDetailsImpl userDetails) {
         logger.info("Authenticated User : {}", userDetails);
         try {
-            OrderResponseDto responseDto = orderService.updateOrderStateToCancel(orderId, orderRequestDto, userDetails.getUser());
+            OrderToCanceledResponseDto responseDto = orderService.updateOrderStateToCancel(orderId, orderToCanceledRequestDto, userDetails.getUser());
             return ResponseEntity.ok(responseDto);
         } catch (ResponseStatusException e) {
             // ResponseStatusException 의 경우, 상태 코드와 메시지를 반환

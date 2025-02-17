@@ -12,7 +12,7 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderRequestDto {
+public class OrderToCanceledRequestDto {
 
     private UUID orderId;
     private UUID userId;
