@@ -59,11 +59,11 @@ public class User extends BaseEntity {
     this.role = requestDto.getRole();
   }
 
-  public void update(UserUpdateRequestDto requestDto,String password) {
-    this.userName = requestDto.getUserName();
-    this.nickName = requestDto.getNickName();
-    this.password = password;
-    this.userAddress = requestDto.getAddress();
+  public void update(UserUpdateRequestDto requestDto, String password) {
+    this.userName = (requestDto.getUserName() != null) ? requestDto.getUserName() : this.userName;
+    this.nickName = (requestDto.getNickName() != null) ? requestDto.getNickName() : this.nickName;
+    this.password = (password != null) ? password : this.password;
+    this.userAddress = (requestDto.getAddress() != null) ? requestDto.getAddress() : this.userAddress;
   }
 
   public void delete() {

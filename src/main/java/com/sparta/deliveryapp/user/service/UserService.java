@@ -65,11 +65,7 @@ public class UserService {
       throw new AccessDeniedException("사용자 정보를 수정할 권한이 없습니다.");
     }
 
-    // 비밀번호 암호화 처리 (변경된 경우에만)
-    String password = null;
-    if (requestDto.getPassword() != null && !requestDto.getPassword().isEmpty()) {
-      password = passwordEncoder.encode(requestDto.getPassword());
-    }
+    String password = passwordEncoder.encode(requestDto.getPassword());
 
     findUser.update(requestDto,password);
     userRepository.save(findUser);
