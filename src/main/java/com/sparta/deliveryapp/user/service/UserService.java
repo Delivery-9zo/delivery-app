@@ -2,10 +2,12 @@ package com.sparta.deliveryapp.user.service;
 
 import com.sparta.deliveryapp.user.dto.SignInRequestDto;
 import com.sparta.deliveryapp.user.dto.SignUpRequestDto;
+import com.sparta.deliveryapp.user.dto.UserResponseDto;
 import com.sparta.deliveryapp.user.dto.UserUpdateRequestDto;
 import com.sparta.deliveryapp.user.entity.User;
 import com.sparta.deliveryapp.user.jwt.JwtUtil;
 import com.sparta.deliveryapp.user.repository.UserRepository;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -19,6 +21,9 @@ public class UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtUtil jwtUtil;
+
+
+
 
   @Transactional
   public void signUp(SignUpRequestDto requestDto) {
@@ -84,4 +89,12 @@ public class UserService {
 
     userRepository.save(findUser);
   }
+
+  public List<UserResponseDto> getUsers() {
+    List<UserResponseDto> users = userRepository.findAll().stream()
+        .map(UserResponseDto::new).toList();
+
+    return users;
+  }
+
 }
