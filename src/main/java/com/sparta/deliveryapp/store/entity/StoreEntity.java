@@ -1,5 +1,6 @@
 package com.sparta.deliveryapp.store.entity;
 
+import com.sparta.deliveryapp.auditing.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -23,13 +24,14 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @Table(name = "p_store")
 @Builder
-public class StoreEntity {
+public class StoreEntity extends BaseEntity {
 
   @Id
   @UuidGenerator
   private UUID storeId;
 
   //유저 id 받아오기
+  
 
   @Column(name = "store_name")
   private String storeName;
