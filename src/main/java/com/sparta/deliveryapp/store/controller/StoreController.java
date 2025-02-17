@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.catalina.Store;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,4 +29,5 @@ public class StoreController {
         return ResponseEntity.ok().body("가게가 정상적으로 등록되었습니다.");
     }
 
+//    @DeleteMapping("")
 }
