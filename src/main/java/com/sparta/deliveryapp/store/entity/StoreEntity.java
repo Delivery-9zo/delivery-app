@@ -2,9 +2,16 @@ package com.sparta.deliveryapp.store.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,9 +29,7 @@ public class StoreEntity {
   @UuidGenerator
   private UUID storeId;
 
-//  @ManyToOne(fetch = FetchType.LAZY) // N:1 관계 설정
-//  @JoinColumn(name = "user_uuid", nullable = false)
-//  private UserEntity user; // 가게를 소유한 유저 정보
+  //유저 id 받아오기
 
   @Column(name = "store_name")
   private String storeName;
@@ -39,14 +44,16 @@ public class StoreEntity {
   private String rating;
 
   @Column(name = "open_at")
-  private Timestamp openAt;
+  private LocalTime openAt;
 
   @Column(name = "close_at")
-  private Timestamp closeAt;
+  private LocalTime closeAt;
 
   @Column(name = "store_x")
-  private Double storeCoordX;
+  private Double storeCoordX; // 경도
 
   @Column(name = "store_y")
-  private Double storeCoordY;
+  private Double storeCoordY; // 위도
+
+
 }
