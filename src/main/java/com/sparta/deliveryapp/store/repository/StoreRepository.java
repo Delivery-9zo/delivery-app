@@ -10,4 +10,6 @@ import org.springframework.stereotype.Repository;
 public interface StoreRepository extends JpaRepository<StoreEntity, Integer> {
 
   Optional<StoreEntity> findByStoreName(@NotBlank String storeName);
+
+
 }

@@ -42,3 +42,8 @@ spring:
     compose:
       enabled: false
 
+---
+#kakao local API KEY
+api-key:
+  url: ${KAKAO_LOCAL_URL}
+  key: ${KAKAO_LOCAL_KEY}
