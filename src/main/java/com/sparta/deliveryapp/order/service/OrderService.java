@@ -26,7 +26,7 @@ public class OrderService {
     private final OrderRespository orderRespository;
     private final UserRepository userRepository;
 
-    // 주문 취소(WAIT -> CANCEL)
+    // 주문 취소(SUCCESS -> CANCEL)
     @Transactional
     public OrderResponseDto updateOrderStateToCancel(UUID orderId, OrderRequestDto orderRequestDto, User user) {
 
