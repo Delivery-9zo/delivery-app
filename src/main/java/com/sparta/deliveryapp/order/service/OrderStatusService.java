@@ -9,8 +9,7 @@ import com.sparta.deliveryapp.user.entity.User;
 import com.sparta.deliveryapp.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -19,10 +18,11 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderStatusService {
-    private static final Logger logger = LoggerFactory.getLogger(OrderStatusService.class);
+
     private final OrderRespository orderRespository;
     private final UserRepository userRepository;
 
@@ -30,7 +30,7 @@ public class OrderStatusService {
     @Transactional
     public CancellationOrderResponseDto updateOrderStateToCancel(UUID orderId, CancellationOrderRequestDto cancellationOrderRequestDto, User user) {
 
-        logger.info("주문 상태 ToCancel 업데이트 시작 : orderId={}", orderId);
+        log.info("주문 상태 ToCancel 업데이트 시작 : orderId={}", orderId);
 
         try {
             Order order = orderRespository.findById(orderId)
@@ -55,21 +55,21 @@ public class OrderStatusService {
             } else {
                 // 5분 이내
                 order.setOrderState(OrderState.CANCEL);
-                logger.info("주문 상태 CANCEL 로 업데이트: orderId={}", orderId);
+                log.info("주문 상태 CANCEL 로 업데이트: orderId={}", orderId);
             }
 
             Order updatedOrder = orderRespository.save(order);
-            logger.info("주문 상태 ToCancel 업데이트 성공: orderId={}", updatedOrder.getOrderId());
+            log.info("주문 상태 ToCancel 업데이트 성공: orderId={}", updatedOrder.getOrderId());
 
             return new CancellationOrderResponseDto(updatedOrder);
         } catch (ResponseStatusException e) {
-            logger.error("주문 상태 업데이트 오류: {}", e.getReason());
+            log.error("주문 상태 업데이트 오류: {}", e.getReason());
             throw e; // 예외를 다시 던져서 컨트롤러에서 처리하게 함
         } catch (Exception e) {
-            logger.error("오류 발생: {}", e.getMessage());
+            log.error("오류 발생: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류 발생", e);
         } finally {
-            logger.info("주문 상태 ToCancel 업데이트 종료: orderId={}", orderId);
+            log.info("주문 상태 ToCancel 업데이트 종료: orderId={}", orderId);
         }
     }
 }

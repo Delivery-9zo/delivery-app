@@ -5,8 +5,7 @@ import com.sparta.deliveryapp.order.dto.CancellationOrderResponseDto;
 import com.sparta.deliveryapp.order.service.OrderStatusService;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -15,11 +14,12 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Collections;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
 public class OrderController {
-    private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
+
     private final OrderStatusService orderStatusService;
 
     // 주문 취소(SUCCESS -> CANCEL)
@@ -27,7 +27,7 @@ public class OrderController {
     public ResponseEntity<?> updateOrderStateToCancel(@PathVariable("orderId")  UUID orderId,
                                                       @RequestBody CancellationOrderRequestDto cancellationOrderRequestDto,
                                                       @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        logger.info("Authenticated User : {}", userDetails);
+        log.info("Authenticated User : {}", userDetails);
         try {
             CancellationOrderResponseDto responseDto = orderStatusService.updateOrderStateToCancel(orderId, cancellationOrderRequestDto, userDetails.getUser());
             return ResponseEntity.ok(responseDto);
