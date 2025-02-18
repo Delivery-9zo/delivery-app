@@ -72,8 +72,7 @@ public class StoreService {
    */
   @Transactional
   public void deleteStore(String storeId, UserDetailsImpl userDetails) {
-    String currentUserRole = userDetails.getUser().getRole().getAuthority();
-    if (!currentUserRole.equals("ROLE_MASTER")) {
+    if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_MASTER"))) {
       throw new AuthorizationDeniedException("가게 삭제 권한이 없습니다.");
     }
 
