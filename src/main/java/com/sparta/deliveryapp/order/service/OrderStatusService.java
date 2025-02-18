@@ -6,6 +6,7 @@ import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.entity.OrderState;
 import com.sparta.deliveryapp.order.repository.OrderRespository;
 import com.sparta.deliveryapp.user.entity.User;
+import com.sparta.deliveryapp.user.entity.UserRole;
 import com.sparta.deliveryapp.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,7 @@ public class OrderStatusService {
             User findUser = userRepository.findByEmail(user.getEmail())
                     .orElseThrow(()-> new IllegalArgumentException("주문한 회원이 존재하지 않습니다."));
 
-            if (findUser.getRole().equals("MASTER")) {
+            if (findUser.getRole() == UserRole.MASTER) {
                 throw new AccessDeniedException("주문을 취소할 권한(MASTER)이 없습니다.");
             }
 
