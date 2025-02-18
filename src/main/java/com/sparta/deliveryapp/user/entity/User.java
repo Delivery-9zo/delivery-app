@@ -57,7 +57,7 @@ public class User {
     this.role = requestDto.getRole();
   }
 
-  public void update(UserUpdateRequestDto requestDto,String password) {
+  public void update(UserUpdateRequestDto requestDto, String password) {
     this.userName = requestDto.getUserName();
     this.nickName = requestDto.getNickName();
     this.password = password;
