@@ -1,31 +1,43 @@
 package com.sparta.deliveryapp.store.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.deliveryapp.store.dto.StoreRequestDto;
 import com.sparta.deliveryapp.store.entity.StoreEntity;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.store.util.kakaoLocal.KakaoLocalAPI;
+import com.sparta.deliveryapp.user.repository.UserRepository;
+import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StoreService {
 
   private final StoreRepository storeRepository;
   private final KakaoLocalAPI kakaoLocalAPI;
+  private final UserRepository userRepository;
 
   /**
    * 가게 정보를 받아 store 테이블에 저장하는 메서드
    *
-   * @Param : 가게 정보 dto
+   * @param : 가게 정보 dto
    */
   @Transactional
-  public void regiStore(StoreRequestDto storeRequestDto) {
+  public void regiStore(StoreRequestDto storeRequestDto, UserDetailsImpl userDetails) {
+
+    //유저가 owner권한이 맞는지 체크
+    if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_OWNER"))) {
+      throw new AuthorizationDeniedException("가게 등록 권한이 없습니다.");
+    }
+
     // 상호명 중복 체크
     Optional<StoreEntity> storeEntity = storeRepository.findByStoreName(
         storeRequestDto.getStoreName());
@@ -42,8 +54,11 @@ public class StoreService {
         .address(storeRequestDto.getAddress()).bRegiNum(storeRequestDto.getBRegiNum())
         .storeCoordX(storeCoords[0]) // 경도
         .storeCoordY(storeCoords[1])  // 위도
+        .rating(0.0)
         .openAt(convertStringToTimestamp(storeRequestDto.getOpenAt()))
-        .closeAt(convertStringToTimestamp(storeRequestDto.getCloseAt())).build();
+        .closeAt(convertStringToTimestamp(storeRequestDto.getCloseAt()))
+        .user(userDetails.getUser())
+        .build();
 
     // 레포지토리를 이용해서 db에 저장
     storeRepository.save(newStore);
@@ -53,7 +68,7 @@ public class StoreService {
   /**
    * 문자열로 주어진 시간을 LocalTime으로 변환하는 메서드
    *
-   * @param: 문자열로 지정된 시간( ex: 10:00)
+   * @param: 문자열로 지정된 시간(ex: 10:00)
    * @return: LocalTime
    */
   private LocalTime convertStringToTimestamp(String timeString) {
