@@ -1,5 +1,6 @@
 package com.sparta.deliveryapp.store.entity;
 
+import com.sparta.deliveryapp.auditing.BaseEntity;
 import com.sparta.deliveryapp.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,7 +21,7 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @Table(name = "p_store")
 @Builder
-public class StoreEntity {
+public class StoreEntity extends BaseEntity {
 
   @Id
   @UuidGenerator
