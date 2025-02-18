@@ -9,6 +9,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -71,17 +72,17 @@ public class StoreService {
    * @param: 가게 uuid(storeId), 유저 정보(userDetails)
    */
   @Transactional
-  public void deleteStore(String storeId, UserDetailsImpl userDetails) {
+  public Store deleteStore(String storeId, UserDetailsImpl userDetails) {
     if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_MASTER"))) {
       throw new AuthorizationDeniedException("가게 삭제 권한이 없습니다.");
     }
 
-    StoreEntity storeEntity = storeRepository.findByIdAndDeletedAtIsNull(storeId)
+    Store storeEntity = storeRepository.findByStoreId(UUID.fromString(storeId))
         .orElseThrow(() -> new EntityNotFoundException(storeId + " 가게가 존재하지 않습니다."));
 
-    //Todo: 소프트 삭제 진행
-    
-    storeRepository.save(storeEntity);
+    storeEntity.onPreRemove();
+
+    return storeRepository.save(storeEntity);
 
   }
 

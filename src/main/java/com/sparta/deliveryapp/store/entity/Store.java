@@ -15,12 +15,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.annotations.Where;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "p_store")
 @Builder
+@Where(clause = "deleted_at IS NULL")
 public class Store extends BaseEntity {
 
   @Id
