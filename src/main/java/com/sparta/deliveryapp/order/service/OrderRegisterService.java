@@ -1,5 +1,7 @@
 package com.sparta.deliveryapp.order.service;
 
+import com.sparta.deliveryapp.commons.exception.ErrorCode;
+import com.sparta.deliveryapp.commons.exception.error.CustomException;
 import com.sparta.deliveryapp.order.dto.RegisterOrderRequestDto;
 import com.sparta.deliveryapp.order.dto.RegisterOrderResponseDto;
 import com.sparta.deliveryapp.order.entity.Order;
@@ -25,10 +27,16 @@ public class OrderRegisterService {
 
         // 주문 수량이 0일 경우
         if (registerOrderRequestDto.getQuantity() == 0) {
-//            throw new
+            throw new CustomException(ErrorCode.ITEM_SOLD_OUT);
         }
 
         // 메뉴의 수량이 0일 경우(메뉴가 품절일 경우)
+        //TODO 메뉴 수량(메뉴 API 연동 예정, 현재는 에러나지 않도록 1로 기본값 설정)
+        int menuQuantity = 1;
+        if (menuQuantity == 0) {
+            throw new CustomException(ErrorCode.NON_ZERO_PARAMETER);
+        }
+
 
         // 총 금액 계산
         int totalPrice = calculateTotalPrice(registerOrderRequestDto.getPrice(), registerOrderRequestDto.getQuantity());
