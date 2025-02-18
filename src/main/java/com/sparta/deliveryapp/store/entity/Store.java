@@ -21,7 +21,7 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @Table(name = "p_store")
 @Builder
-public class StoreEntity extends BaseEntity {
+public class Store extends BaseEntity {
 
   @Id
   @UuidGenerator
