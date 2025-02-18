@@ -4,7 +4,7 @@ import com.sparta.deliveryapp.order.dto.OrderToCanceledRequestDto;
 import com.sparta.deliveryapp.order.dto.OrderToCanceledResponseDto;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.entity.OrderState;
-import com.sparta.deliveryapp.order.repository.OrderRespository;
+import com.sparta.deliveryapp.order.repository.OrderRepository;
 import com.sparta.deliveryapp.user.entity.User;
 import com.sparta.deliveryapp.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -23,7 +23,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderService {
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
-    private final OrderRespository orderRespository;
+    private final OrderRepository orderRepository;
     private final UserRepository userRepository;
 
     // 주문 취소(SUCCESS -> CANCEL)
@@ -33,7 +33,7 @@ public class OrderService {
         logger.info("주문 상태 ToCancel 업데이트 시작 : orderId={}", orderId);
 
         try {
-            Order order = orderRespository.findById(orderId)
+            Order order = orderRepository.findById(orderId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 주문정보가 없습니다."));
             if (orderToCanceledRequestDto.getOrderState() == null) {
                 throw new IllegalArgumentException("주문 상태가 필요합니다.");
@@ -58,7 +58,7 @@ public class OrderService {
                 logger.info("주문 상태 CANCEL 로 업데이트: orderId={}", orderId);
             }
 
-            Order updatedOrder = orderRespository.save(order);
+            Order updatedOrder = orderRepository.save(order);
             logger.info("주문 상태 ToCancel 업데이트 성공: orderId={}", updatedOrder.getOrderId());
 
             return new OrderToCanceledResponseDto(updatedOrder);
