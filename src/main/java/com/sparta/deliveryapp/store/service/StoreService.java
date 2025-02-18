@@ -48,7 +48,8 @@ public class StoreService {
     double[] storeCoords = kakaoLocalAPI.getCoordsFromAddress(storeRequestDto.getAddress());
 
     // StoreEntity 생성 및 엔티티에서 빠진 컬럼 추가
-    StoreEntity newStore = StoreEntity.builder().storeName(storeRequestDto.getStoreName())
+    StoreEntity newStore = StoreEntity.builder()
+        .storeName(storeRequestDto.getStoreName())
         .address(storeRequestDto.getAddress()).bRegiNum(storeRequestDto.getBRegiNum())
         .storeCoordX(storeCoords[0]) // 경도
         .storeCoordY(storeCoords[1])  // 위도
@@ -69,7 +70,7 @@ public class StoreService {
    * @param: 문자열로 지정된 시간(ex: 10:00)
    * @return: LocalTime
    */
-  private LocalTime convertStringToTimestamp(String timeString) {
+  LocalTime convertStringToTimestamp(String timeString) {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
     LocalTime localTime = LocalTime.parse(timeString, formatter);
     return localTime;
