@@ -36,7 +36,6 @@ public class StoreController {
   public ResponseEntity<String> deleteStore(
       @PathVariable String storeId,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    //로그인한 사용자가 유저 테이블의 role:master가 맞으면
 
     Store deletedStore = storeService.deleteStore(storeId, userDetails);
 
