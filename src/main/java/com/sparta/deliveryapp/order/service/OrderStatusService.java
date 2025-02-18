@@ -39,7 +39,7 @@ public class OrderStatusService {
         if (cancellationOrderRequestDto.getOrderState() == null) {
             throw new IllegalArgumentException("주문 상태가 필요합니다.");
 
-        } else if (!cancellationOrderRequestDto.getOrderState().equals(OrderState.WAIT)) {
+        } else if (!cancellationOrderRequestDto.getOrderState().equals(OrderState.SUCCESS)) {
             throw new IllegalArgumentException("주문완료 상태가 아니므로 주문취소가 불가합니다.");
         }
 
