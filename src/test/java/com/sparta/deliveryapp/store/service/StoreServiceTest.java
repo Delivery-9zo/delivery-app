@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.sparta.deliveryapp.store.dto.StoreRequestDto;
-import com.sparta.deliveryapp.store.entity.StoreEntity;
+import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.store.util.kakaoLocal.KakaoLocalAPI;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
@@ -85,7 +85,7 @@ class StoreServiceTest {
     storeService.regiStore(storeRequestDto, (UserDetailsImpl) userDetails);
 
     // Then: storeRepository.save()가 호출되었는지 검증
-    Mockito.verify(storeRepository).save(Mockito.any(StoreEntity.class));
+    Mockito.verify(storeRepository).save(Mockito.any(Store.class));
   }
 
   @Test
@@ -106,7 +106,7 @@ class StoreServiceTest {
   @Test
   void testRegiStore_WhenStoreNameAlreadyExists() {
     // Given: 이미 존재하는 상호명이 있을 경우
-    StoreEntity existingStore = StoreEntity.builder()
+    Store existingStore = Store.builder()
         .storeName("Test Store")
         .build();
 

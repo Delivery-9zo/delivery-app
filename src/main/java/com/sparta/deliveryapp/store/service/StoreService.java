@@ -1,7 +1,7 @@
 package com.sparta.deliveryapp.store.service;
 
 import com.sparta.deliveryapp.store.dto.StoreRequestDto;
-import com.sparta.deliveryapp.store.entity.StoreEntity;
+import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.store.util.kakaoLocal.KakaoLocalAPI;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
@@ -38,7 +38,7 @@ public class StoreService {
     }
 
     // 상호명 중복 체크
-    Optional<StoreEntity> storeEntity = storeRepository.findByStoreName(
+    Optional<Store> storeEntity = storeRepository.findByStoreName(
         storeRequestDto.getStoreName());
 
     if (storeEntity.isPresent()) {
@@ -49,7 +49,7 @@ public class StoreService {
     double[] storeCoords = kakaoLocalAPI.getCoordsFromAddress(storeRequestDto.getAddress());
 
     // StoreEntity 생성 및 엔티티에서 빠진 컬럼 추가
-    StoreEntity newStore = StoreEntity.builder()
+    Store newStore = Store.builder()
         .storeName(storeRequestDto.getStoreName())
         .address(storeRequestDto.getAddress()).bRegiNum(storeRequestDto.getBRegiNum())
         .storeCoordX(storeCoords[0]) // 경도
