@@ -1,18 +1,14 @@
 package com.sparta.deliveryapp.store.entity;
 
-import com.sparta.deliveryapp.auditing.BaseEntity;
+import com.sparta.deliveryapp.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,14 +20,15 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @Table(name = "p_store")
 @Builder
-public class StoreEntity extends BaseEntity {
+public class StoreEntity {
 
   @Id
   @UuidGenerator
   private UUID storeId;
 
-  //유저 id 받아오기
-  
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 
   @Column(name = "store_name")
   private String storeName;
@@ -43,7 +40,7 @@ public class StoreEntity extends BaseEntity {
   private String bRegiNum;
 
   @Column(name = "rating")
-  private String rating;
+  private Double rating;
 
   @Column(name = "open_at")
   private LocalTime openAt;
