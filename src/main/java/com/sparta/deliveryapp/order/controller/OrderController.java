@@ -32,11 +32,9 @@ public class OrderController {
             CancellationOrderResponseDto responseDto = orderStatusService.updateOrderStateToCancel(orderId, cancellationOrderRequestDto, userDetails.getUser());
             return ResponseEntity.ok(responseDto);
         } catch (ResponseStatusException e) {
-            // ResponseStatusException 의 경우, 상태 코드와 메시지를 반환
             return ResponseEntity.status(e.getStatusCode())
                     .body(Collections.singletonMap("message", e.getReason()));
         } catch (Exception e) {
-            // 예외가 발생한 경우, 메시지를 반환
             return ResponseEntity.badRequest().body(Collections.singletonMap("message", e.getMessage()));
         }
     }
