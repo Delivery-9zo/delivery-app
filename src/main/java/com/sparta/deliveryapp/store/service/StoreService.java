@@ -4,7 +4,6 @@ import com.sparta.deliveryapp.store.dto.StoreRequestDto;
 import com.sparta.deliveryapp.store.entity.StoreEntity;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.store.util.kakaoLocal.KakaoLocalAPI;
-import com.sparta.deliveryapp.user.repository.UserRepository;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -23,7 +22,6 @@ public class StoreService {
 
   private final StoreRepository storeRepository;
   private final KakaoLocalAPI kakaoLocalAPI;
-  private final UserRepository userRepository;
 
   /**
    * 가게 정보를 받아 store 테이블에 저장하는 메서드
