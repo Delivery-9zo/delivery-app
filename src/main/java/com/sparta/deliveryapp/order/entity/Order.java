@@ -1,14 +1,13 @@
 package com.sparta.deliveryapp.order.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -54,4 +53,16 @@ public class Order {
 
     @Enumerated(value = EnumType.STRING)
     private OrderState orderState;
+
+    @Builder
+    public Order(UUID userId, UUID itemId, OrderType orderType, int totalPrice, String userAddress, String orderMemo) {
+        this.userId = userId;
+        this.itemId = itemId;
+        this.orderType = orderType;
+        this.orderTime = LocalDateTime.now();
+        this.totalPrice = totalPrice;
+        this.userAddress = userAddress;
+        this.orderMemo = orderMemo;
+        this.orderState = OrderState.WAIT;
+    }
 }
