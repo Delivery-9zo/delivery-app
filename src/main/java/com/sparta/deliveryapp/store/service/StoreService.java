@@ -80,7 +80,7 @@ public class StoreService {
         .orElseThrow(() -> new EntityNotFoundException(storeId + " 가게가 존재하지 않습니다."));
 
     //Todo: 소프트 삭제 진행
-
+    
     storeRepository.save(storeEntity);
 
   }
