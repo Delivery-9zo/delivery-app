@@ -24,8 +24,12 @@ public class Order {
     @UuidGenerator
     private UUID orderId;
 
-    @Column(name = "menu_id", nullable = false)
-    private UUID menuId;
+    // 주문타입 - FACE_TO_FACE: 불필요
+    @Column(name = "user_id")
+    private UUID userId;
+
+    @Column(name = "item_id", nullable = false)
+    private UUID itemId;
 
     @Enumerated(value = EnumType.STRING)
     private OrderType orderType;
@@ -33,10 +37,6 @@ public class Order {
     @CreationTimestamp
     @Column(name = "order_time", updatable = false, nullable = false)
     private LocalDateTime orderTime;
-
-    // 주문타입 - FACE_TO_FACE: 불필요
-    @Column(name = "email")
-    private String email;
 
     @Column(name = "total_price")
     private int totalPrice;

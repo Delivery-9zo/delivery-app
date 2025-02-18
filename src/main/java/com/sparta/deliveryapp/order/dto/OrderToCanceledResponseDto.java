@@ -15,24 +15,24 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderResponseDto {
+public class OrderToCanceledResponseDto {
 
     private UUID orderId;
-    private UUID menuId;
+    private UUID userId;
+    private UUID itemId;
     private OrderType orderType;
     private LocalDateTime orderTime;
-    private String email;
     private int totalPrice;
     private String userAddress;
     private String orderMemo;
     private OrderState orderState;
 
-    public OrderResponseDto(Order updateOrder) {
+    public OrderToCanceledResponseDto(Order updateOrder) {
         this.orderId = updateOrder.getOrderId();
-        this.menuId = updateOrder.getMenuId();
+        this.itemId = updateOrder.getItemId();
         this.orderType = updateOrder.getOrderType();
         this.orderTime = updateOrder.getOrderTime();
-        this.email = updateOrder.getEmail();
+        this.userId = updateOrder.getUserId();
         this.totalPrice = updateOrder.getTotalPrice();
         this.userAddress = updateOrder.getUserAddress();
         this.orderMemo = updateOrder.getOrderMemo();
