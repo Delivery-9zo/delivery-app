@@ -54,6 +54,9 @@ public class Order {
     @Enumerated(value = EnumType.STRING)
     private OrderState orderState;
 
+    @OneToMany
+    private List<OrderItem> orderItems = new ArrayList<>();
+
     @Builder
     public Order(UUID userId, UUID itemId, OrderType orderType, int totalPrice, String userAddress, String orderMemo) {
         this.userId = userId;

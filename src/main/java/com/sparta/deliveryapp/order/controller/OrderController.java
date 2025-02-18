@@ -2,9 +2,12 @@ package com.sparta.deliveryapp.order.controller;
 
 import com.sparta.deliveryapp.order.dto.OrderToCanceledRequestDto;
 import com.sparta.deliveryapp.order.dto.OrderToCanceledResponseDto;
+import com.sparta.deliveryapp.order.dto.RegisterOrderRequestDto;
+import com.sparta.deliveryapp.order.service.OrderRegisterService;
 import com.sparta.deliveryapp.order.service.OrderService;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -15,19 +18,21 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Collections;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
 public class OrderController {
-    private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
+
     private final OrderService orderService;
+    private final OrderRegisterService orderRegisterService;
 
     // 주문 취소(SUCCESS -> CANCEL)
     @PutMapping("/cancel/{orderId}")
     public ResponseEntity<?> updateOrderStateToCancel(@PathVariable("orderId")  UUID orderId,
                                                       @RequestBody OrderToCanceledRequestDto orderToCanceledRequestDto,
                                                       @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        logger.info("Authenticated User : {}", userDetails);
+        log.info("Authenticated User : {}", userDetails);
         try {
             OrderToCanceledResponseDto responseDto = orderService.updateOrderStateToCancel(orderId, orderToCanceledRequestDto, userDetails.getUser());
             return ResponseEntity.ok(responseDto);
@@ -40,4 +45,17 @@ public class OrderController {
             return ResponseEntity.badRequest().body(Collections.singletonMap("message", e.getMessage()));
         }
     }
+
+    // 주문 등록(WAIT)
+    @PostMapping()
+    public ResponseEntity<?> OrdersSave(@RequestBody RegisterOrderRequestDto registerOrderRequestDto,
+                                        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        log.info("Authenticated User : {} ", userDetails);
+
+        orderRegisterService.addOrder(registerOrderRequestDto, userDetails.getUser());
+
+        return ResponseEntity.ok(null);
+    }
+
 }
