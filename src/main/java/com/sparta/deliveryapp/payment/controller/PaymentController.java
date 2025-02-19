@@ -1,5 +1,6 @@
 package com.sparta.deliveryapp.payment.controller;
 
+import com.sparta.deliveryapp.payment.dto.PaymentByUserIdResponseDto;
 import com.sparta.deliveryapp.payment.dto.PaymentResponseDto;
 import com.sparta.deliveryapp.payment.dto.RegisterPaymentRequestDto;
 import com.sparta.deliveryapp.payment.dto.RegisterPaymentResponseDto;
@@ -9,6 +10,7 @@ import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -42,6 +44,7 @@ public class PaymentController {
         }
     }
 
+    // 결제 조회 - paymentId
     @GetMapping("/{paymentId}")
     public ResponseEntity<Map<String, Object>> getPaymentById(@PathVariable(name = "paymentId") UUID paymentId,
                                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -67,4 +70,22 @@ public class PaymentController {
                     .body(Collections.singletonMap("message", "Exception:  " + e.getMessage()));
         }
     }
+
+    // 사용자별 결제 조회
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getPaymentByUserId(@PathVariable(name = "userId") UUID userId,
+                                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        try {
+            Page<PaymentByUserIdResponseDto> paymentResponse = paymentSearchService.getPaymentByUserId(userId, userDetails.getUser());
+            return ResponseEntity.ok(paymentResponse);
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Collections.singletonMap("message", "AccessDeniedException: " + e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("message", "IllegalArgumentException: " + e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("message", "Exception: " + e.getMessage()));
+        }
+    }
+
+
 }
