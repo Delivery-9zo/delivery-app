@@ -22,6 +22,7 @@ import org.hibernate.annotations.Where;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
 @Where(clause = "deleted_at IS NULL")
 @Table(name = "p_store")
 public class Store extends BaseEntity {
