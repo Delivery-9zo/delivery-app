@@ -1,6 +1,7 @@
 package com.sparta.deliveryapp.store.service;
 
 import com.sparta.deliveryapp.store.dto.StoreRequestDto;
+import com.sparta.deliveryapp.store.dto.StoreResponseDto;
 import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.store.util.kakaoLocal.KakaoLocalAPI;
@@ -8,8 +9,11 @@ import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -87,6 +91,37 @@ public class StoreService {
   }
 
   /**
+   * 가게 이름으로 등록된 모든 가게 검색
+   *
+   * @param: 가게 이름 (storeName)
+   * @return: StoreResponseDto 리스트
+   */
+  public List<StoreResponseDto> findStoresByName(String storeName, UserDetailsImpl userDetails) {
+
+    if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_MASTER"))) {
+      throw new AuthorizationDeniedException("가게 목록 조회 권한이 없습니다.");
+    }
+
+    List<Store> stores = storeRepository.findByNameContaining(storeName);
+
+    List<StoreResponseDto> storeResponseDtos = stores.stream()
+        .map(store -> StoreResponseDto.builder()
+            .storeId(store.getStoreId())
+            .storeName(store.getStoreName())
+            .address(store.getAddress())
+            .bRegiNum(store.getBRegiNum())
+            .openAt(store.getOpenAt())
+            .closeAt(store.getCloseAt())
+            .distanceFromRequest(10.0)  // 요청한 위치에서 최대 10km까지로 fix
+            .build())
+        .toList();
+
+    return storeResponseDtos;
+  }
+
+
+
+  /**
    * 문자열로 주어진 시간을 LocalTime으로 변환하는 메서드
    *
    * @param: 문자열로 지정된 시간(ex: 10:00)
@@ -97,5 +132,4 @@ public class StoreService {
     LocalTime localTime = LocalTime.parse(timeString, formatter);
     return localTime;
   }
-
 }
