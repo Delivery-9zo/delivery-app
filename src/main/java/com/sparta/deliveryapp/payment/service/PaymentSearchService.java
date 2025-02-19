@@ -40,7 +40,7 @@ public class PaymentSearchService {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new IllegalArgumentException("일치하는 결제 내역이 없습니다."));
 
-        User findUser = userRepository.findById(user.getUserId())
+        userRepository.findById(user.getUserId())
                 .orElseThrow(()-> new IllegalArgumentException("결제한 회원이 존재하지 않습니다."));
 
         if(user.getRole() == null || user.getRole() != UserRole.CUSTOMER) {
