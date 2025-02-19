@@ -14,6 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class CancellationOrderRequestDto {
 
+
     private UUID orderId;
     private UUID userId;
     private UUID itemId;
