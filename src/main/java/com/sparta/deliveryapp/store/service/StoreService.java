@@ -124,6 +124,22 @@ public class StoreService {
     return storeResponseDtos;
   }
 
+  public StoreResponseDto findStoresByStoreId(String storeId, UserDetailsImpl userDetails) {
+    Optional<Store> store = storeRepository.findByStoreId(UUID.fromString(storeId));
+
+    StoreResponseDto storeResponseDto = store.map(s-> StoreResponseDto.builder()
+        .storeId(s.getStoreId())
+        .storeName(s.getStoreName())
+        .address(s.getAddress())
+        .bRegiNum(s.getBRegiNum())
+        .openAt(s.getOpenAt())
+        .closeAt(s.getCloseAt())
+        .build())
+        .orElseThrow(() -> new NoSuchElementException("해당하는 가게가 없습니다."));
+
+    return storeResponseDto;
+  }
+
 
   /**
    * 문자열로 주어진 시간을 LocalTime으로 변환하는 메서드
@@ -136,4 +152,6 @@ public class StoreService {
     LocalTime localTime = LocalTime.parse(timeString, formatter);
     return localTime;
   }
+
+
 }
