@@ -7,15 +7,18 @@ import com.sparta.deliveryapp.user.dto.UserUpdateRequestDto;
 import com.sparta.deliveryapp.user.entity.User;
 import com.sparta.deliveryapp.user.jwt.JwtUtil;
 import com.sparta.deliveryapp.user.repository.UserRepository;
+import com.sparta.deliveryapp.util.NullAwareBeanUtils;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class UserService {
   private final UserRepository userRepository;
@@ -70,9 +73,17 @@ public class UserService {
       throw new AccessDeniedException("사용자 정보를 수정할 권한이 없습니다.");
     }
 
-    String password = passwordEncoder.encode(requestDto.getPassword());
 
-    findUser.update(requestDto,password);
+    // 비밀번호 처리 (null이 아니면 암호화)
+    if (requestDto.getPassword() != null) {
+      String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
+      findUser.setPassword(encodedPassword);
+    }
+
+    // requestDto의 null을 제외한 필드만 복사
+    NullAwareBeanUtils.copyNonNullProperties(requestDto, findUser);
+
+    // 업데이트된 사용자 저장
     userRepository.save(findUser);
   }
 
@@ -85,7 +96,7 @@ public class UserService {
       throw new AccessDeniedException("사용자 정보를 수정할 권한이 없습니다.");
     }
 
-    findUser.delete();
+    findUser.onPreRemove();
 
     userRepository.save(findUser);
   }
