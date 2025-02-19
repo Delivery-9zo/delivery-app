@@ -6,7 +6,9 @@ import com.sparta.deliveryapp.store.service.StoreService;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,9 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/master/stores")
+@PreAuthorize("hasAuthority('ROLE_MASTER')")
 public class StoreMasterController {
 
   private final StoreService storeService;
@@ -33,13 +37,15 @@ public class StoreMasterController {
   }
 
   //이름으로 가게 목록 조회
-  @GetMapping("/")
-  public ResponseEntity<List<StoreResponseDto>> findStoresByName(
-      @RequestParam(value = "name") String storeName,
+  @GetMapping("")
+  public ResponseEntity<List<StoreResponseDto>> findStoresByStoreName(
+      @RequestParam(value = "storeName") String storeName,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-    List<StoreResponseDto> storeResponseDtos = storeService.findStoresByName(storeName, userDetails);
-
+    log.info("findStoresByStoreName 호출 storename: "+storeName);
+    List<StoreResponseDto> storeResponseDtos = storeService.findStoresByStoreName(storeName, userDetails);
+    //todo: 커스텀 AccessDenied 예외 처리 추가(GlobalExceptionHandler에)
+    log.info(storeResponseDtos.toString());
     return ResponseEntity.ok().body(storeResponseDtos);
   }
 
