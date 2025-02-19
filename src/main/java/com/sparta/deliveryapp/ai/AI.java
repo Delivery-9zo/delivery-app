@@ -1,8 +1,10 @@
 package com.sparta.deliveryapp.ai;
 
+import com.sparta.deliveryapp.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -10,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ManyToAny;
 import org.hibernate.annotations.UuidGenerator;
 
 @Entity
@@ -29,6 +32,9 @@ public class AI {
 
   @Column(columnDefinition = "TEXT")  // TEXT 타입으로 지정
   private String prompt;
+
+  @ManyToOne
+  private User user;
 
   private LocalDateTime createdAt;
 

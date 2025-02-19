@@ -3,6 +3,7 @@ package com.sparta.deliveryapp.ai;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.sparta.deliveryapp.user.entity.User;
 import java.time.LocalDateTime;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +28,7 @@ public class GeminiService {
     this.aiRepository = aiRepository;
   }
 
-  public Mono<AIResponseDto> askGemini(String prompt) {
+  public Mono<AIResponseDto> askGemini(String prompt, User user) {
 
     Map<String, Object> requestBody = Map.of(
         "contents", new Object[] {
@@ -48,6 +49,7 @@ public class GeminiService {
           AI ai = new AI();
           ai.setPrompt(prompt);
           ai.setAnswer(extractTextFromResponse(reponse));
+          ai.setUser(user);
           ai.setCreatedAt(LocalDateTime.now());
           aiRepository.save(ai);
 
