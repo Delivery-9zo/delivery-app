@@ -97,4 +97,17 @@ public class UserService {
     return users;
   }
 
+  public UserResponseDto getUser(String email, User user) {
+
+    if (!user.getEmail().equals(email)) {
+      throw new AccessDeniedException("접근 권한이 없습니다.");
+    }
+
+    if(user.getDeletedAt() != null){
+      throw new IllegalArgumentException("이 사용자는 삭제된 사용자 입니다.");
+    }
+
+    return new UserResponseDto(user);
+
+  }
 }

@@ -4,6 +4,7 @@ package com.sparta.deliveryapp.user.controller;
 import com.sparta.deliveryapp.user.dto.SignInRequestDto;
 import com.sparta.deliveryapp.user.dto.SignInResponseDto;
 import com.sparta.deliveryapp.user.dto.SignUpRequestDto;
+import com.sparta.deliveryapp.user.dto.UserResponseDto;
 import com.sparta.deliveryapp.user.dto.UserUpdateRequestDto;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import com.sparta.deliveryapp.user.service.UserService;
@@ -12,11 +13,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users/")
+@Slf4j
 public class UserController {
 
   private final UserService userService;
@@ -73,6 +77,11 @@ public class UserController {
     return ResponseEntity.ok(Collections.singletonMap("message","사용자 정보가 성공적으로 삭제되었습니다."));
   }
 
+  @GetMapping("/{email}")
+  public UserResponseDto getUser(@PathVariable String email, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    return userService.getUser(email, userDetails.getUser());
+
+  }
 
 
 
