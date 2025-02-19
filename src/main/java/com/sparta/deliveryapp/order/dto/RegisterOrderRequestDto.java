@@ -1,6 +1,7 @@
 package com.sparta.deliveryapp.order.dto;
 
 import com.sparta.deliveryapp.order.entity.Order;
+import com.sparta.deliveryapp.order.entity.OrderState;
 import com.sparta.deliveryapp.order.entity.OrderType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +20,7 @@ public class RegisterOrderRequestDto {
     private int quantity;
     private String userAddress;
     private String orderMemo;
-
+    private OrderState orderState;
 
     public Order toEntity(UUID userId, UUID itemId, int totalPrice) {
         return Order.builder()
