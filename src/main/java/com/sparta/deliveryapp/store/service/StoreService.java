@@ -102,7 +102,7 @@ public class StoreService {
       throw new AuthorizationDeniedException("가게 목록 조회 권한이 없습니다.");
     }
 
-    List<Store> stores = storeRepository.findByNameContaining(storeName);
+    List<Store> stores = storeRepository.findByStoreNameContaining(storeName);
 
     List<StoreResponseDto> storeResponseDtos = stores.stream()
         .map(store -> StoreResponseDto.builder()
