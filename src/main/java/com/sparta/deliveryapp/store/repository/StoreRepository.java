@@ -5,6 +5,7 @@ import com.sparta.deliveryapp.user.entity.User;
 import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +16,5 @@ public interface StoreRepository extends JpaRepository<Store, Integer> {
 
   List<Store> findByUser(User user);
 
+  Optional<Store> findByStoreId(UUID uuid);
 }

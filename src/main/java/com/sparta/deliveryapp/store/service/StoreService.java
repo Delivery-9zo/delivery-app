@@ -5,9 +5,11 @@ import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.store.util.kakaoLocal.KakaoLocalAPI;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
+import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -61,6 +63,26 @@ public class StoreService {
 
     // 레포지토리를 이용해서 db에 저장
     storeRepository.save(newStore);
+
+  }
+
+  /**
+   * 가게 uuid를 기반으로 가게 정보 소프트 삭제하는 메서드
+   *
+   * @param: 가게 uuid(storeId), 유저 정보(userDetails)
+   */
+  @Transactional
+  public Store deleteStore(String storeId, UserDetailsImpl userDetails) {
+    if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_MASTER"))) {
+      throw new AuthorizationDeniedException("가게 삭제 권한이 없습니다.");
+    }
+
+    Store storeEntity = storeRepository.findByStoreId(UUID.fromString(storeId))
+        .orElseThrow(() -> new EntityNotFoundException(storeId + " 가게가 존재하지 않습니다."));
+
+    storeEntity.onPreRemove();
+
+    return storeRepository.save(storeEntity);
 
   }
 
