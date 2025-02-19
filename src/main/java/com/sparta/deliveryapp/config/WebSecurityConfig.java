@@ -53,7 +53,7 @@ public class WebSecurityConfig {
         // 요청에 대한 접근 권한을 설정합니다.
         .authorizeHttpRequests(authorize -> authorize
             // /auth/signIn 경로에 대한 접근을 허용합니다. 이 경로는 인증 없이 접근할 수 있습니다.
-            .requestMatchers("/api/users/**").permitAll()
+            .requestMatchers("/api/**").permitAll()
             // 그 외의 모든 요청은 인증이 필요합니다.
             .anyRequest().authenticated()
         )
