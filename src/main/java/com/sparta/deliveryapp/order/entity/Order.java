@@ -1,5 +1,6 @@
 package com.sparta.deliveryapp.order.entity;
 
+import com.sparta.deliveryapp.auditing.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -16,7 +17,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "p_order")
-public class Order {
+public class Order extends BaseEntity {
 
     @Id
     @GeneratedValue

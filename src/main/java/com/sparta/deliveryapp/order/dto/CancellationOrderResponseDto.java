@@ -15,7 +15,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderToCanceledResponseDto {
+public class CancellationOrderResponseDto {
 
     private UUID orderId;
     private UUID userId;
@@ -27,7 +27,7 @@ public class OrderToCanceledResponseDto {
     private String orderMemo;
     private OrderState orderState;
 
-    public OrderToCanceledResponseDto(Order updateOrder) {
+    public CancellationOrderResponseDto(Order updateOrder) {
         this.orderId = updateOrder.getOrderId();
         this.itemId = updateOrder.getItemId();
         this.orderType = updateOrder.getOrderType();
