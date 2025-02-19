@@ -42,11 +42,23 @@ public class StoreMasterController {
       @RequestParam(value = "storeName") String storeName,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-    log.info("findStoresByStoreName 호출 storename: "+storeName);
     List<StoreResponseDto> storeResponseDtos = storeService.findStoresByStoreName(storeName, userDetails);
+
     //todo: 커스텀 AccessDenied 예외 처리 추가(GlobalExceptionHandler에)
-    log.info(storeResponseDtos.toString());
     return ResponseEntity.ok().body(storeResponseDtos);
+  }
+
+  //가게 id로 가게 목록 조회
+  @GetMapping("/{storeId}")
+  @PreAuthorize("hasAnyAuthority('ROLE_OWNER', 'ROLE_MASTER')")
+  public ResponseEntity<StoreResponseDto> findStoresByStoreId(
+      @PathVariable String storeId,
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+    StoreResponseDto storeResponseDto = storeService.findStoresByStoreId(storeId, userDetails);
+
+    //todo: 커스텀 AccessDenied 예외 처리 추가(GlobalExceptionHandler에)
+    return ResponseEntity.ok().body(storeResponseDto);
   }
 
 }
