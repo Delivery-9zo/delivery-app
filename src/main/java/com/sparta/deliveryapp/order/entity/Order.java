@@ -1,14 +1,14 @@
 package com.sparta.deliveryapp.order.entity;
 
+import com.sparta.deliveryapp.auditing.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -17,15 +17,19 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "p_order")
-public class Order {
+public class Order extends BaseEntity {
 
     @Id
     @GeneratedValue
     @UuidGenerator
     private UUID orderId;
 
-    @Column(name = "menu_id", nullable = false)
-    private UUID menuId;
+    // 주문타입 - FACE_TO_FACE: 불필요
+    @Column(name = "user_id")
+    private UUID userId;
+
+    @Column(name = "item_id", nullable = false)
+    private UUID itemId;
 
     @Enumerated(value = EnumType.STRING)
     private OrderType orderType;
@@ -33,10 +37,6 @@ public class Order {
     @CreationTimestamp
     @Column(name = "order_time", updatable = false, nullable = false)
     private LocalDateTime orderTime;
-
-    // 주문타입 - FACE_TO_FACE: 불필요
-    @Column(name = "email")
-    private String email;
 
     @Column(name = "total_price")
     private int totalPrice;
@@ -54,4 +54,19 @@ public class Order {
 
     @Enumerated(value = EnumType.STRING)
     private OrderState orderState;
+
+    @OneToMany
+    private List<OrderItem> orderItems = new ArrayList<>();
+
+    @Builder
+    public Order(UUID userId, UUID itemId, OrderType orderType, int totalPrice, String userAddress, String orderMemo) {
+        this.userId = userId;
+        this.itemId = itemId;
+        this.orderType = orderType;
+        this.orderTime = LocalDateTime.now();
+        this.totalPrice = totalPrice;
+        this.userAddress = userAddress;
+        this.orderMemo = orderMemo;
+        this.orderState = OrderState.WAIT;
+    }
 }

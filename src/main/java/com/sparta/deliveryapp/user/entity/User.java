@@ -67,6 +67,6 @@ public class User extends BaseEntity {
   }
 
   public void delete() {
-    this.setDeleteAt(LocalDateTime.now()) ;
+    this.setDeletedAt(LocalDateTime.now()); ;
   }
 }
