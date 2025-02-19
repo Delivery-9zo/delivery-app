@@ -18,8 +18,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-//응답 값에 거리가 포함되지 않은
-public class StoreResponseDto extends BaseEntity {
+//응답 값에 거리가 포함되지 않은 가게 정보
+public class StoreResponseDto {
 
   @NotBlank
   private UUID storeId;
@@ -38,8 +38,5 @@ public class StoreResponseDto extends BaseEntity {
 
   @NotNull
   private LocalTime closeAt;
-
-  @NotBlank
-  private Double distanceFromRequest;
 
 }

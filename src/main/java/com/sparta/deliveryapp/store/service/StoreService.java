@@ -9,8 +9,8 @@ import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -38,9 +38,9 @@ public class StoreService {
   public void regiStore(StoreRequestDto storeRequestDto, UserDetailsImpl userDetails) {
 
     //유저가 owner권한이 맞는지 체크
-    if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_OWNER"))) {
-      throw new AuthorizationDeniedException("가게 등록 권한이 없습니다.");
-    }
+//    if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_OWNER"))) {
+//      throw new AuthorizationDeniedException("가게 등록 권한이 없습니다.");
+//    }
 
     // 상호명 중복 체크
     Optional<Store> storeEntity = storeRepository.findByStoreName(
@@ -77,9 +77,9 @@ public class StoreService {
    */
   @Transactional
   public Store deleteStore(String storeId, UserDetailsImpl userDetails) {
-    if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_MASTER"))) {
-      throw new AuthorizationDeniedException("가게 삭제 권한이 없습니다.");
-    }
+//    if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_MASTER"))) {
+//      throw new AuthorizationDeniedException("가게 삭제 권한이 없습니다.");
+//    }
 
     Store storeEntity = storeRepository.findByStoreId(UUID.fromString(storeId))
         .orElseThrow(() -> new EntityNotFoundException(storeId + " 가게가 존재하지 않습니다."));
@@ -96,13 +96,18 @@ public class StoreService {
    * @param: 가게 이름 (storeName)
    * @return: StoreResponseDto 리스트
    */
-  public List<StoreResponseDto> findStoresByName(String storeName, UserDetailsImpl userDetails) {
+  public List<StoreResponseDto> findStoresByStoreName(String storeName,
+      UserDetailsImpl userDetails) {
 
-    if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_MASTER"))) {
-      throw new AuthorizationDeniedException("가게 목록 조회 권한이 없습니다.");
-    }
-
+//    if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_MASTER"))) {
+//      throw new AuthorizationDeniedException("가게 목록 조회 권한이 없습니다.");
+//    }
+    log.info("findStoresByStoreName 호출");
     List<Store> stores = storeRepository.findByStoreNameContaining(storeName);
+
+    if (stores.isEmpty()) {
+      throw new NoSuchElementException("해당하는 가게가 없습니다.");
+    }
 
     List<StoreResponseDto> storeResponseDtos = stores.stream()
         .map(store -> StoreResponseDto.builder()
@@ -118,7 +123,6 @@ public class StoreService {
 
     return storeResponseDtos;
   }
-
 
 
   /**
