@@ -39,4 +39,7 @@ public class StoreResponseDto {
   @NotNull
   private LocalTime closeAt;
 
+  @NotBlank
+  private Double distanceFromRequest;
+
 }
