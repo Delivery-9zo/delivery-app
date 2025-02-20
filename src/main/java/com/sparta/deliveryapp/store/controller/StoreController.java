@@ -2,7 +2,6 @@ package com.sparta.deliveryapp.store.controller;
 
 import com.sparta.deliveryapp.store.dto.StoreNearbyStoreResponseDto;
 import com.sparta.deliveryapp.store.dto.StoreRequestDto;
-import com.sparta.deliveryapp.store.dto.StoreResponseDto;
 import com.sparta.deliveryapp.store.service.StoreService;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import jakarta.validation.Valid;
@@ -46,7 +45,8 @@ public class StoreController {
       @PathVariable double latitude,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-    List<StoreNearbyStoreResponseDto> storeResponseDto = storeService.findNearbyStoresWithoutCategory(longitude, latitude, userDetails);
+    List<StoreNearbyStoreResponseDto> storeResponseDto = storeService.findNearbyStoresWithoutCategory(
+        longitude, latitude, userDetails);
 
     //todo: 커스텀 AccessDenied 예외 처리 추가(GlobalExceptionHandler에)
     return ResponseEntity.ok().body(storeResponseDto);
