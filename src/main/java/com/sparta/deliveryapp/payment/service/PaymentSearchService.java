@@ -40,11 +40,22 @@ public class PaymentSearchService {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new IllegalArgumentException("일치하는 결제 내역이 없습니다."));
 
+        // 2. userId 확인
         userRepository.findById(user.getUserId())
                 .orElseThrow(()-> new IllegalArgumentException("결제한 회원이 존재하지 않습니다."));
 
-        if(user.getRole() == null || user.getRole() != UserRole.CUSTOMER) {
+        log.info("user.getRole()={}", user.getRole());
+        log.info("UserRole.CUSTOMER={}", UserRole.CUSTOMER);
+        // 3. 권한 확인
+        if(user.getRole() != UserRole.CUSTOMER) {
             throw new AccessDeniedException("CUSTOMER 권한을 가진 사용자만 조회할 수 있습니다.");
+        }
+
+        // 4. 본인 결제 내역만 확인(결제 userId 와 인증객체의 userId 일치 여부)
+        log.info("payment.getUserI()={}", payment.getUserId());
+        log.info("user.getUserId()={}", user.getUserId());
+        if(!payment.getUserId().equals(user.getUserId())) {
+            throw new NoSuchElementException("본인의 결제 정보만 조회 가능합니다.");
         }
 
         log.info(paymentId + "의 결제내역 조회 종료");
@@ -55,7 +66,7 @@ public class PaymentSearchService {
     }
 
     // 사용자별 결제 조회
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<PaymentByUserIdResponseDto> getPaymentByUserId(UUID userId, User user) {
 
         if(user.getRole() != UserRole.CUSTOMER) {
