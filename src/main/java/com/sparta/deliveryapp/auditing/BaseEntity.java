@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -21,6 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
 @Getter
+@Setter
 public abstract class BaseEntity {
 
   @CreatedDate
@@ -57,7 +59,6 @@ public abstract class BaseEntity {
   private boolean isDeleted() {
     return deletedAt != null;
   }
-
   private String getCurrentUser() {
     return SecurityContextHolder.getContext().getAuthentication().getName();
   }

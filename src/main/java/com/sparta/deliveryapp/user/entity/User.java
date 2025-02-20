@@ -1,6 +1,7 @@
 package com.sparta.deliveryapp.user.entity;
 
 
+import com.sparta.deliveryapp.auditing.BaseEntity;
 import com.sparta.deliveryapp.user.dto.SignUpRequestDto;
 import com.sparta.deliveryapp.user.dto.UserUpdateRequestDto;
 import jakarta.persistence.Column;
@@ -10,6 +11,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.util.Objects;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,7 +25,7 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "p_user")
-public class User {
+public class User extends BaseEntity {
 
   @Id
   @UuidGenerator
@@ -58,11 +60,9 @@ public class User {
     this.role = requestDto.getRole();
   }
 
-  public void update(UserUpdateRequestDto requestDto, String password) {
-    this.userName = requestDto.getUserName();
-    this.nickName = requestDto.getNickName();
-    this.password = password;
-    this.userAddress = requestDto.getAddress();
+
+  public void delete() {
+    this.setDeletedAt(LocalDateTime.now()); ;
   }
 
   @Override

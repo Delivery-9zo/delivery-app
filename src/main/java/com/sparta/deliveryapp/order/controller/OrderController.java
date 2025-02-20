@@ -2,6 +2,8 @@ package com.sparta.deliveryapp.order.controller;
 
 import com.sparta.deliveryapp.order.dto.CancellationOrderRequestDto;
 import com.sparta.deliveryapp.order.dto.CancellationOrderResponseDto;
+import com.sparta.deliveryapp.order.dto.RegisterOrderRequestDto;
+import com.sparta.deliveryapp.order.service.OrderRegisterService;
 import com.sparta.deliveryapp.order.service.OrderStatusService;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderController {
 
+    private final OrderRegisterService orderRegisterService;
     private final OrderStatusService orderStatusService;
 
     // 주문 취소(SUCCESS -> CANCEL)
@@ -46,5 +49,17 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Collections.singletonMap("message", e.getMessage()));
         }
+    }
+
+    // 주문 등록(WAIT)
+    @PostMapping()
+    public ResponseEntity<?> OrdersSave(@RequestBody RegisterOrderRequestDto registerOrderRequestDto,
+                                        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        log.info("Authenticated User : {} ", userDetails);
+
+        orderRegisterService.addOrder(registerOrderRequestDto, userDetails.getUser());
+
+        return ResponseEntity.ok(null);
     }
 }

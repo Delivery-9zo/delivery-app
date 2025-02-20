@@ -2,23 +2,31 @@ package com.sparta.deliveryapp.user.service;
 
 import com.sparta.deliveryapp.user.dto.SignInRequestDto;
 import com.sparta.deliveryapp.user.dto.SignUpRequestDto;
+import com.sparta.deliveryapp.user.dto.UserResponseDto;
 import com.sparta.deliveryapp.user.dto.UserUpdateRequestDto;
 import com.sparta.deliveryapp.user.entity.User;
 import com.sparta.deliveryapp.user.jwt.JwtUtil;
 import com.sparta.deliveryapp.user.repository.UserRepository;
+import com.sparta.deliveryapp.util.NullAwareBeanUtils;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtUtil jwtUtil;
+
+
+
 
   @Transactional
   public void signUp(SignUpRequestDto requestDto) {
@@ -37,7 +45,11 @@ public class UserService {
 
   public String signIn(SignInRequestDto requestDto) {
     User user = userRepository.findByEmail(requestDto.getEmail())
-        .orElseThrow(() -> new IllegalArgumentException("없는 유저 입니다."));
+        .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+
+    if(user.getDeletedAt() != null){
+      throw new IllegalArgumentException("이 사용자는 삭제된 사용자 입니다.");
+    }
 
     if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
       throw new IllegalArgumentException("비밀번호가 다릅니다.");
@@ -53,13 +65,60 @@ public class UserService {
     User findUser = userRepository.findByEmail(email)
         .orElseThrow(()-> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
+    if(findUser.getDeletedAt() != null){
+      throw new IllegalArgumentException("이 사용자는 삭제된 사용자 입니다.");
+    }
+
     if (!findUser.getUserId().equals(user.getUserId())) {
       throw new AccessDeniedException("사용자 정보를 수정할 권한이 없습니다.");
     }
 
-    String password = passwordEncoder.encode(requestDto.getPassword());
 
-    findUser.update(requestDto,password);
+    // 비밀번호 처리 (null이 아니면 암호화)
+    if (requestDto.getPassword() != null) {
+      String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
+      findUser.setPassword(encodedPassword);
+    }
+
+    // requestDto의 null을 제외한 필드만 복사
+    NullAwareBeanUtils.copyNonNullProperties(requestDto, findUser);
+
+    // 업데이트된 사용자 저장
     userRepository.save(findUser);
+  }
+
+  @Transactional
+  public void deleteUser(String email, User user) {
+    User findUser = userRepository.findByEmail(email)
+        .orElseThrow(()-> new IllegalArgumentException("회원이 존재하지 않습니다."));
+
+    if (!findUser.getUserId().equals(user.getUserId())) {
+      throw new AccessDeniedException("사용자 정보를 수정할 권한이 없습니다.");
+    }
+
+    findUser.onPreRemove();
+
+    userRepository.save(findUser);
+  }
+
+  public List<UserResponseDto> getUsers() {
+    List<UserResponseDto> users = userRepository.findAll().stream()
+        .map(UserResponseDto::new).toList();
+
+    return users;
+  }
+
+  public UserResponseDto getUser(String email, User user) {
+
+    if (!user.getEmail().equals(email)) {
+      throw new AccessDeniedException("접근 권한이 없습니다.");
+    }
+
+    if(user.getDeletedAt() != null){
+      throw new IllegalArgumentException("이 사용자는 삭제된 사용자 입니다.");
+    }
+
+    return new UserResponseDto(user);
+
   }
 }
