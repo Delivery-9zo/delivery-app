@@ -3,6 +3,7 @@ package com.sparta.deliveryapp.order.controller;
 import com.sparta.deliveryapp.order.dto.CancellationOrderRequestDto;
 import com.sparta.deliveryapp.order.dto.CancellationOrderResponseDto;
 import com.sparta.deliveryapp.order.dto.RegisterOrderRequestDto;
+import com.sparta.deliveryapp.order.dto.RegisterOrderResponseDto;
 import com.sparta.deliveryapp.order.service.OrderRegisterService;
 import com.sparta.deliveryapp.order.service.OrderStatusService;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
@@ -58,8 +59,8 @@ public class OrderController {
 
         log.info("Authenticated User : {} ", userDetails);
 
-        orderRegisterService.addOrder(registerOrderRequestDto, userDetails.getUser());
+        RegisterOrderResponseDto responseDto = orderRegisterService.addOrder(registerOrderRequestDto, userDetails.getUser());
 
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(responseDto);
     }
 }
