@@ -3,15 +3,14 @@ package com.sparta.deliveryapp.user.entity;
 
 import com.sparta.deliveryapp.auditing.BaseEntity;
 import com.sparta.deliveryapp.user.dto.SignUpRequestDto;
-import com.sparta.deliveryapp.user.dto.UserUpdateRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.util.Objects;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

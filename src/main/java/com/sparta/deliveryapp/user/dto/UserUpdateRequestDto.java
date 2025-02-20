@@ -1,7 +1,6 @@
 package com.sparta.deliveryapp.user.dto;
 
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
