@@ -52,6 +52,8 @@ dependencies {
     // beanutils
     implementation 'commons-beanutils:commons-beanutils:1.9.4'
 
+    implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.7.0'
+
 }
 
 tasks.named('test') {
