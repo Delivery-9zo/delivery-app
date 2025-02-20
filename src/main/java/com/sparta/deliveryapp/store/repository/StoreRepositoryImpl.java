@@ -9,7 +9,9 @@ import com.sparta.deliveryapp.store.entity.QStore;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class StoreRepositoryImpl implements StoreRepositoryCustom {
 
   private final JPAQueryFactory queryFactory;
@@ -42,16 +44,16 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
         ).asc())
         .fetch();
 
-    // Tuple을 Object[]로 변환
+    // Tuple -> Object[]
     return tuples.stream()
         .map(tuple -> new Object[] {
-            tuple.get(0, UUID.class),                       // storeId
-            tuple.get(1, String.class),                     // storeName
-            tuple.get(2, String.class),                     // address
-            tuple.get(3, String.class),                     // bRegiNum
-            tuple.get(4, java.time.LocalTime.class), // openAt -> String으로 변환
-            tuple.get(5, java.time.LocalTime.class), // closeAt -> String으로 변환
-            tuple.get(6, Double.class)                      // distanceFromRequest
+            tuple.get(0, UUID.class), // storeId
+            tuple.get(1, String.class), // storeName
+            tuple.get(2, String.class), // address
+            tuple.get(3, String.class), // bRegiNum
+            tuple.get(4, java.time.LocalTime.class), // openAt
+            tuple.get(5, java.time.LocalTime.class), // closeAt
+            tuple.get(6, Double.class)  // distanceFromRequest
         })
         .toList();
   }
