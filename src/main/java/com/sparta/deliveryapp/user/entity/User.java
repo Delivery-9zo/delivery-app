@@ -9,6 +9,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -62,5 +63,21 @@ public class User {
     this.nickName = requestDto.getNickName();
     this.password = password;
     this.userAddress = requestDto.getAddress();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof User user)) {
+      return false;
+    }
+    return Objects.equals(userId, user.userId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(userId);
   }
 }
