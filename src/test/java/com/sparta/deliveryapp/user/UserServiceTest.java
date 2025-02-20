@@ -1,6 +1,7 @@
 package com.sparta.deliveryapp.user;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.sparta.deliveryapp.user.dto.SignInRequestDto;
 import com.sparta.deliveryapp.user.dto.SignUpRequestDto;
+import com.sparta.deliveryapp.user.dto.UserUpdateRequestDto;
 import com.sparta.deliveryapp.user.entity.User;
 import com.sparta.deliveryapp.user.entity.UserRole;
 import com.sparta.deliveryapp.user.jwt.JwtUtil;
@@ -133,5 +135,34 @@ class UserServiceTest {
 
     assertEquals("jwt-token", token);
   }
+
+
+  @Test
+  @DisplayName("유저 업데이트 시 null이 들어가도 기존 데이터와 같은지")
+  void updateUser_whenPasswordIsNull() {
+    // 비밀번호를 null로 설정
+
+    // 수정하려는 사용자와 로그인된 사용자가 동일한 경우
+    User user = new User(UUID.randomUUID(),"test", "nickname", "1234","testaddress","test@test.com", UserRole.CUSTOMER);
+    User equalUser = new User(user.getUserId(),"test", "nickname", "1234","testaddress","test@test.com", UserRole.CUSTOMER);
+
+    // 비밀번호 null로 설정
+    UserUpdateRequestDto requestDto = new UserUpdateRequestDto("수정한 이름", null, null, null);
+
+    // findByEmail로 기존 사용자 정보를 조회하도록 설정
+    when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(equalUser));
+
+    // updateUser 메서드를 호출
+    userService.updateUser("test@test.com", requestDto, user);
+
+    // save 메서드 호출 여부 확인
+    verify(userRepository).save(equalUser);
+
+    // 비밀번호가 업데이트되지 않았는지 확인
+    assertEquals(equalUser.getPassword(), user.getPassword());
+    assertNotEquals(equalUser.getUserName(), user.getUserName());
+    assertEquals(equalUser.getNickName(), user.getNickName());
+  }
+
 
 }
