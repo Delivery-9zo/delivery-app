@@ -1,5 +1,6 @@
 package com.sparta.deliveryapp.store.service;
 
+import com.sparta.deliveryapp.store.dto.StoreNearbyStoreResponseDto;
 import com.sparta.deliveryapp.store.dto.StoreRequestDto;
 import com.sparta.deliveryapp.store.dto.StoreResponseDto;
 import com.sparta.deliveryapp.store.entity.Store;
@@ -57,8 +58,8 @@ public class StoreService {
     Store newStore = Store.builder()
         .storeName(storeRequestDto.getStoreName())
         .address(storeRequestDto.getAddress()).bRegiNum(storeRequestDto.getBRegiNum())
-        .storeCoordX(storeCoords[0]) // 경도
-        .storeCoordY(storeCoords[1])  // 위도
+        .storeCoordX(storeCoords[0]) // x:경도
+        .storeCoordY(storeCoords[1])  // y:위도
         .rating(0.0)
         .openAt(convertStringToTimestamp(storeRequestDto.getOpenAt()))
         .closeAt(convertStringToTimestamp(storeRequestDto.getCloseAt()))
@@ -140,6 +141,25 @@ public class StoreService {
     return storeResponseDto;
   }
 
+  public List<StoreNearbyStoreResponseDto> findNearbyStoresWithoutCategory(double longitude, double latitude, UserDetailsImpl userDetails) {
+    final int RANGE = 3000;
+
+    List<Object[]> nearbyStores = storeRepository.findNearbyStoresWithoutCategory(longitude, latitude, RANGE);
+
+    return nearbyStores.stream()
+        .map(o -> new StoreNearbyStoreResponseDto(
+            UUID.fromString((String) o[0]), // store_id
+            (String) o[1],  // store_name
+            (String) o[2],  // address
+            (String) o[3],  // b_regi_num
+            LocalTime.parse((String) o[4]), // open_at
+            LocalTime.parse((String) o[5]), // close_at
+            ((Number) o[6]).doubleValue() // distance
+        ))
+        .toList();
+
+
+  }
 
   /**
    * 문자열로 주어진 시간을 LocalTime으로 변환하는 메서드
@@ -152,6 +172,7 @@ public class StoreService {
     LocalTime localTime = LocalTime.parse(timeString, formatter);
     return localTime;
   }
+
 
 
 }
