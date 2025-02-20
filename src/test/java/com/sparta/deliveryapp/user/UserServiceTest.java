@@ -49,8 +49,9 @@ class UserServiceTest {
   }
 
   @Test
-  @DisplayName("회원가입시 유저가 존재할 경우")
-  void signUp_whenEmailAlreadyExists_throwsException() {
+  @DisplayName("회원가입 시 유저가 존재할 경우 예외 처리")
+  void givenEmailAlreadyExists_whenSignUp_thenThrowsException() {
+    // given
     SignUpRequestDto requestDto = SignUpRequestDto.builder()
         .userName("John Doe")
         .nickName("johnny")
@@ -60,9 +61,10 @@ class UserServiceTest {
         .userEmail("john.doe@example.com")
         .build();
 
-    // 이메일 중복 처리
+    // when
     when(userRepository.findByEmail(requestDto.getUserEmail())).thenReturn(Optional.of(new User()));
 
+    // then
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
       userService.signUp(requestDto);
     });
@@ -72,7 +74,8 @@ class UserServiceTest {
 
   @Test
   @DisplayName("유저 회원가입 성공")
-  void signUp_whenEmailIsValid_savesUser() {
+  void givenValidEmail_whenSignUp_thenSavesUser() {
+    // given
     SignUpRequestDto requestDto = SignUpRequestDto.builder()
         .userName("John Doe")
         .nickName("johnny")
@@ -82,40 +85,45 @@ class UserServiceTest {
         .userEmail("john.doe@example.com")
         .build();
 
+    // when
     when(userRepository.findByEmail(requestDto.getUserEmail())).thenReturn(Optional.empty());
     when(passwordEncoder.encode(requestDto.getPassword())).thenReturn("encodedPassword");
 
+    // then
     userService.signUp(requestDto);
-
     verify(userRepository).save(any(User.class)); // 사용자 저장 호출 확인
   }
 
-
   @Test
-  @DisplayName("회원이 존재하지 않는 경우 예외처리")
-  void signIn_whenUserNotFound_throwsException() {
+  @DisplayName("회원이 존재하지 않는 경우 예외 처리")
+  void givenNonExistentUser_whenSignIn_thenThrowsException() {
+    // given
     SignInRequestDto requestDto = new SignInRequestDto("test@example.com", "password123");
 
+    // when
     when(userRepository.findByEmail(requestDto.getEmail())).thenReturn(Optional.empty());
 
+    // then
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
       userService.signIn(requestDto);
     });
 
     assertEquals("회원이 존재하지 않습니다.", exception.getMessage());
-
   }
 
   @Test
-  @DisplayName("로그인시 비밀번호가 다를때 예외처리")
-  void signIn_whenInvalidPassword_throwsException() {
+  @DisplayName("로그인 시 비밀번호가 다를 때 예외 처리")
+  void givenInvalidPassword_whenSignIn_thenThrowsException() {
+    // given
     SignInRequestDto requestDto = new SignInRequestDto("test@example.com", "wrongPassword");
     User user = new User(UUID.randomUUID(), "test", "nickname", "1234", "testaddress",
         "test@test.com", UserRole.CUSTOMER);
 
+    // when
     when(userRepository.findByEmail(requestDto.getEmail())).thenReturn(Optional.of(user));
     when(passwordEncoder.matches(requestDto.getPassword(), user.getPassword())).thenReturn(false);
 
+    // then
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
       userService.signIn(requestDto);
     });
@@ -124,9 +132,8 @@ class UserServiceTest {
   }
 
   @Test
-  @DisplayName("로그인시 토큰 생성")
-  void signIn_whenCredentialsAreValid_returnsToken() {
-
+  @DisplayName("로그인 시 토큰 생성")
+  void givenValidCredentials_whenSignIn_thenReturnsToken() {
     // given
     SignInRequestDto requestDto = new SignInRequestDto("test@example.com", "password123");
     User user = new User(UUID.randomUUID(), "test", "nickname", "1234", "testaddress",
@@ -137,45 +144,35 @@ class UserServiceTest {
     when(passwordEncoder.matches(requestDto.getPassword(), user.getPassword())).thenReturn(true);
     when(jwtUtil.createToken(user.getEmail(), user.getRole())).thenReturn("jwt-token");
 
-    // 서비스 로직에서 로그인시 토큰을 생성해 주기 때문에 검사
+    // then
     String token = userService.signIn(requestDto);
-
     assertEquals("jwt-token", token);
   }
 
-
   @Test
   @DisplayName("유저 업데이트 시 null이 들어가도 기존 데이터와 같은지")
-  void updateUser_whenPasswordIsNull() {
-    // 비밀번호를 null로 설정
-
-    // 수정하려는 사용자와 로그인된 사용자가 동일한 경우
+  void givenNullPassword_whenUpdateUser_thenPreservesOldPassword() {
+    // given
     User user = new User(UUID.randomUUID(), "test", "nickname", "1234", "testaddress",
         "test@test.com", UserRole.CUSTOMER);
     User equalUser = new User(user.getUserId(), "test", "nickname", "1234", "testaddress",
         "test@test.com", UserRole.CUSTOMER);
 
-    // 비밀번호 null로 설정
+    // when
     UserUpdateRequestDto requestDto = new UserUpdateRequestDto("수정한 이름", null, null, null);
-
-    // findByEmail로 기존 사용자 정보를 조회하도록 설정
     when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(equalUser));
-
-    // updateUser 메서드를 호출
     userService.updateUser("test@test.com", requestDto, user);
 
-    // save 메서드 호출 여부 확인
+    // then
     verify(userRepository).save(equalUser);
-
-    // 비밀번호가 업데이트되지 않았는지 확인
-    assertEquals(equalUser.getPassword(), user.getPassword());
+    assertEquals(equalUser.getPassword(), user.getPassword()); // 비밀번호가 업데이트되지 않았는지 확인
     assertNotEquals(equalUser.getUserName(), user.getUserName());
     assertEquals(equalUser.getNickName(), user.getNickName());
   }
 
   @Test
-  @DisplayName("삭제시 소프트 삭제가 이루어졌는지")
-  void deleteUser_whenDelete_softDelete() {
+  @DisplayName("삭제 시 소프트 삭제가 이루어졌는지")
+  void givenUserToDelete_whenDeleteUser_thenSoftDeletes() {
     // given
     User user = new User(UUID.randomUUID(), "test", "nickname", "1234", "testaddress",
         "test@test.com", UserRole.CUSTOMER);
@@ -185,17 +182,14 @@ class UserServiceTest {
         AuthorityUtils.createAuthorityList("ROLE_CUSTOMER"));
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-    // 이메일로 사용자 조회
-    when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(user));
-
     // when
+    when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(user));
     userService.deleteUser("test@test.com", user);
 
     // then
-    assertNotNull(user.getDeletedAt()); // deletedAt이 null이 아님을 확인
+    assertNotNull(user.getDeletedAt());
     assertNotEquals(user.getDeletedAt(), null); // deletedAt에 값이 들어가 있는지 확인
-    verify(userRepository).save(user); // save가 호출되었는지 확인
+    verify(userRepository).save(user);
   }
-
 
 }
