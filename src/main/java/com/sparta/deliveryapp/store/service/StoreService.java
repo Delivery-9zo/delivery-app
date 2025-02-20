@@ -5,6 +5,7 @@ import com.sparta.deliveryapp.store.dto.StoreRequestDto;
 import com.sparta.deliveryapp.store.dto.StoreResponseDto;
 import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
+import com.sparta.deliveryapp.store.repository.StoreRepositoryImpl;
 import com.sparta.deliveryapp.store.util.kakaoLocal.KakaoLocalAPI;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import jakarta.persistence.EntityNotFoundException;
@@ -149,6 +150,7 @@ public class StoreService {
     }
 
 
+//    List<Object[]> nearbyStores = storeRepository.findNearbyStoresWithoutCategory(longitude, latitude, RANGE);
     List<Object[]> nearbyStores = storeRepository.findNearbyStoresWithoutCategory(longitude, latitude, RANGE);
 
     if(nearbyStores.isEmpty()){
@@ -161,8 +163,8 @@ public class StoreService {
             (String) o[1],  // store_name
             (String) o[2],  // address
             (String) o[3],  // b_regi_num
-            ((java.sql.Time) o[4]).toLocalTime(), // open_at
-            ((java.sql.Time) o[5]).toLocalTime(), // close_at
+            (LocalTime) o[4], // open_at
+            (LocalTime) o[5], // close_at
             (Double) o[6] // distance
         ))
         .toList();
