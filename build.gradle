@@ -45,6 +45,13 @@ dependencies {
 
     //WebClient를 위해 webflux 추가
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // Json
+    implementation 'com.google.code.gson:gson:2.8.8'
+
+    // beanutils
+    implementation 'commons-beanutils:commons-beanutils:1.9.4'
+
 }
 
 tasks.named('test') {

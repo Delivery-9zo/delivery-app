@@ -21,6 +21,8 @@ spring:
       mode: always
   secrets:
     secretKey: ${SECRET_KEY:defaultSecretKey}
+  gemini:
+    secretKey: ${GEMINI_KEY:defaultSecretKey}
 ---
 spring:
   config:

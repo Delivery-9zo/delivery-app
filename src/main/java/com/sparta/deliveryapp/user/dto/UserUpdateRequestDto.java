@@ -9,11 +9,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserUpdateRequestDto {
   private String userName;
   private String nickName;
   private String password;
-  private String address;
+  private String userAddress;
 
 }
