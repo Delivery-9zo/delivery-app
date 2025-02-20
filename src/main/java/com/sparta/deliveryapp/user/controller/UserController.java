@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/users/")
+@RequestMapping("/api/users")
 @Slf4j
 public class UserController {
 
@@ -62,23 +62,26 @@ public class UserController {
         .body(response);
   }
 
-  @PutMapping("/{email}")
-  public ResponseEntity<Map<String,String>> updateUser(@PathVariable String email, @RequestBody UserUpdateRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
+  @PutMapping()
+  public ResponseEntity<Map<String,String>> updateUser(@RequestBody UserUpdateRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    String email = userDetails.getUser().getEmail();
     userService.updateUser(email,requestDto,userDetails.getUser());
 
     return ResponseEntity.ok(Collections.singletonMap("message", "사용자 정보가 성공적으로 업데이트되었습니다."));
   }
 
 
-  @DeleteMapping("/{email}")
-  public ResponseEntity<Map<String,String>> deleteUser(@PathVariable String email, @AuthenticationPrincipal UserDetailsImpl userDetails){
+  @DeleteMapping()
+  public ResponseEntity<Map<String,String>> deleteUser(@AuthenticationPrincipal UserDetailsImpl userDetails){
+    String email = userDetails.getUser().getEmail();
     userService.deleteUser(email,userDetails.getUser());
 
     return ResponseEntity.ok(Collections.singletonMap("message","사용자 정보가 성공적으로 삭제되었습니다."));
   }
 
-  @GetMapping("/{email}")
-  public UserResponseDto getUser(@PathVariable String email, @AuthenticationPrincipal UserDetailsImpl userDetails){
+  @GetMapping()
+  public UserResponseDto getUser(@AuthenticationPrincipal UserDetailsImpl userDetails){
+    String email = userDetails.getUser().getEmail();
     return userService.getUser(email, userDetails.getUser());
 
   }
