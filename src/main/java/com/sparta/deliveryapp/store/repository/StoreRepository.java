@@ -23,29 +23,6 @@ public interface StoreRepository extends JpaRepository<Store, UUID>, StoreReposi
 
   List<Store> findByStoreNameContaining(String storeName);
 
-//  @Query(value = """
-//      SELECT
-//        s.store_id AS storeId,
-//        s.store_name AS storeName,
-//        s.address AS address,
-//        s.b_regi_num AS bRegiNum,
-//        s.open_at AS openAt,
-//        s.close_at AS closeAt,
-//        ST_Distance(
-//            geography(ST_SetSRID(ST_Point(s.store_x, s.store_y), 4326)),
-//            geography(ST_SetSRID(ST_Point(:longitude, :latitude), 4326))
-//        ) AS distanceFromRequest
-//      FROM p_store s
-//      WHERE ST_DWithin(
-//          geography(ST_SetSRID(ST_Point(s.store_x, s.store_y), 4326)),
-//          geography(ST_SetSRID(ST_Point(:longitude, :latitude), 4326)),
-//          :range
-//      )
-//""", nativeQuery = true)
-//  List<Object[]> findNearbyStoresWithoutCategory(@Param("longitude") double longitude,
-//      @Param("latitude") double latitude,
-//      @Param("range") int range);
-
 }
 
 interface StoreRepositoryCustom {
