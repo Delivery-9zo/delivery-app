@@ -3,7 +3,6 @@ package com.sparta.deliveryapp.user.security;
 import com.sparta.deliveryapp.user.entity.User;
 import com.sparta.deliveryapp.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
