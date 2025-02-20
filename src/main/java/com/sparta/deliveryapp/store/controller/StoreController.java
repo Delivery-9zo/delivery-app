@@ -48,7 +48,6 @@ public class StoreController {
 
     List<StoreNearbyStoreResponseDto> storeResponseDto = storeService.findNearbyStoresWithoutCategory(longitude, latitude, userDetails);
 
-    log.info(storeResponseDto.toString());
     //todo: 커스텀 AccessDenied 예외 처리 추가(GlobalExceptionHandler에)
     return ResponseEntity.ok().body(storeResponseDto);
   }
