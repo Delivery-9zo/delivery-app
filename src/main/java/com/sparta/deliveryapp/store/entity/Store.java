@@ -13,6 +13,7 @@ import java.time.LocalTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.annotations.Where;
@@ -20,15 +21,16 @@ import org.hibernate.annotations.Where;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "p_store")
 @Builder
 @Where(clause = "deleted_at IS NULL")
+@Table(name = "p_store")
 public class Store extends BaseEntity {
 
   @Id
   @UuidGenerator
   private UUID storeId;
 
+  @Getter
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
@@ -57,5 +59,12 @@ public class Store extends BaseEntity {
   @Column(name = "store_y")
   private Double storeCoordY; // 위도
 
+  public boolean isNotAssociated(User user) {
+    return !isAssociated(user);
+  }
+
+  public boolean isAssociated(User user) {
+    return this.user.equals(user);
+  }
 
 }
