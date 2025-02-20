@@ -2,6 +2,7 @@ package com.sparta.deliveryapp.user;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
@@ -22,6 +23,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 class UserServiceTest {
@@ -88,7 +93,7 @@ class UserServiceTest {
 
   @Test
   @DisplayName("회원이 존재하지 않는 경우 예외처리")
-  void signIn_whenUserNotFound_throwsException(){
+  void signIn_whenUserNotFound_throwsException() {
     SignInRequestDto requestDto = new SignInRequestDto("test@example.com", "password123");
 
     when(userRepository.findByEmail(requestDto.getEmail())).thenReturn(Optional.empty());
@@ -105,7 +110,8 @@ class UserServiceTest {
   @DisplayName("로그인시 비밀번호가 다를때 예외처리")
   void signIn_whenInvalidPassword_throwsException() {
     SignInRequestDto requestDto = new SignInRequestDto("test@example.com", "wrongPassword");
-    User user = new User( UUID.randomUUID(),"test", "nickname", "1234","testaddress","test@test.com",UserRole.CUSTOMER);
+    User user = new User(UUID.randomUUID(), "test", "nickname", "1234", "testaddress",
+        "test@test.com", UserRole.CUSTOMER);
 
     when(userRepository.findByEmail(requestDto.getEmail())).thenReturn(Optional.of(user));
     when(passwordEncoder.matches(requestDto.getPassword(), user.getPassword())).thenReturn(false);
@@ -123,7 +129,8 @@ class UserServiceTest {
 
     // given
     SignInRequestDto requestDto = new SignInRequestDto("test@example.com", "password123");
-    User user = new User( UUID.randomUUID(),"test", "nickname", "1234","testaddress","test@test.com",UserRole.CUSTOMER);
+    User user = new User(UUID.randomUUID(), "test", "nickname", "1234", "testaddress",
+        "test@test.com", UserRole.CUSTOMER);
 
     // when
     when(userRepository.findByEmail(requestDto.getEmail())).thenReturn(Optional.of(user));
@@ -143,8 +150,10 @@ class UserServiceTest {
     // 비밀번호를 null로 설정
 
     // 수정하려는 사용자와 로그인된 사용자가 동일한 경우
-    User user = new User(UUID.randomUUID(),"test", "nickname", "1234","testaddress","test@test.com", UserRole.CUSTOMER);
-    User equalUser = new User(user.getUserId(),"test", "nickname", "1234","testaddress","test@test.com", UserRole.CUSTOMER);
+    User user = new User(UUID.randomUUID(), "test", "nickname", "1234", "testaddress",
+        "test@test.com", UserRole.CUSTOMER);
+    User equalUser = new User(user.getUserId(), "test", "nickname", "1234", "testaddress",
+        "test@test.com", UserRole.CUSTOMER);
 
     // 비밀번호 null로 설정
     UserUpdateRequestDto requestDto = new UserUpdateRequestDto("수정한 이름", null, null, null);
@@ -162,6 +171,30 @@ class UserServiceTest {
     assertEquals(equalUser.getPassword(), user.getPassword());
     assertNotEquals(equalUser.getUserName(), user.getUserName());
     assertEquals(equalUser.getNickName(), user.getNickName());
+  }
+
+  @Test
+  @DisplayName("삭제시 소프트 삭제가 이루어졌는지")
+  void deleteUser_whenDelete_softDelete() {
+    // given
+    User user = new User(UUID.randomUUID(), "test", "nickname", "1234", "testaddress",
+        "test@test.com", UserRole.CUSTOMER);
+
+    // SecurityContext 강제 설정
+    Authentication authentication = new UsernamePasswordAuthenticationToken("test@test.com", "password",
+        AuthorityUtils.createAuthorityList("ROLE_CUSTOMER"));
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+
+    // 이메일로 사용자 조회
+    when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(user));
+
+    // when
+    userService.deleteUser("test@test.com", user);
+
+    // then
+    assertNotNull(user.getDeletedAt()); // deletedAt이 null이 아님을 확인
+    assertNotEquals(user.getDeletedAt(), null); // deletedAt에 값이 들어가 있는지 확인
+    verify(userRepository).save(user); // save가 호출되었는지 확인
   }
 
 
