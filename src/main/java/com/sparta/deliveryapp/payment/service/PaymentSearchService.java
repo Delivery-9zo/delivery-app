@@ -1,5 +1,6 @@
 package com.sparta.deliveryapp.payment.service;
 
+import com.sparta.deliveryapp.payment.dto.PaymentAllResponseDto;
 import com.sparta.deliveryapp.payment.dto.PaymentByUserIdResponseDto;
 import com.sparta.deliveryapp.payment.dto.PaymentResponseDto;
 import com.sparta.deliveryapp.payment.entity.Payment;
@@ -9,10 +10,7 @@ import com.sparta.deliveryapp.user.entity.UserRole;
 import com.sparta.deliveryapp.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,7 +75,7 @@ public class PaymentSearchService {
            throw new IllegalArgumentException("사용자가 일치하지 않습니다.");
         }
 
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Payment> paymentList = paymentRepository.findAllByUserId(userId, pageable);
 
         if (paymentList.isEmpty()) {
@@ -97,4 +95,27 @@ public class PaymentSearchService {
         return new PageImpl<>(paymentResponseList, pageable, paymentList.getTotalElements());
     }
 
+    // 전사용자 결제 조회 - MASTER
+    @Transactional(readOnly = true)
+    public Page<PaymentAllResponseDto> getAllPayments(User user) {
+
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Payment> paymentList = paymentRepository.findAll(pageable);
+
+        if(paymentList.isEmpty()) {
+            throw new NoSuchElementException("결제 내역이 없습니다.");
+        }
+
+        List<PaymentAllResponseDto> paymentResponseList = paymentList.getContent().stream()
+                .map(payment -> new PaymentAllResponseDto(
+                        payment.getPaymentId(),
+                        payment.getUserId(),
+                        payment.getOrderId(),
+                        payment.getPaymentStatus(),
+                        payment.getPaymentAmount(),
+                        payment.getPaymentTime()))
+                .collect(Collectors.toList());
+        log.info("결제id={}", paymentResponseList.get(0).getPaymentList().get(0).getPaymentId());
+        return new PageImpl<>(paymentResponseList, pageable, paymentList.getTotalElements());
+    }
 }
