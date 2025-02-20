@@ -18,9 +18,9 @@ public class AIController {
   private final GeminiService geminiService;
 
   @PostMapping("/ask")
-  public Mono<AIResponseDto> askAI(@RequestBody Map<String, String> request, @AuthenticationPrincipal
+  public Mono<AIResponseDto> askAI(@RequestBody AIRequestDto requestDto, @AuthenticationPrincipal
       UserDetailsImpl userDetails) {
-    String prompt = request.get("prompt");
+    String prompt = requestDto.getPrompt();
     return geminiService.askGemini(prompt,userDetails.getUser());
   }
 }
