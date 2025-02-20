@@ -144,21 +144,46 @@ public class StoreService {
   public List<StoreNearbyStoreResponseDto> findNearbyStoresWithoutCategory(double longitude, double latitude, UserDetailsImpl userDetails) {
     final int RANGE = 3000;
 
+    if(getDecimalPlaces(longitude) < 2 || getDecimalPlaces(latitude) < 2) {
+      throw new IllegalArgumentException("주어진 좌표의 자릿수가 너무 작습니다.");
+    }
+
+
     List<Object[]> nearbyStores = storeRepository.findNearbyStoresWithoutCategory(longitude, latitude, RANGE);
+
+    if(nearbyStores.isEmpty()){
+      throw new NoSuchElementException("검색되는 근처 가게가 없습니다.");
+    }
 
     return nearbyStores.stream()
         .map(o -> new StoreNearbyStoreResponseDto(
-            UUID.fromString((String) o[0]), // store_id
+            (UUID) o[0], // store_id
             (String) o[1],  // store_name
             (String) o[2],  // address
             (String) o[3],  // b_regi_num
-            LocalTime.parse((String) o[4]), // open_at
-            LocalTime.parse((String) o[5]), // close_at
-            ((Number) o[6]).doubleValue() // distance
+            ((java.sql.Time) o[4]).toLocalTime(), // open_at
+            ((java.sql.Time) o[5]).toLocalTime(), // close_at
+            (Double) o[6] // distance
         ))
         .toList();
 
 
+  }
+
+  /**
+   * 실수형 자릿수를 체크하는 메서드
+   * @param: 실수형
+   * @return: 소숫점 아래 자릿수 반환
+   */
+  public static int getDecimalPlaces(double value) {
+    String valueStr = Double.toString(value);
+    int decimalIndex = valueStr.indexOf('.');
+
+    if (decimalIndex == -1) {
+      return 0;
+    }
+
+    return valueStr.length() - decimalIndex - 1;
   }
 
   /**
