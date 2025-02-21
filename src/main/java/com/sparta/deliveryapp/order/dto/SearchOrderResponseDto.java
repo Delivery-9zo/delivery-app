@@ -1,6 +1,7 @@
 package com.sparta.deliveryapp.order.dto;
 
 import com.sparta.deliveryapp.order.entity.OrderType;
+import com.sparta.deliveryapp.payment.dto.PaymentResponseDto;
 import com.sparta.deliveryapp.payment.entity.Payment;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,6 +36,6 @@ public class SearchOrderResponseDto {
 
     private List<SearchOrderItemResponseDto> itemList = new ArrayList<>();
 
-    // TODO 결제 정보 DTO builder 로 변경해서 추가하기
+    private PaymentResponseDto paymentResponseDto;
 
 }
