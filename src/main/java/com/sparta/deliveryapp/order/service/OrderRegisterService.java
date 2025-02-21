@@ -54,10 +54,10 @@ public class OrderRegisterService {
         int totalPrice = calculateTotalPrice(registerOrderRequestDto.getPrice(), registerOrderRequestDto.getQuantity());
 
         OrderItem orderItem = OrderItem.builder()
-                .userId(user.getUserId())
-                .menuId(registerOrderRequestDto.getMenuId())
-                .quantity(registerOrderRequestDto.getQuantity())
-                .build();
+            .userId(user.getUserId())
+            .menuId(registerOrderRequestDto.getMenuId())
+            .quantity(registerOrderRequestDto.getQuantity())
+            .build();
 
         OrderItem saveOrderItem = orderItemRepository.save(orderItem);
 

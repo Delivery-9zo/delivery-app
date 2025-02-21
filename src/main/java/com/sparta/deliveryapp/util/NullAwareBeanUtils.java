@@ -1,7 +1,7 @@
 package com.sparta.deliveryapp.util;
 
-import org.apache.commons.beanutils.BeanUtilsBean;
 import java.lang.reflect.InvocationTargetException;
+import org.apache.commons.beanutils.BeanUtilsBean;
 
 public class NullAwareBeanUtils {
 

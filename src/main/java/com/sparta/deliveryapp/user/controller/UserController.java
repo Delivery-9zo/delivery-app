@@ -8,6 +8,8 @@ import com.sparta.deliveryapp.user.dto.UserResponseDto;
 import com.sparta.deliveryapp.user.dto.UserUpdateRequestDto;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import com.sparta.deliveryapp.user.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,7 +22,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,25 +30,29 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/users/")
+@RequestMapping("/api/users")
+@Tag(name = "유저 API", description = "유저 컨트롤러에 대한 설명입니다.")
 @Slf4j
 public class UserController {
 
   private final UserService userService;
 
+  @Operation(summary = "회원가입 기능", description = "회원가입 하는 api")
   @PostMapping("/sign-up")
-  public ResponseEntity<Map<String,String>> signUp(@Valid @RequestBody SignUpRequestDto requestDto,
+  public ResponseEntity<Map<String, String>> signUp(@Valid @RequestBody SignUpRequestDto requestDto,
       BindingResult bindingResult) {
 
     checkValidationErrors(bindingResult);
 
     userService.signUp(requestDto);
 
-    return ResponseEntity.ok(Collections.singletonMap("message","사용자가 성공적으로 생성되었습니다."));
+    return ResponseEntity.ok(Collections.singletonMap("message", "사용자가 성공적으로 생성되었습니다."));
   }
 
+  @Operation(summary = "로그인 기능", description = "로그인 하는 api")
   @PostMapping("/sign-in")
-  public ResponseEntity<SignInResponseDto> singIn(@Valid @RequestBody SignInRequestDto requestDto, BindingResult bindingResult) {
+  public ResponseEntity<SignInResponseDto> singIn(@Valid @RequestBody SignInRequestDto requestDto,
+      BindingResult bindingResult) {
 
     checkValidationErrors(bindingResult);
 
@@ -58,32 +63,36 @@ public class UserController {
 
     // 응답 반환
     return ResponseEntity.ok()
-        .header("Authorization",token)
+        .header("Authorization", token)
         .body(response);
   }
 
-  @PutMapping("/{email}")
-  public ResponseEntity<Map<String,String>> updateUser(@PathVariable String email, @RequestBody UserUpdateRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
-    userService.updateUser(email,requestDto,userDetails.getUser());
+  @Operation(summary = "수정 기능", description = "유저정보를 수정하는 api")
+  @PutMapping()
+  public ResponseEntity<Map<String, String>> updateUser(
+      @RequestBody UserUpdateRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    String email = userDetails.getUser().getEmail();
+    userService.updateUser(email, requestDto, userDetails.getUser());
 
     return ResponseEntity.ok(Collections.singletonMap("message", "사용자 정보가 성공적으로 업데이트되었습니다."));
   }
 
+  @Operation(summary = "삭제 기능", description = "유저정보를 삭제하는 api")
+  @DeleteMapping()
+  public ResponseEntity<Map<String, String>> deleteUser( @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    String email = userDetails.getUser().getEmail();
+    userService.deleteUser(email, userDetails.getUser());
 
-  @DeleteMapping("/{email}")
-  public ResponseEntity<Map<String,String>> deleteUser(@PathVariable String email, @AuthenticationPrincipal UserDetailsImpl userDetails){
-    userService.deleteUser(email,userDetails.getUser());
-
-    return ResponseEntity.ok(Collections.singletonMap("message","사용자 정보가 성공적으로 삭제되었습니다."));
+    return ResponseEntity.ok(Collections.singletonMap("message", "사용자 정보가 성공적으로 삭제되었습니다."));
   }
 
-  @GetMapping("/{email}")
-  public UserResponseDto getUser(@PathVariable String email, @AuthenticationPrincipal UserDetailsImpl userDetails){
+  @Operation(summary = "조회 기능", description = "유저정보를 조회하는 api")
+  @GetMapping()
+  public UserResponseDto getUser(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    String email = userDetails.getUser().getEmail();
     return userService.getUser(email, userDetails.getUser());
 
   }
-
-
 
 
   // 공통 유효성 검사 메서드
