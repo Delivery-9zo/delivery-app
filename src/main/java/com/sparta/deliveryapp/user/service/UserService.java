@@ -8,7 +8,6 @@ import com.sparta.deliveryapp.user.entity.User;
 import com.sparta.deliveryapp.user.jwt.JwtUtil;
 import com.sparta.deliveryapp.user.repository.UserRepository;
 import com.sparta.deliveryapp.util.NullAwareBeanUtils;
-import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -101,12 +100,7 @@ public class UserService {
     userRepository.save(findUser);
   }
 
-  public List<UserResponseDto> getUsers() {
-    List<UserResponseDto> users = userRepository.findAll().stream()
-        .map(UserResponseDto::new).toList();
 
-    return users;
-  }
 
   public UserResponseDto getUser(String email, User user) {
 
