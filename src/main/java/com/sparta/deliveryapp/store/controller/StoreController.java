@@ -8,6 +8,10 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -38,15 +43,20 @@ public class StoreController {
   }
 
   //카테고리 없이 경위도로만 근처 가게 검색
-  @GetMapping("location/{longitude}/{latitude}")
+  @GetMapping("/location")
   @PreAuthorize("isAuthenticated()")
-  public ResponseEntity<List<StoreNearbyStoreResponseDto>> getNearbyStoresWithoutCategory(
-      @PathVariable double longitude,
-      @PathVariable double latitude,
-      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+  public ResponseEntity<Page<StoreNearbyStoreResponseDto>> getNearbyStoresWithoutCategory(
+      @RequestParam double longitude,
+      @RequestParam double latitude,
+      @AuthenticationPrincipal UserDetailsImpl userDetails,
+      @PageableDefault(
+          size = 10,
+          page = 0,
+          sort = "storeName",
+          direction = Direction.DESC) Pageable pageable) {
 
-    List<StoreNearbyStoreResponseDto> storeResponseDto = storeService.findNearbyStoresWithoutCategory(
-        longitude, latitude, userDetails);
+    Page<StoreNearbyStoreResponseDto> storeResponseDto = storeService.findNearbyStoresWithoutCategory(
+        longitude, latitude, userDetails, pageable);
 
     //todo: 커스텀 AccessDenied 예외 처리 추가(GlobalExceptionHandler에)
     return ResponseEntity.ok().body(storeResponseDto);
