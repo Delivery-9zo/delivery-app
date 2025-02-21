@@ -5,7 +5,6 @@ import com.sparta.deliveryapp.store.dto.StoreRequestDto;
 import com.sparta.deliveryapp.store.service.StoreService;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -16,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,7 +46,6 @@ public class StoreController {
   public ResponseEntity<Page<StoreNearbyStoreResponseDto>> getNearbyStoresWithoutCategory(
       @RequestParam(value = "longitude") double longitude,
       @RequestParam(value = "latitude") double latitude,
-      @AuthenticationPrincipal UserDetailsImpl userDetails,
       @PageableDefault(
           size = 10,
           page = 0,
@@ -56,7 +53,7 @@ public class StoreController {
           direction = Direction.ASC) Pageable pageable) {
 
     Page<StoreNearbyStoreResponseDto> storeResponseDto = storeService.findNearbyStoresWithoutCategory(
-        longitude, latitude, userDetails, pageable);
+        longitude, latitude, pageable);
 
     //todo: 커스텀 AccessDenied 예외 처리 추가(GlobalExceptionHandler에)
     return ResponseEntity.ok().body(storeResponseDto);
