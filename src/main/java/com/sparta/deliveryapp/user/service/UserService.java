@@ -8,6 +8,8 @@ import com.sparta.deliveryapp.user.entity.User;
 import com.sparta.deliveryapp.user.jwt.JwtUtil;
 import com.sparta.deliveryapp.user.repository.UserRepository;
 import com.sparta.deliveryapp.util.NullAwareBeanUtils;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,11 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
+
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtUtil jwtUtil;
-
-
 
 
   @Transactional
@@ -46,7 +47,7 @@ public class UserService {
     User user = userRepository.findByEmail(requestDto.getEmail())
         .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
-    if(user.getDeletedAt() != null){
+    if (user.getDeletedAt() != null) {
       throw new IllegalArgumentException("이 사용자는 삭제된 사용자 입니다.");
     }
 
@@ -54,24 +55,23 @@ public class UserService {
       throw new IllegalArgumentException("비밀번호가 다릅니다.");
     }
 
-    String token = jwtUtil.createToken(user.getEmail(),user.getRole());
+    String token = jwtUtil.createToken(user.getEmail(), user.getRole());
 
     return token;
   }
 
   @Transactional
-  public void updateUser(String email,UserUpdateRequestDto requestDto, User user) {
+  public void updateUser(String email, UserUpdateRequestDto requestDto, User user) {
     User findUser = userRepository.findByEmail(email)
-        .orElseThrow(()-> new IllegalArgumentException("회원이 존재하지 않습니다."));
+        .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
-    if(findUser.getDeletedAt() != null){
+    if (findUser.getDeletedAt() != null) {
       throw new IllegalArgumentException("이 사용자는 삭제된 사용자 입니다.");
     }
 
     if (!findUser.getUserId().equals(user.getUserId())) {
       throw new AccessDeniedException("사용자 정보를 수정할 권한이 없습니다.");
     }
-
 
     // 비밀번호 처리 (null이 아니면 암호화)
     if (requestDto.getPassword() != null) {
@@ -89,7 +89,7 @@ public class UserService {
   @Transactional
   public void deleteUser(String email, User user) {
     User findUser = userRepository.findByEmail(email)
-        .orElseThrow(()-> new IllegalArgumentException("회원이 존재하지 않습니다."));
+        .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
     if (!findUser.getUserId().equals(user.getUserId())) {
       throw new AccessDeniedException("사용자 정보를 수정할 권한이 없습니다.");
@@ -100,7 +100,12 @@ public class UserService {
     userRepository.save(findUser);
   }
 
+  public List<UserResponseDto> getUsers() {
+    List<UserResponseDto> users = userRepository.findAll().stream()
+        .map(UserResponseDto::new).toList();
 
+    return users;
+  }
 
   public UserResponseDto getUser(String email, User user) {
 
@@ -108,11 +113,22 @@ public class UserService {
       throw new AccessDeniedException("접근 권한이 없습니다.");
     }
 
-    if(user.getDeletedAt() != null){
+    if (user.getDeletedAt() != null) {
       throw new IllegalArgumentException("이 사용자는 삭제된 사용자 입니다.");
     }
 
     return new UserResponseDto(user);
 
+  }
+
+  // Soft Delete 180일 지난 데이터 완전 삭제
+  public void cleanupDeletedUsers() {
+    LocalDateTime minusDays = LocalDateTime.now().minusDays(180);
+    List<User> usersToDelete = userRepository.findAllDeletedBefore(minusDays);
+
+    if (!usersToDelete.isEmpty()) {
+      userRepository.deleteAllDeletedBefore(minusDays);
+      log.info("{}개의 유저 데이터가 삭제되었습니다.", usersToDelete.size());
+    }
   }
 }
