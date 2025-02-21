@@ -7,6 +7,7 @@ import com.sparta.deliveryapp.order.dto.RegisterOrderResponseDto;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.entity.OrderItem;
 import com.sparta.deliveryapp.order.entity.OrderState;
+import com.sparta.deliveryapp.order.entity.OrderType;
 import com.sparta.deliveryapp.order.repository.OrderItemRepository;
 import com.sparta.deliveryapp.order.repository.OrderRepository;
 import com.sparta.deliveryapp.payment.dto.RegisterPaymentRequestDto;
@@ -22,6 +23,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.HashMap;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -49,21 +52,18 @@ public class OrderRegisterService {
             throw new CustomException(ErrorCode.NON_ZERO_PARAMETER);
         }
 
+        HashMap<String, Object> map = new HashMap<String, Object>();
 
-        // 총 금액 계산
-        int totalPrice = calculateTotalPrice(registerOrderRequestDto.getPrice(), registerOrderRequestDto.getQuantity());
+        if (registerOrderRequestDto.getOrderType().equals(OrderType.NON_FACE_TO_FACE)) {
+            // 비대면 주문
+            map = (HashMap<String, Object>) nonFaceToFaceOrderProcessing(user, registerOrderRequestDto);
+        } else if (registerOrderRequestDto.getOrderType().equals(OrderType.FACE_TO_FACE)) {
+            // 대면 주문
+            map = (HashMap<String, Object>) faceToFaceOrderProcessing(registerOrderRequestDto);
+        }
 
-        OrderItem orderItem = OrderItem.builder()
-            .userId(user.getUserId())
-            .menuId(registerOrderRequestDto.getMenuId())
-            .quantity(registerOrderRequestDto.getQuantity())
-            .build();
-
-        OrderItem saveOrderItem = orderItemRepository.save(orderItem);
-
-        Order order = registerOrderRequestDto.toEntity(user.getUserId(), saveOrderItem.getItemId(), totalPrice);
-
-        Order saveOrder = orderRepository.save(order);
+        Order saveOrder = (Order) map.get("order");
+        int totalPrice = (int) map.get("totalCount");
 
         // 결제 요청 Dto 생성
         RegisterPaymentRequestDto paymentRequestDto = new RegisterPaymentRequestDto();
@@ -73,8 +73,8 @@ public class OrderRegisterService {
         paymentRequestDto.setPaymentAmount(totalPrice);
 
         // 결제 서비스 호출
-        log.info("주문등록 서비스에서 결제 서비스 호출 전 : orderId={}", order.getOrderId());
-        log.info("주문 상태={}", order.getOrderState());
+        log.info("주문등록 서비스에서 결제 서비스 호출 전 : orderId={}", saveOrder.getOrderId());
+        log.info("주문 상태={}", saveOrder.getOrderState());
 
         try {
             RegisterPaymentResponseDto registerPaymentResponseDto = paymentService.postPayment(paymentRequestDto, user);
@@ -93,7 +93,7 @@ public class OrderRegisterService {
             payment.setPaymentTime(registerPaymentResponseDto.getPaymentTime());
 
             // 주문에 결제 정보 설정
-            order.setPayment(payment);
+            saveOrder.setPayment(payment);
 
         } catch (AccessDeniedException e) {
             log.error("결제 접근 거부 오류: {}", e.getMessage());
@@ -107,8 +107,8 @@ public class OrderRegisterService {
         }
 
         // 주문상태 "SUCCESS"로 업데이트 및 저장
-        order.setOrderState(OrderState.SUCCESS);
-        Order saveCompletedOrder = orderRepository.save(order);
+        saveOrder.setOrderState(OrderState.SUCCESS);
+        Order saveCompletedOrder = orderRepository.save(saveOrder);
 
         log.info("주문등록 서비스 종료 : orderId={}", saveCompletedOrder.getOrderId());
         return RegisterOrderResponseDto.builder()
@@ -122,4 +122,59 @@ public class OrderRegisterService {
         return price * quantity;
     }
 
+    /**
+     * 비대면 주문 처리
+     * @param user
+     * @param registerOrderRequestDto
+     * @return
+     */
+    public Object nonFaceToFaceOrderProcessing(User user, RegisterOrderRequestDto registerOrderRequestDto) {
+        // 총 금액 계산
+        int totalPrice = calculateTotalPrice(registerOrderRequestDto.getPrice(), registerOrderRequestDto.getQuantity());
+
+        OrderItem orderItem = OrderItem.builder()
+                .userId(user.getUserId())
+                .menuId(registerOrderRequestDto.getMenuId())
+                .quantity(registerOrderRequestDto.getQuantity())
+                .build();
+
+        OrderItem saveOrderItem = orderItemRepository.save(orderItem);
+
+        Order order = registerOrderRequestDto.toEntity(user.getUserId(), saveOrderItem.getItemId(), totalPrice);
+
+        HashMap<String, Object> result = new HashMap<>();
+
+        result.put("order", orderRepository.save(order));
+        result.put("totalPrice", totalPrice);
+
+        return result;
+    }
+
+
+    /**
+     * 대면 주문 처리 (비회원 주문과 같은 개념)
+     * @param registerOrderRequestDto
+     * @return
+     */
+    public Object faceToFaceOrderProcessing(RegisterOrderRequestDto registerOrderRequestDto) {
+        // 총 금액 계산
+        int totalPrice = calculateTotalPrice(registerOrderRequestDto.getPrice(), registerOrderRequestDto.getQuantity());
+
+        OrderItem orderItem = OrderItem.builder()
+                .userId(null)
+                .menuId(registerOrderRequestDto.getMenuId())
+                .quantity(registerOrderRequestDto.getQuantity())
+                .build();
+
+        OrderItem saveOrderItem = orderItemRepository.save(orderItem);
+
+        Order order = registerOrderRequestDto.toEntity(null, saveOrderItem.getItemId(), totalPrice);
+
+        HashMap<String, Object> result = new HashMap<>();
+
+        result.put("order", orderRepository.save(order));
+        result.put("totalPrice", totalPrice);
+
+        return result;
+    }
 }
