@@ -38,4 +38,23 @@ public class OrderSearchService {
         return order.toSearchOrderResponseDto(itemList);
     }
 
+
+    // 사용자 ID - 목록 조회(CUSTOMER)
+    public List<SearchOrderResponseDto> findOrderByUserId(User user) {
+
+        List<Order> orderList = orderRepository.findByUserId(user.getUserId());
+
+        List<SearchOrderResponseDto> searchOrderResponseDtoList = orderList.stream().map(order -> {
+            List<SearchOrderItemResponseDto> itemList = order.getOrderItems().stream().map(orderItem -> {
+                return orderItem.toSearchOrderItemResponseDto();
+            }).toList();
+
+            return order.toSearchOrderResponseDto(itemList);
+        }).toList();
+
+
+        return searchOrderResponseDtoList;
+    }
+
+
 }

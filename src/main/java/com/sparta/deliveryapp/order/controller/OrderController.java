@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -74,7 +75,15 @@ public class OrderController {
     }
 
 
+    // 사용자 ID - 목록 조회(CUSTOMER)
+    @GetMapping("/user/{orderId}")
+    public ResponseEntity<?> OrderByUserId(@PathVariable("orderId") UUID orderId,
+                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
+        List<SearchOrderResponseDto> searchOrderResponseDtoList = orderSearchService.findOrderByUserId(userDetails.getUser());
+
+        return ResponseEntity.ok(searchOrderResponseDtoList);
+    }
 
 
 }
