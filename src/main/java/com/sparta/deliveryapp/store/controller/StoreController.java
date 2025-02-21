@@ -46,8 +46,8 @@ public class StoreController {
   @GetMapping("/location")
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Page<StoreNearbyStoreResponseDto>> getNearbyStoresWithoutCategory(
-      @RequestParam double longitude,
-      @RequestParam double latitude,
+      @RequestParam(value = "longitude") double longitude,
+      @RequestParam(value = "latitude") double latitude,
       @AuthenticationPrincipal UserDetailsImpl userDetails,
       @PageableDefault(
           size = 10,
