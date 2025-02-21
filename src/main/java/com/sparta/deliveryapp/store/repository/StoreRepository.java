@@ -23,7 +23,7 @@ public interface StoreRepository extends JpaRepository<Store, UUID>, StoreReposi
 
   Optional<Store> findByStoreId(UUID uuid);
 
-  List<Store> findByStoreNameContaining(String storeName);
+  Page<Store> findByStoreNameContaining(String storeName, Pageable pageable);
 
 }
 

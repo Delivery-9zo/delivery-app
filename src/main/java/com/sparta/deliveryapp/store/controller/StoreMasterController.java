@@ -7,6 +7,10 @@ import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -36,20 +40,24 @@ public class StoreMasterController {
     return ResponseEntity.ok().body(deletedStore.getDeletedAt()+" 가게가 정상적으로 삭제되었습니다.");
   }
 
-  //todo: 페이지네이션 추가 페이지 사이즈, 정렬 방식
   //이름으로 가게 목록 조회
   @GetMapping("")
-  public ResponseEntity<List<StoreResponseDto>> findStoresByStoreName(
+  public ResponseEntity<Page<StoreResponseDto>> findStoresByStoreName(
       @RequestParam(value = "storeName") String storeName,
-      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+      @AuthenticationPrincipal UserDetailsImpl userDetails,
+      @PageableDefault(
+          size = 10,
+          page = 0,
+          sort = "storeName",
+          direction = Direction.ASC) Pageable pageable) {
 
-    List<StoreResponseDto> storeResponseDtos = storeService.findStoresByStoreName(storeName, userDetails);
+    Page<StoreResponseDto> storeResponseDtos = storeService.findStoresByStoreName(storeName, userDetails, pageable);
 
     //todo: 커스텀 AccessDenied 예외 처리 추가(GlobalExceptionHandler에)
     return ResponseEntity.ok().body(storeResponseDtos);
   }
 
-  //가게 id로 가게 목록 조회
+  //가게 id로 가게 조회
   @GetMapping("/{storeId}")
   @PreAuthorize("hasAnyAuthority('ROLE_OWNER', 'ROLE_MASTER')")
   public ResponseEntity<StoreResponseDto> findStoresByStoreId(
@@ -61,5 +69,7 @@ public class StoreMasterController {
     //todo: 커스텀 AccessDenied 예외 처리 추가(GlobalExceptionHandler에)
     return ResponseEntity.ok().body(storeResponseDto);
   }
+
+
 
 }
