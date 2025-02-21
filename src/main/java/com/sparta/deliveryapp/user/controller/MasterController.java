@@ -36,7 +36,7 @@ public class MasterController {
   @PutMapping("/{email}")
   @Operation(summary = "유저정보 수정 기능",description = "하나의 유저의 정보를 변경")
   public UserResponseDto updateUser(@PathVariable String email, @RequestBody MasterUserUpdateRequestDto requestDto, @AuthenticationPrincipal
-      UserDetailsImpl userDetails){
+  UserDetailsImpl userDetails){
     return masterUserService.updateUser(email,requestDto);
   }
 

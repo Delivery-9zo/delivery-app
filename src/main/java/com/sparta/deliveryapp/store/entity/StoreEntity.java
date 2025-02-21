@@ -1,6 +1,5 @@
 package com.sparta.deliveryapp.store.entity;
 
-import com.sparta.deliveryapp.auditing.BaseEntity;
 import com.sparta.deliveryapp.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,31 +8,24 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import java.time.LocalTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
-import org.hibernate.annotations.Where;
-import org.locationtech.jts.geom.Point;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Getter
-@Where(clause = "deleted_at IS NULL")
 @Table(name = "p_store")
-public class Store extends BaseEntity {
+@Builder
+public class StoreEntity {
 
   @Id
   @UuidGenerator
   private UUID storeId;
 
-  @Getter
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
@@ -62,12 +54,5 @@ public class Store extends BaseEntity {
   @Column(name = "store_y")
   private Double storeCoordY; // 위도
 
-  public boolean isNotAssociated(User user) {
-    return !isAssociated(user);
-  }
-
-  public boolean isAssociated(User user) {
-    return this.user.equals(user);
-  }
 
 }

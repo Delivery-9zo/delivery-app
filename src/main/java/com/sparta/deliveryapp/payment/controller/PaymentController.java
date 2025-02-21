@@ -40,14 +40,14 @@ public class PaymentController {
             return ResponseEntity.ok(registerPayment);
         } catch (Exception e) {
             return ResponseEntity.badRequest()
-                    .body(Collections.singletonMap("message", e.getMessage()));
+                .body(Collections.singletonMap("message", e.getMessage()));
         }
     }
 
     // 결제 조회 - paymentId
     @GetMapping("/{paymentId}")
     public ResponseEntity<Map<String, Object>> getPaymentById(@PathVariable(name = "paymentId") UUID paymentId,
-                                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         log.info("getPaymentById 컨트롤러 시작 : " + paymentId);
 
@@ -61,20 +61,20 @@ public class PaymentController {
             return ResponseEntity.ok(res);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
-                    .body(Collections.singletonMap("message", "IllegalArgumentException: " + e.getMessage()));
+                .body(Collections.singletonMap("message", "IllegalArgumentException: " + e.getMessage()));
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Collections.singletonMap("message", "AccessDeniedException: " + e.getMessage()));
+                .body(Collections.singletonMap("message", "AccessDeniedException: " + e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.singletonMap("message", "Exception:  " + e.getMessage()));
+                .body(Collections.singletonMap("message", "Exception:  " + e.getMessage()));
         }
     }
 
     // 사용자별 결제 조회
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getPaymentByUserId(@PathVariable(name = "userId") UUID userId,
-                                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
         try {
             Page<PaymentByUserIdResponseDto> paymentResponse = paymentSearchService.getPaymentByUserId(userId, userDetails.getUser());
             return ResponseEntity.ok(paymentResponse);

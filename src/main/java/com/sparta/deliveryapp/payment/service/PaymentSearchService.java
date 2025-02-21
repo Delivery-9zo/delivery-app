@@ -36,11 +36,11 @@ public class PaymentSearchService {
 
         // 1. paymentId 확인
         Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new IllegalArgumentException("일치하는 결제 내역이 없습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("일치하는 결제 내역이 없습니다."));
 
         // 2. userId 확인
         userRepository.findById(user.getUserId())
-                .orElseThrow(()-> new IllegalArgumentException("결제한 회원이 존재하지 않습니다."));
+            .orElseThrow(()-> new IllegalArgumentException("결제한 회원이 존재하지 않습니다."));
 
         log.info("user.getRole()={}", user.getRole());
         log.info("UserRole.CUSTOMER={}", UserRole.CUSTOMER);
@@ -59,8 +59,8 @@ public class PaymentSearchService {
         log.info(paymentId + "의 결제내역 조회 종료");
 
         return new PaymentResponseDto(payment.getPaymentId(), payment.getOrderId()
-                , payment.getUserId(), payment.getPaymentStatus()
-                , payment.getPaymentAmount(), payment.getPaymentTime());
+            , payment.getUserId(), payment.getPaymentStatus()
+            , payment.getPaymentAmount(), payment.getPaymentTime());
     }
 
     // 사용자별 결제 조회
@@ -68,11 +68,11 @@ public class PaymentSearchService {
     public Page<PaymentByUserIdResponseDto> getPaymentByUserId(UUID userId, User user) {
 
         if(user.getRole() != UserRole.CUSTOMER) {
-           throw new AccessDeniedException("CUSTOMER 권한만 결제 조회 가능합니다.");
+            throw new AccessDeniedException("CUSTOMER 권한만 결제 조회 가능합니다.");
         }
 
         if(!user.getUserId().equals(userId)) {
-           throw new IllegalArgumentException("사용자가 일치하지 않습니다.");
+            throw new IllegalArgumentException("사용자가 일치하지 않습니다.");
         }
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -83,14 +83,14 @@ public class PaymentSearchService {
         }
 
         List<PaymentByUserIdResponseDto> paymentResponseList = paymentList.getContent().stream()
-                .map(payment -> new PaymentByUserIdResponseDto(
-                        payment.getPaymentId(),
-                        payment.getUserId(),
-                        payment.getOrderId(),
-                        payment.getPaymentStatus(),
-                        payment.getPaymentAmount(),
-                        payment.getPaymentTime()))
-                .collect(Collectors.toList());
+            .map(payment -> new PaymentByUserIdResponseDto(
+                payment.getPaymentId(),
+                payment.getUserId(),
+                payment.getOrderId(),
+                payment.getPaymentStatus(),
+                payment.getPaymentAmount(),
+                payment.getPaymentTime()))
+            .collect(Collectors.toList());
 
         return new PageImpl<>(paymentResponseList, pageable, paymentList.getTotalElements());
     }
@@ -107,14 +107,14 @@ public class PaymentSearchService {
         }
 
         List<PaymentAllResponseDto> paymentResponseList = paymentList.getContent().stream()
-                .map(payment -> new PaymentAllResponseDto(
-                        payment.getPaymentId(),
-                        payment.getUserId(),
-                        payment.getOrderId(),
-                        payment.getPaymentStatus(),
-                        payment.getPaymentAmount(),
-                        payment.getPaymentTime()))
-                .collect(Collectors.toList());
+            .map(payment -> new PaymentAllResponseDto(
+                payment.getPaymentId(),
+                payment.getUserId(),
+                payment.getOrderId(),
+                payment.getPaymentStatus(),
+                payment.getPaymentAmount(),
+                payment.getPaymentTime()))
+            .collect(Collectors.toList());
         log.info("결제id={}", paymentResponseList.get(0).getPaymentList().get(0).getPaymentId());
         return new PageImpl<>(paymentResponseList, pageable, paymentList.getTotalElements());
     }

@@ -36,10 +36,10 @@ public class MasterPaymentController {
             return ResponseEntity.ok(paymentResponse);
         } catch(AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Collections.singletonMap("message", "AccessDeniedException: " + e.getMessage()));
+                .body(Collections.singletonMap("message", "AccessDeniedException: " + e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.badRequest()
-                    .body(Collections.singletonMap("message", "Exception: " + e.getMessage()));
+                .body(Collections.singletonMap("message", "Exception: " + e.getMessage()));
         }
     }
 }

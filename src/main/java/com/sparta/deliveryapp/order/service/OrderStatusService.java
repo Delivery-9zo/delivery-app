@@ -35,7 +35,7 @@ public class OrderStatusService {
         log.info("주문 상태 ToCancel 업데이트 시작 : orderId={}", orderId);
 
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 주문정보가 없습니다."));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 주문정보가 없습니다."));
 
         if (cancellationOrderRequestDto.getOrderState() == null) {
             throw new IllegalArgumentException("주문 상태가 필요합니다.");
@@ -45,7 +45,7 @@ public class OrderStatusService {
         }
 
         User findUser = userRepository.findByEmail(user.getEmail())
-                .orElseThrow(()-> new IllegalArgumentException("주문한 회원이 존재하지 않습니다."));
+            .orElseThrow(()-> new IllegalArgumentException("주문한 회원이 존재하지 않습니다."));
 
         if (findUser.getRole() == UserRole.MASTER) {
             throw new AccessDeniedException("주문을 취소할 권한(MASTER)이 없습니다.");

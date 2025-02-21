@@ -4,13 +4,13 @@ volumes:
 services:
   db:
     container_name: db
-    image: postgres:latest
+    image: postgis/postgis
     volumes:
       - postgres-data:/var/lib/postgresql/data
     env_file:
       - .env
     networks:
-        - app_network
+      - app_network
     ports:
       - "5432:5432"
 
