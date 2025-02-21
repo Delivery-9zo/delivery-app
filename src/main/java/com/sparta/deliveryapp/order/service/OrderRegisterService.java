@@ -113,7 +113,6 @@ public class OrderRegisterService {
         log.info("주문등록 서비스 종료 : orderId={}", saveCompletedOrder.getOrderId());
         return RegisterOrderResponseDto.builder()
                 .orderId(saveCompletedOrder.getOrderId())
-                .orderState(saveCompletedOrder.getOrderState())
                 .build();
     }
 

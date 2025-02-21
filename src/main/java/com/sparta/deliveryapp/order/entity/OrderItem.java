@@ -1,5 +1,6 @@
 package com.sparta.deliveryapp.order.entity;
 
+import com.sparta.deliveryapp.order.dto.SearchOrderItemResponseDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -35,4 +36,14 @@ public class OrderItem {
         this.menuId = menuId;
         this.quantity = quantity;
     }
+
+    public SearchOrderItemResponseDto toSearchOrderItemResponseDto() {
+        return SearchOrderItemResponseDto.builder()
+                .itemId(itemId)
+                .menuId(menuId)
+                .quantity(quantity)
+                .build();
+    }
+
+
 }
