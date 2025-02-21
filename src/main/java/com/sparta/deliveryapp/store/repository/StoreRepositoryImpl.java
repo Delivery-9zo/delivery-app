@@ -1,14 +1,20 @@
 package com.sparta.deliveryapp.store.repository;
 
+import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sparta.deliveryapp.store.dto.StoreNearbyStoreResponseDto;
 import com.sparta.deliveryapp.store.entity.QStore;
 import jakarta.persistence.EntityManager;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -21,11 +27,13 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
   }
 
   @Override
-  public List<Object[]> findNearbyStoresWithoutCategory(double longitude, double latitude,
-      int range) {
+  public Page<StoreNearbyStoreResponseDto> findNearbyStoresWithoutCategory(double longitude,
+      double latitude, int range, Pageable pageable) {
+
     QStore store = QStore.store;
 
-    List<Tuple> tuples = queryFactory
+    // 쿼리 결과 반환 및 결과 개수 한번에 저장
+    QueryResults<Tuple> results = queryFactory
         .select(store.storeId, store.storeName, store.address, store.bRegiNum, store.openAt,
             store.closeAt,
             Expressions.numberTemplate(Double.class,
@@ -42,21 +50,27 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
             store.storeCoordX,
             store.storeCoordY
         ).asc())
-        .fetch();
+        .offset(pageable.getOffset())
+        .limit(pageable.getPageSize())
+        .fetchResults();
 
-    // Tuple -> Object[]
-    return tuples.stream()
-        .map(tuple -> new Object[] {
-            tuple.get(0, UUID.class), // storeId
-            tuple.get(1, String.class), // storeName
-            tuple.get(2, String.class), // address
-            tuple.get(3, String.class), // bRegiNum
-            tuple.get(4, java.time.LocalTime.class), // openAt
-            tuple.get(5, java.time.LocalTime.class), // closeAt
-            tuple.get(6, Double.class)  // distanceFromRequest
-        })
+    List<StoreNearbyStoreResponseDto> storeNearbyStoreResponseDtos = results.getResults().stream()
+        .map(tuple -> StoreNearbyStoreResponseDto.builder()
+            .storeId(tuple.get(0, UUID.class))  // storeId
+            .storeName(tuple.get(1, String.class))  // storeName
+            .address(tuple.get(2, String.class))  // address
+            .bRegiNum(tuple.get(3, String.class)) // bRegiNum
+            .openAt(tuple.get(4, LocalTime.class))  // openAt
+            .closeAt(tuple.get(5, LocalTime.class)) // closeAt
+            .distanceFromRequest(tuple.get(6, Double.class)) // distanceFromRequest
+            .build()
+        )
         .toList();
+
+    // Page 객체로 반환, 결과와 totalCount를 포함
+    return new PageImpl<>(storeNearbyStoreResponseDtos, pageable, results.getTotal());
   }
+
 
   private BooleanExpression geoDistance(double longitude, double latitude,
       NumberPath<Double> storeX, NumberPath<Double> storeY, int range) {
