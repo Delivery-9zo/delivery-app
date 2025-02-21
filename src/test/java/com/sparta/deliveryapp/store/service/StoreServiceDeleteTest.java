@@ -39,13 +39,12 @@ public class StoreServiceDeleteTest {
 
     Store store = mock(Store.class);
 
-    Mockito.doReturn(Collections.singleton(new SimpleGrantedAuthority("ROLE_MASTER")))
-        .when(userDetails).getAuthorities();
+    Mockito.doReturn(Collections.singleton(new SimpleGrantedAuthority("ROLE_MASTER")));
     Mockito.when(storeRepository.findByStoreId(UUID.fromString(storeId)))
         .thenReturn(Optional.of(store));
 
     // when
-    storeService.deleteStore(storeId, userDetails);
+    storeService.deleteStore(storeId);
 
     // then
     verify(store).onPreRemove();
@@ -62,7 +61,7 @@ public class StoreServiceDeleteTest {
 
     // when then
     assertThrows(AuthorizationDeniedException.class,
-        () -> storeService.deleteStore(storeId, userDetails));
+        () -> storeService.deleteStore(storeId));
   }
 
   @Test
@@ -70,15 +69,14 @@ public class StoreServiceDeleteTest {
     // given
     String storeId = UUID.randomUUID().toString();
 
-    Mockito.doReturn(Collections.singleton(new SimpleGrantedAuthority("ROLE_MASTER")))
-        .when(userDetails).getAuthorities();
+    Mockito.doReturn(Collections.singleton(new SimpleGrantedAuthority("ROLE_MASTER")));
 
     Mockito.when(storeRepository.findByStoreId(UUID.fromString(storeId)))
         .thenReturn(Optional.empty());
 
     // when then
     assertThrows(EntityNotFoundException.class,
-        () -> storeService.deleteStore(storeId, userDetails));
+        () -> storeService.deleteStore(storeId));
   }
 }
 

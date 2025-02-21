@@ -3,8 +3,6 @@ package com.sparta.deliveryapp.store.controller;
 import com.sparta.deliveryapp.store.dto.StoreResponseDto;
 import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.service.StoreService;
-import com.sparta.deliveryapp.user.security.UserDetailsImpl;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -13,7 +11,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,10 +29,9 @@ public class StoreMasterController {
 
   @DeleteMapping("/{storeId}")
   public ResponseEntity<String> deleteStore(
-      @PathVariable String storeId,
-      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+      @PathVariable String storeId) {
 
-    Store deletedStore = storeService.deleteStore(storeId, userDetails);
+    Store deletedStore = storeService.deleteStore(storeId);
 
     return ResponseEntity.ok().body(deletedStore.getDeletedAt()+" 가게가 정상적으로 삭제되었습니다.");
   }
@@ -44,14 +40,13 @@ public class StoreMasterController {
   @GetMapping("")
   public ResponseEntity<Page<StoreResponseDto>> findStoresByStoreName(
       @RequestParam(value = "storeName") String storeName,
-      @AuthenticationPrincipal UserDetailsImpl userDetails,
       @PageableDefault(
           size = 10,
           page = 0,
           sort = "storeName",
           direction = Direction.ASC) Pageable pageable) {
 
-    Page<StoreResponseDto> storeResponseDtos = storeService.findStoresByStoreName(storeName, userDetails, pageable);
+    Page<StoreResponseDto> storeResponseDtos = storeService.findStoresByStoreName(storeName, pageable);
 
     //todo: 커스텀 AccessDenied 예외 처리 추가(GlobalExceptionHandler에)
     return ResponseEntity.ok().body(storeResponseDtos);
@@ -61,10 +56,9 @@ public class StoreMasterController {
   @GetMapping("/{storeId}")
   @PreAuthorize("hasAnyAuthority('ROLE_OWNER', 'ROLE_MASTER')")
   public ResponseEntity<StoreResponseDto> findStoresByStoreId(
-      @PathVariable String storeId,
-      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+      @PathVariable String storeId) {
 
-    StoreResponseDto storeResponseDto = storeService.findStoresByStoreId(storeId, userDetails);
+    StoreResponseDto storeResponseDto = storeService.findStoresByStoreId(storeId);
 
     //todo: 커스텀 AccessDenied 예외 처리 추가(GlobalExceptionHandler에)
     return ResponseEntity.ok().body(storeResponseDto);
