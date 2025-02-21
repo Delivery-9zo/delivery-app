@@ -59,7 +59,6 @@ public class User extends BaseEntity {
     this.role = requestDto.getRole();
   }
 
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
