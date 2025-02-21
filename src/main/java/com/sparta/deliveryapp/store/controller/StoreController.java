@@ -52,8 +52,8 @@ public class StoreController {
       @PageableDefault(
           size = 10,
           page = 0,
-          sort = "storeName",
-          direction = Direction.DESC) Pageable pageable) {
+          sort = "distanceFromRequest",
+          direction = Direction.ASC) Pageable pageable) {
 
     Page<StoreNearbyStoreResponseDto> storeResponseDto = storeService.findNearbyStoresWithoutCategory(
         longitude, latitude, userDetails, pageable);
