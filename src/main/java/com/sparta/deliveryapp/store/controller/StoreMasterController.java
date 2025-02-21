@@ -40,6 +40,7 @@ public class StoreMasterController {
     return ResponseEntity.ok().body(deletedStore.getDeletedAt()+" 가게가 정상적으로 삭제되었습니다.");
   }
 
+  //todo: 페이지네이션 추가 페이지 사이즈, 정렬 방식
   //이름으로 가게 목록 조회
   @GetMapping("")
   public ResponseEntity<Page<StoreResponseDto>> findStoresByStoreName(
