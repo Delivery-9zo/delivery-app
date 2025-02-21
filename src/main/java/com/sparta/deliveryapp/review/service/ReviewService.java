@@ -1,5 +1,6 @@
 package com.sparta.deliveryapp.review.service;
 
+import com.sparta.deliveryapp.review.dto.ReviewGetResponseDto;
 import com.sparta.deliveryapp.review.dto.ReviewPostRequestDto;
 import com.sparta.deliveryapp.review.entity.Review;
 import com.sparta.deliveryapp.review.repository.ReviewRepository;
@@ -10,6 +11,8 @@ import com.sparta.deliveryapp.user.repository.UserRepository;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,5 +30,30 @@ public class ReviewService {
 
     Review review = Review.of(dto.comment(), store, user, dto.image(), dto.rating());
     reviewRepository.save(review);
+  }
+
+  public Page<ReviewGetResponseDto> getAllReviewsByStore(UUID storeId,
+      Pageable pageable
+  ) {
+    return reviewRepository.findAllByStore_StoreId(storeId, pageable)
+        .map(review -> new ReviewGetResponseDto(
+            review.getId(),
+            review.getComment(),
+            review.getStore().getStoreId(),
+            review.getImage(),
+            review.getRating()
+        ));
+  }
+
+  public Page<ReviewGetResponseDto> getAllReviewsByCustomer(UserDetailsImpl userDetails,
+      Pageable pageable) {
+    return reviewRepository.findAllByUser_Email(userDetails.getEmail(), pageable)
+        .map(review -> new ReviewGetResponseDto(
+            review.getId(),
+            review.getComment(),
+            review.getStore().getStoreId(),
+            review.getImage(),
+            review.getRating()
+        ));
   }
 }
