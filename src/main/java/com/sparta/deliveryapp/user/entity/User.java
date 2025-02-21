@@ -60,10 +60,6 @@ public class User extends BaseEntity {
   }
 
 
-  public void delete() {
-    this.setDeletedAt(LocalDateTime.now()); ;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {

@@ -2,7 +2,7 @@ package com.sparta.deliveryapp.ai;
 
 
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
-import java.util.Map;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,13 +14,14 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("/api/ai")
 @RequiredArgsConstructor
+@Tag(name = "AI API", description = "Gemini Api를 이용한 서비스 입니다.")
 public class AIController {
   private final GeminiService geminiService;
 
   @PostMapping("/ask")
-  public Mono<AIResponseDto> askAI(@RequestBody Map<String, String> request, @AuthenticationPrincipal
+  public Mono<AIResponseDto> askAI(@RequestBody AIRequestDto requestDto, @AuthenticationPrincipal
       UserDetailsImpl userDetails) {
-    String prompt = request.get("prompt");
+    String prompt = requestDto.getPrompt();
     return geminiService.askGemini(prompt,userDetails.getUser());
   }
 }
