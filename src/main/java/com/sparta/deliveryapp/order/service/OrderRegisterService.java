@@ -2,13 +2,12 @@ package com.sparta.deliveryapp.order.service;
 
 import com.sparta.deliveryapp.commons.exception.ErrorCode;
 import com.sparta.deliveryapp.commons.exception.error.CustomException;
+import com.sparta.deliveryapp.order.dto.RegisterOrderItemRequestDto;
 import com.sparta.deliveryapp.order.dto.RegisterOrderRequestDto;
 import com.sparta.deliveryapp.order.dto.RegisterOrderResponseDto;
 import com.sparta.deliveryapp.order.entity.Order;
-import com.sparta.deliveryapp.order.entity.OrderItem;
 import com.sparta.deliveryapp.order.entity.OrderState;
 import com.sparta.deliveryapp.order.entity.OrderType;
-import com.sparta.deliveryapp.order.repository.OrderItemRepository;
 import com.sparta.deliveryapp.order.repository.OrderRepository;
 import com.sparta.deliveryapp.payment.dto.RegisterPaymentRequestDto;
 import com.sparta.deliveryapp.payment.dto.RegisterPaymentResponseDto;
@@ -25,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,10 +33,16 @@ import java.util.HashMap;
 public class OrderRegisterService {
 
     private final OrderRepository orderRepository;
-    private final OrderItemRepository orderItemRepository;
+    private final OrderItemRegisterService orderItemRegisterService;
 
     private final PaymentService paymentService;
 
+    /**
+     * 주문 등록
+     * @param registerOrderRequestDto
+     * @param user
+     * @return
+     */
     @Transactional
     public RegisterOrderResponseDto postOrder(RegisterOrderRequestDto registerOrderRequestDto, User user) {
         log.info("주문 등록 : registerOrderRequestDto={}", registerOrderRequestDto);
@@ -117,7 +124,12 @@ public class OrderRegisterService {
             .build();
     }
 
-    //총 금액 계산
+    /**
+     * 총 금액 계산
+     * @param price
+     * @param quantity
+     * @return
+     */
     public int calculateTotalPrice(int price, int quantity) {
         return price * quantity;
     }
@@ -129,18 +141,19 @@ public class OrderRegisterService {
      * @return
      */
     public Object nonFaceToFaceOrderProcessing(User user, RegisterOrderRequestDto registerOrderRequestDto) {
+
+
+        List<RegisterOrderItemRequestDto> registerOrderItemRequestDtoList = registerOrderRequestDto.getRegisterOrderItemRequestDtoList();
         // 총 금액 계산
-        int totalPrice = calculateTotalPrice(registerOrderRequestDto.getPrice(), registerOrderRequestDto.getQuantity());
+        AtomicInteger totalPrice = new AtomicInteger();
 
-        OrderItem orderItem = OrderItem.builder()
-                .userId(user.getUserId())
-                .menuId(registerOrderRequestDto.getMenuId())
-                .quantity(registerOrderRequestDto.getQuantity())
-                .build();
+        registerOrderItemRequestDtoList.forEach(registerOrderItemRequestDto -> {
+            totalPrice.addAndGet(calculateTotalPrice(registerOrderItemRequestDto.getPrice(), registerOrderItemRequestDto.getQuantity()));
+        });
 
-        OrderItem saveOrderItem = orderItemRepository.save(orderItem);
+        Order order = registerOrderRequestDto.toEntity(user.getUserId(), totalPrice.get());
 
-        Order order = registerOrderRequestDto.toEntity(user.getUserId(), saveOrderItem.getItemId(), totalPrice);
+        orderItemRegisterService.postOrderItem(registerOrderItemRequestDtoList, order, user);
 
         HashMap<String, Object> result = new HashMap<>();
 
@@ -157,18 +170,18 @@ public class OrderRegisterService {
      * @return
      */
     public Object faceToFaceOrderProcessing(RegisterOrderRequestDto registerOrderRequestDto) {
+        List<RegisterOrderItemRequestDto> registerOrderItemRequestDtoList = registerOrderRequestDto.getRegisterOrderItemRequestDtoList();
         // 총 금액 계산
-        int totalPrice = calculateTotalPrice(registerOrderRequestDto.getPrice(), registerOrderRequestDto.getQuantity());
+        AtomicInteger totalPrice = new AtomicInteger();
 
-        OrderItem orderItem = OrderItem.builder()
-                .userId(null)
-                .menuId(registerOrderRequestDto.getMenuId())
-                .quantity(registerOrderRequestDto.getQuantity())
-                .build();
+        registerOrderItemRequestDtoList.forEach(registerOrderItemRequestDto -> {
+            totalPrice.addAndGet(calculateTotalPrice(registerOrderItemRequestDto.getPrice(), registerOrderItemRequestDto.getQuantity()));
+        });
 
-        OrderItem saveOrderItem = orderItemRepository.save(orderItem);
+        Order order = registerOrderRequestDto.toEntity(null, totalPrice.get());
 
-        Order order = registerOrderRequestDto.toEntity(null, saveOrderItem.getItemId(), totalPrice);
+        //주문 상세 등록
+        orderItemRegisterService.postOrderItem(registerOrderItemRequestDtoList, order, null);
 
         HashMap<String, Object> result = new HashMap<>();
 

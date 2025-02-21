@@ -29,7 +29,8 @@ public class Order extends BaseEntity {
     @Column(name = "user_id")
     private UUID userId;
 
-    @Column(name = "item_id", nullable = false)
+    // TODO 삭제 예정
+    @Column(name = "item_id")
     private UUID itemId;
 
     @Enumerated(value = EnumType.STRING)
