@@ -2,6 +2,7 @@ package com.sparta.deliveryapp.user.controller;
 
 
 import com.sparta.deliveryapp.user.dto.SignInRequestDto;
+import com.sparta.deliveryapp.user.dto.SignInResponseDto;
 import com.sparta.deliveryapp.user.dto.SignUpRequestDto;
 import com.sparta.deliveryapp.user.dto.UserResponseDto;
 import com.sparta.deliveryapp.user.dto.UserUpdateRequestDto;
@@ -95,7 +96,7 @@ public class UserController {
 
 
   // 공통 유효성 검사 메서드
-  private ResponseEntity<String> checkValidationErrors(BindingResult bindingResult) {
+  private void checkValidationErrors(BindingResult bindingResult) {
     // 유효성 검사 실패 시
     if (bindingResult.hasErrors()) {
       Map<String, String> errors = new HashMap<>();

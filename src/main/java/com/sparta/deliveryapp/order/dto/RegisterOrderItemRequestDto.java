@@ -18,10 +18,10 @@ public class RegisterOrderItemRequestDto {
 
     public OrderItem toEntity(UUID userId) {
         return OrderItem.builder()
-                .userId(userId)
-                .menuId(menuId)
-                .quantity(quantity)
-                .build();
+            .userId(userId)
+            .menuId(menuId)
+            .quantity(quantity)
+            .build();
     }
 
 }

@@ -80,7 +80,7 @@ public class PaymentService {
         Payment savedPayment = paymentRepository.save(paymentByOrder);
 
         log.info("postPayment 결제 등록 종료");
-        
+
         return new RegisterPaymentResponseDto(savedPayment.getPaymentId(), savedPayment.getOrderId(), savedPayment.getUserId(), savedPayment.getPaymentStatus(), savedPayment.getPaymentAmount(), savedPayment.getPaymentTime());
     }
 }

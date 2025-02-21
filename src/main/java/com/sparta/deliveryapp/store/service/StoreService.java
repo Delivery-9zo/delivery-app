@@ -14,11 +14,11 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,7 +72,7 @@ public class StoreService {
    * @param: 가게 uuid(storeId), 유저 정보(userDetails)
    */
   @Transactional
-  public Store deleteStore(String storeId, UserDetailsImpl userDetails) {
+  public Store deleteStore(String storeId) {
 
     Store storeEntity = storeRepository.findByStoreId(UUID.fromString(storeId))
         .orElseThrow(() -> new EntityNotFoundException(storeId + " 가게가 존재하지 않습니다."));
@@ -89,11 +89,9 @@ public class StoreService {
    * @param: 가게 이름 (storeName)
    * @return: StoreResponseDto 리스트
    */
-  public List<StoreResponseDto> findStoresByStoreName(String storeName,
-      UserDetailsImpl userDetails) {
+  public Page<StoreResponseDto> findStoresByStoreName(String storeName, Pageable pageable) {
 
-    log.info("findStoresByStoreName 호출");
-    List<Store> stores = storeRepository.findByStoreNameContaining(storeName);
+    Page<Store> stores = storeRepository.findByStoreNameContaining(storeName, pageable);
 
     if (stores.isEmpty()) {
       throw new NoSuchElementException("해당하는 가게가 없습니다.");
@@ -107,14 +105,13 @@ public class StoreService {
             .bRegiNum(store.getBRegiNum())
             .openAt(store.getOpenAt())
             .closeAt(store.getCloseAt())
-            .distanceFromRequest(10.0)  // 요청한 위치에서 최대 10km까지로 fix
             .build())
         .toList();
 
-    return storeResponseDtos;
+    return new PageImpl<>(storeResponseDtos, pageable, stores.getTotalElements());
   }
 
-  public StoreResponseDto findStoresByStoreId(String storeId, UserDetailsImpl userDetails) {
+  public StoreResponseDto findStoresByStoreId(String storeId) {
     Optional<Store> store = storeRepository.findByStoreId(UUID.fromString(storeId));
 
     StoreResponseDto storeResponseDto = store.map(s -> StoreResponseDto.builder()
@@ -130,33 +127,22 @@ public class StoreService {
     return storeResponseDto;
   }
 
-  public List<StoreNearbyStoreResponseDto> findNearbyStoresWithoutCategory(double longitude,
-      double latitude, UserDetailsImpl userDetails) {
+  public Page<StoreNearbyStoreResponseDto> findNearbyStoresWithoutCategory(double longitude, double latitude,
+      Pageable pageable) {
     final int RANGE = 3000;
 
     if (getDecimalPlaces(longitude) < 2 || getDecimalPlaces(latitude) < 2) {
       throw new IllegalArgumentException("주어진 좌표의 자릿수가 너무 작습니다.");
     }
 
-    List<Object[]> nearbyStores = storeRepository.findNearbyStoresWithoutCategory(longitude,
-        latitude, RANGE);
+    Page<StoreNearbyStoreResponseDto> nearbyStores = storeRepository.findNearbyStoresWithoutCategory(longitude,
+        latitude, RANGE, pageable);
 
     if (nearbyStores.isEmpty()) {
       throw new NoSuchElementException("근처 가게가 없습니다.");
     }
 
-    return nearbyStores.stream()
-        .map(o -> new StoreNearbyStoreResponseDto(
-            (UUID) o[0], // store_id
-            (String) o[1],  // store_name
-            (String) o[2],  // address
-            (String) o[3],  // b_regi_num
-            (LocalTime) o[4], // open_at
-            (LocalTime) o[5], // close_at
-            (Double) o[6] // distance
-        ))
-        .toList();
-
+    return nearbyStores;
 
   }
 

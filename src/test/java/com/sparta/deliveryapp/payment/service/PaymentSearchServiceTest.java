@@ -93,12 +93,12 @@ public class PaymentSearchServiceTest {
         UUID userId = UUID.randomUUID();
 
         Mockito.when(paymentRepository.findById(paymentId)).thenReturn(Optional.of(new Payment(
-                paymentId,
-                orderId,
-                userId,
-                PaymentStatus.SUCCESS,
-                12900,
-                LocalDateTime.now()
+            paymentId,
+            orderId,
+            userId,
+            PaymentStatus.SUCCESS,
+            12900,
+            LocalDateTime.now()
         )));
         User user = new User();
         user.setUserId(userId);
@@ -119,32 +119,32 @@ public class PaymentSearchServiceTest {
         UUID otherUserId = UUID.randomUUID();
         UUID orderId = UUID.randomUUID();
         Payment payment = new Payment(
-                paymentId,
-                orderId,
-                otherUserId,
-                PaymentStatus.SUCCESS,
-                12900,
-                LocalDateTime.now());
+            paymentId,
+            orderId,
+            otherUserId,
+            PaymentStatus.SUCCESS,
+            12900,
+            LocalDateTime.now());
         Mockito.when(paymentRepository.findById(paymentId)).thenReturn(Optional.of(payment));
         Mockito.when(userRepository.findById(payment.getUserId())).thenReturn(Optional.of(new User(
-                orderId,
-                user.getUserName(),
-                user.getNickName(),
-                user.getPassword(),
-                user.getUserAddress(),
-                user.getEmail(),
-                UserRole.MASTER
+            orderId,
+            user.getUserName(),
+            user.getNickName(),
+            user.getPassword(),
+            user.getUserAddress(),
+            user.getEmail(),
+            UserRole.MASTER
         )));
         // user 객체의 userId를 payment.getUserId와 다르게 설정
         user.setUserId(UUID.randomUUID());
         Mockito.when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(new User(
-                orderId,
-                user.getUserName(),
-                user.getNickName(),
-                user.getPassword(),
-                user.getUserAddress(),
-                user.getEmail(),
-                UserRole.MASTER
+            orderId,
+            user.getUserName(),
+            user.getNickName(),
+            user.getPassword(),
+            user.getUserAddress(),
+            user.getEmail(),
+            UserRole.MASTER
         )));
         // when & then
         NoSuchElementException exception = Assertions.assertThrows(NoSuchElementException.class, () -> {
@@ -170,12 +170,12 @@ public class PaymentSearchServiceTest {
 
         // Payment 객체 설정
         Payment payment = new Payment(
-                paymentId,
-                orderId,
-                userId,
-                PaymentStatus.SUCCESS,
-                12900,
-                LocalDateTime.now());
+            paymentId,
+            orderId,
+            userId,
+            PaymentStatus.SUCCESS,
+            12900,
+            LocalDateTime.now());
 
         // 모킹 설정
         Mockito.when(paymentRepository.findById(paymentId)).thenReturn(Optional.of(payment));
