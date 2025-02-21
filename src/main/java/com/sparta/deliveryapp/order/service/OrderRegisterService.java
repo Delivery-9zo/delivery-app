@@ -34,7 +34,7 @@ public class OrderRegisterService {
     private final PaymentService paymentService;
 
     @Transactional
-    public RegisterOrderResponseDto addOrder(RegisterOrderRequestDto registerOrderRequestDto, User user) {
+    public RegisterOrderResponseDto postOrder(RegisterOrderRequestDto registerOrderRequestDto, User user) {
         log.info("주문 등록 : registerOrderRequestDto={}", registerOrderRequestDto);
 
         // 주문 수량이 0일 경우

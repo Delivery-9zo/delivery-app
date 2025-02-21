@@ -54,12 +54,12 @@ public class OrderController {
 
     // 주문 등록(WAIT)
     @PostMapping()
-    public ResponseEntity<?> OrdersSave(@RequestBody RegisterOrderRequestDto registerOrderRequestDto,
+    public ResponseEntity<?> postOrder(@RequestBody RegisterOrderRequestDto registerOrderRequestDto,
                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         log.info("Authenticated User : {} ", userDetails);
 
-        RegisterOrderResponseDto responseDto = orderRegisterService.addOrder(registerOrderRequestDto, userDetails.getUser());
+        RegisterOrderResponseDto responseDto = orderRegisterService.postOrder(registerOrderRequestDto, userDetails.getUser());
 
         return ResponseEntity.ok(responseDto);
     }
