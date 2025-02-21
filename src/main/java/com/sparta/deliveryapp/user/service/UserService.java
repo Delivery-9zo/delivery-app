@@ -115,13 +115,4 @@ public class UserService {
     return new UserResponseDto(user);
 
   }
-
-  public void signIn(SignInRequestDto requestDto) {
-    User user = userRepository.findById(requestDto.getUserId())
-        .orElseThrow(() -> new IllegalArgumentException("없는 유저 입니다."));
-
-    if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
-      throw new IllegalArgumentException("비밀번호가 다릅니다.");
-    }
-  }
 }

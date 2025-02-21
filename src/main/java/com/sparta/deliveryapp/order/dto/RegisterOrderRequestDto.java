@@ -24,13 +24,13 @@ public class RegisterOrderRequestDto {
 
     public Order toEntity(UUID userId, UUID itemId, int totalPrice) {
         return Order.builder()
-                .userId(userId)
-                .itemId(itemId)
-                .orderType(orderType)
-                .totalPrice(totalPrice)
-                .userAddress(userAddress)
-                .orderMemo(orderMemo)
-                .build();
+            .userId(userId)
+            .itemId(itemId)
+            .orderType(orderType)
+            .totalPrice(totalPrice)
+            .userAddress(userAddress)
+            .orderMemo(orderMemo)
+            .build();
     }
 
 }

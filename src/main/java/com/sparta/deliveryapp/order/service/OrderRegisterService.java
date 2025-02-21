@@ -54,10 +54,10 @@ public class OrderRegisterService {
         int totalPrice = calculateTotalPrice(registerOrderRequestDto.getPrice(), registerOrderRequestDto.getQuantity());
 
         OrderItem orderItem = OrderItem.builder()
-                .userId(user.getUserId())
-                .menuId(registerOrderRequestDto.getMenuId())
-                .quantity(registerOrderRequestDto.getQuantity())
-                .build();
+            .userId(user.getUserId())
+            .menuId(registerOrderRequestDto.getMenuId())
+            .quantity(registerOrderRequestDto.getQuantity())
+            .build();
 
         OrderItem saveOrderItem = orderItemRepository.save(orderItem);
 
@@ -112,9 +112,9 @@ public class OrderRegisterService {
 
         log.info("주문등록 서비스 종료 : orderId={}", saveCompletedOrder.getOrderId());
         return RegisterOrderResponseDto.builder()
-                .orderId(saveCompletedOrder.getOrderId())
-                .orderState(saveCompletedOrder.getOrderState())
-                .build();
+            .orderId(saveCompletedOrder.getOrderId())
+            .orderState(saveCompletedOrder.getOrderState())
+            .build();
     }
 
     //총 금액 계산
