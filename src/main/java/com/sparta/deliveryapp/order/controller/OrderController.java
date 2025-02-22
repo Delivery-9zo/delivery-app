@@ -1,6 +1,5 @@
 package com.sparta.deliveryapp.order.controller;
 
-import com.sparta.deliveryapp.order.dto.DeleteOrderRequestDto;
 import com.sparta.deliveryapp.order.dto.RegisterOrderRequestDto;
 import com.sparta.deliveryapp.order.dto.RegisterOrderResponseDto;
 import com.sparta.deliveryapp.order.entity.Order;
@@ -35,11 +34,10 @@ public class OrderController {
     @DeleteMapping("/{orderId}/{storeId}")
     public ResponseEntity<String> deleteOrder(@PathVariable(name = "orderId")  UUID orderId,
                                               @PathVariable(name = "storeId") UUID storeId,
-                                              DeleteOrderRequestDto deleteOrderRequestDto,
                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("deleteOrder 컨트롤러 시작");
         try {
-            Order deletedOrder = orderStatusService.deleteOrder(orderId, storeId, deleteOrderRequestDto, userDetails.getUser());
+            Order deletedOrder = orderStatusService.deleteOrder(orderId, storeId, userDetails.getUser());
             log.info("deleteOrder 컨트롤러 종료");
 
             return ResponseEntity.ok().body(deletedOrder.getDeletedAt()

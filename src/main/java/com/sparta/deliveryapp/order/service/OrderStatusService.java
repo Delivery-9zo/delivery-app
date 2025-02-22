@@ -1,6 +1,5 @@
 package com.sparta.deliveryapp.order.service;
 
-import com.sparta.deliveryapp.order.dto.DeleteOrderRequestDto;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.entity.OrderItem;
 import com.sparta.deliveryapp.order.entity.OrderState;
@@ -12,7 +11,6 @@ import com.sparta.deliveryapp.payment.repository.PaymentRepository;
 import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.user.entity.User;
-import com.sparta.deliveryapp.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,26 +28,28 @@ import java.util.UUID;
 public class OrderStatusService {
 
     private final OrderRepository orderRepository;
-    private final UserRepository userRepository;
-    private final OrderRegisterService orderRegisterService;
     private final StoreRepository storeRepository;
     private final PaymentRepository paymentRepository;
     private final OrderItemRepository orderItemRepository;
 
-    // 주문 취소(SUCCESS -> CANCEL) : CUSTOMER / MANAGER,OWNER
+    // 주문 취소(SUCCESS -> CANCEL) : CUSTOMER / MANAGER,OWNER / MASTER
     // 주문 취소되면 결제도 취소됨
     @Transactional
-    public Order deleteOrder(UUID orderId, UUID storeId, DeleteOrderRequestDto deleteOrderRequestDto, User user) {
+    public Order deleteOrder(UUID orderId, UUID storeId, User user) {
 
-        log.info("주문 상태 Cancel 업데이트 및 deleteOrder 시작 : orderId={}", orderId);
+        log.info("주문 취소 시작 : orderId={}", orderId);
 
         Order order = orderRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 주문정보가 없습니다."));
 
+        // CUSTOMER userId 동일여부 체크
+        if(user.getUserId() != order.getUserId()) {
+            throw new IllegalArgumentException("해당 주문결제 고객이 아닙니다.");
+        }
+
         Store store = storeRepository.findByStoreId(storeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 가게가 없습니다."));
 
-        log.info("주문상태={}", order.getOrderState());
         if (order.getOrderState() != OrderState.SUCCESS) {
             throw new IllegalArgumentException("주문완료 상태가 아니므로 주문취소가 불가능합니다.");
         }
@@ -96,7 +96,7 @@ public class OrderStatusService {
             deletedPayment.onPreRemove();
             paymentRepository.save(deletedPayment);
 
-            log.info("주문 상태 Cancel 업데이트 및 deleteOrder 종료 : orderId={}", completedOrder.getOrderId());
+            log.info("주문 취소 종료 : orderId={}", completedOrder.getOrderId());
 
             return completedOrder;
         }
