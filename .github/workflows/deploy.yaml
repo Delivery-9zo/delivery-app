@@ -57,7 +57,7 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: Upload to S3
-        run: aws s3 cp app.zip s3://delivery-9zo/cicd/app.zip
+        run: aws s3 cp app.zip s3://delivery-9zo/app.zip
 
       - name: Aws Code Deploy
         run: aws deploy create-deployment --application-name delivery9zo
