@@ -12,7 +12,7 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
 
   boolean existsByCategoryName(@NotBlank String categoryName);
 
-  Optional<Category> findByCategoryName(String categoryName);
-
   Optional<Category> findByCategoryId(UUID categoryId);
+
+  Optional<Category> findByCategoryName(@NotBlank String categoryName);
 }

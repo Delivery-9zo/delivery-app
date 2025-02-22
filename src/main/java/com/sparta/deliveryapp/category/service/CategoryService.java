@@ -22,26 +22,26 @@ public class CategoryService {
   @Transactional
   public void regiCategory(String categoryName) {
 
-    if(categoryRepository.existsByCategoryName(categoryName)){
+    if (categoryRepository.existsByCategoryName(categoryName)) {
       throw new IllegalArgumentException("동일한 카테고리가 존재합니다.");
     }
     Category category = new Category();
     category.setCategoryName(categoryName);
 
-    try{
+    try {
       categoryRepository.save(category);
-    }
-    catch (Exception e){
-      log.error(e.getMessage()+"카테고리 등록 실패");
+    } catch (Exception e) {
       throw new IllegalArgumentException("카테고리 등록이 실패했습니다.");
     }
 
   }
 
-  public void updateCategoryUsingName(CategoryUpdateRequestDto categoryUpdateRequestDto) {
+  public void updateCategoryByName(CategoryUpdateRequestDto categoryUpdateRequestDto) {
 
-    String categoryName = categoryUpdateRequestDto.getCategoryName() == null ? "" : categoryUpdateRequestDto.getCategoryName();
-    String newCategoryName = categoryUpdateRequestDto.getNewCategoryName() == null ? "" : categoryUpdateRequestDto.getNewCategoryName();
+    String categoryName = categoryUpdateRequestDto.getCategoryName() == null ? ""
+        : categoryUpdateRequestDto.getCategoryName();
+    String newCategoryName = categoryUpdateRequestDto.getNewCategoryName() == null ? ""
+        : categoryUpdateRequestDto.getNewCategoryName();
 
     if (categoryName.isEmpty() || newCategoryName.isEmpty()) {
       throw new IllegalArgumentException("카테고리나 새로운 카테고리가 입력되지 않았습니다.");
@@ -60,25 +60,24 @@ public class CategoryService {
     try {
       categoryRepository.save(category);  // 카테고리 저장
     } catch (Exception e) {
-      log.error("카테고리 업데이트 실패: " + e.getMessage());
       throw new RuntimeException("카테고리 업데이트에 실패했습니다.");
     }
   }
 
+  public void updateCategoryById(CategoryUpdateRequestDto categoryUpdateRequestDto) {
 
-  public void updateCategoryUsingId(CategoryUpdateRequestDto categoryUpdateRequestDto) {
+    UUID categoryId = categoryUpdateRequestDto.getCategoryId();
+    String newCategoryName = categoryUpdateRequestDto.getNewCategoryName() == null ? ""
+        : categoryUpdateRequestDto.getNewCategoryName();
 
-    String categoryId = categoryUpdateRequestDto.getCategoryId() == null? "" : String.valueOf(categoryUpdateRequestDto.getCategoryId());
-    String newCategoryName = categoryUpdateRequestDto.getNewCategoryName() == null ? "" : categoryUpdateRequestDto.getNewCategoryName();
-
-    if (categoryId.trim().isEmpty()) {
+    if (categoryId == null) {
       throw new IllegalArgumentException("카테고리 id가 비어있습니다.");
     }
-    if(newCategoryName.trim().isEmpty()){
+    if (newCategoryName.trim().isEmpty()) {
       throw new IllegalArgumentException("카테고리 명이 없습니다.");
     }
 
-    Optional<Category> categoryOptional = categoryRepository.findByCategoryId(UUID.fromString(categoryId));
+    Optional<Category> categoryOptional = categoryRepository.findByCategoryId(categoryId);
 
     if (categoryOptional.isEmpty()) {
       throw new IllegalArgumentException("존재하지 않는 카테고리 id입니다.");
@@ -91,10 +90,51 @@ public class CategoryService {
     try {
       categoryRepository.save(category);  // 카테고리 저장
     } catch (Exception e) {
-      log.error("카테고리 업데이트 실패: " + e.getMessage());
       throw new RuntimeException("카테고리 업데이트에 실패했습니다.");
     }
   }
 
 
+  public void deleteCategoryByName(CategoryRequestDto categoryRequestDto) {
+
+    String categoryName =
+        categoryRequestDto.getCategoryName() == null ? "" : categoryRequestDto.getCategoryName();
+
+    if (categoryName.isEmpty()) {
+      throw new IllegalArgumentException("카테고리가 입력되지 않았습니다.");
+    }
+
+    Optional<Category> categoryOptional = categoryRepository.findByCategoryName(categoryName);
+
+    if (categoryOptional.isEmpty()) {
+      throw new IllegalArgumentException("존재하지 않는 카테고리입니다.");
+    }
+
+    try {
+      categoryRepository.delete(categoryOptional.get());
+    } catch (Exception e) {
+      throw new RuntimeException("카테고리 삭제 실패");
+    }
+
+  }
+
+  public void deleteCategoryById(CategoryRequestDto categoryRequestDto) {
+    UUID categoryId = categoryRequestDto.getCategoryId();
+
+    if (categoryId == null) {
+      throw new IllegalArgumentException("카테고리가 입력되지 않았습니다.");
+    }
+
+    Optional<Category> categoryOptional = categoryRepository.findByCategoryId(categoryId);
+
+    if (categoryOptional.isEmpty()) {
+      throw new IllegalArgumentException("존재하지 않는 카테고리입니다.");
+    }
+
+    try {
+      categoryRepository.delete(categoryOptional.get());
+    } catch (Exception e) {
+      throw new RuntimeException("카테고리 삭제 실패");
+    }
+  }
 }

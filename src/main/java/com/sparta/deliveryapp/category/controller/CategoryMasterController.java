@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,24 +28,47 @@ public class CategoryMasterController {
 
     categoryService.regiCategory(categoryRequest.getCategoryName());
 
-    return ResponseEntity.ok().body("카테고리 : " + categoryRequest.getCategoryName() + "이(가) 정상적으로 등록되었습니다.");
+    return ResponseEntity.ok()
+        .body("카테고리 : " + categoryRequest.getCategoryName() + "이(가) 정상적으로 등록되었습니다.");
   }
 
   //카테고리 이름으로 변경
   @PutMapping("/name")
-  public ResponseEntity<String> updateCategoryUsingName(@RequestBody CategoryUpdateRequestDto categoryUpdateRequestDto) {
+  public ResponseEntity<String> updateCategoryByName(
+      @RequestBody CategoryUpdateRequestDto categoryUpdateRequestDto) {
 
-    categoryService.updateCategoryUsingName(categoryUpdateRequestDto);
+    categoryService.updateCategoryByName(categoryUpdateRequestDto);
 
     return ResponseEntity.ok().body("카테고리가 정상적으로 수정되었습니다.");
   }
 
   //카테고리 id로 변경
   @PutMapping("/id")
-  public ResponseEntity<String> updateCategoryUsingId(@RequestBody CategoryUpdateRequestDto categoryUpdateRequestDto) {
+  public ResponseEntity<String> updateCategoryById(
+      @RequestBody CategoryUpdateRequestDto categoryUpdateRequestDto) {
 
-    categoryService.updateCategoryUsingId(categoryUpdateRequestDto);
+    categoryService.updateCategoryById(categoryUpdateRequestDto);
 
     return ResponseEntity.ok().body("카테고리가 정상적으로 수정되었습니다.");
+  }
+
+  //카테고리 이름으로 삭제
+  @DeleteMapping("/name")
+  public ResponseEntity<String> deleteCategoryByName(
+      @RequestBody CategoryRequestDto categoryRequestDto) {
+
+    categoryService.deleteCategoryByName(categoryRequestDto);
+
+    return ResponseEntity.ok().body("카테고리가 정상적으로 삭제되었습니다.");
+  }
+
+  //카테고리 id로 삭제
+  @DeleteMapping("/id")
+  public ResponseEntity<String> deleteCategoryById(
+      @RequestBody CategoryRequestDto categoryRequestDto) {
+
+    categoryService.deleteCategoryById(categoryRequestDto);
+
+    return ResponseEntity.ok().body("카테고리가 정상적으로 삭제되었습니다.");
   }
 }
