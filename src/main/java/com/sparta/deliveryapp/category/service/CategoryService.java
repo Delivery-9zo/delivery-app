@@ -24,7 +24,6 @@ public class CategoryService {
 
   private final CategoryRepository categoryRepository;
 
-  //todo: throws로 구현할지 생각해보기
   @Transactional
   public void regiCategory(String categoryName) {
 
@@ -184,4 +183,6 @@ public class CategoryService {
     return categoryResponseDto;
 
   }
+
+
 }

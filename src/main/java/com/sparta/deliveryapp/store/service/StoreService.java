@@ -1,6 +1,7 @@
 package com.sparta.deliveryapp.store.service;
 
 import com.sparta.deliveryapp.store.dto.StoreNearbyStoreResponseDto;
+import com.sparta.deliveryapp.store.dto.StoreNearbyStoreWithCategoryResponseDto;
 import com.sparta.deliveryapp.store.dto.StoreRequestDto;
 import com.sparta.deliveryapp.store.dto.StoreResponseDto;
 import com.sparta.deliveryapp.store.entity.Store;
@@ -55,7 +56,7 @@ public class StoreService {
         .address(storeRequestDto.getAddress()).bRegiNum(storeRequestDto.getBRegiNum())
         .storeCoordX(storeCoords[0]) // x:경도
         .storeCoordY(storeCoords[1])  // y:위도
-        .rating(0.0)
+//        .rating(0.0)
         .openAt(convertStringToTimestamp(storeRequestDto.getOpenAt()))
         .closeAt(convertStringToTimestamp(storeRequestDto.getCloseAt()))
         .user(userDetails.getUser())
@@ -127,7 +128,8 @@ public class StoreService {
     return storeResponseDto;
   }
 
-  public Page<StoreNearbyStoreResponseDto> findNearbyStoresWithoutCategory(double longitude, double latitude,
+  public Page<StoreNearbyStoreResponseDto> findNearbyStoresWithoutCategory(double longitude,
+      double latitude,
       Pageable pageable) {
     final int RANGE = 3000;
 
@@ -135,7 +137,8 @@ public class StoreService {
       throw new IllegalArgumentException("주어진 좌표의 자릿수가 너무 작습니다.");
     }
 
-    Page<StoreNearbyStoreResponseDto> nearbyStores = storeRepository.findNearbyStoresWithoutCategory(longitude,
+    Page<StoreNearbyStoreResponseDto> nearbyStores = storeRepository.findNearbyStoresWithoutCategory(
+        longitude,
         latitude, RANGE, pageable);
 
     if (nearbyStores.isEmpty()) {
@@ -176,4 +179,27 @@ public class StoreService {
   }
 
 
+  public Page<StoreNearbyStoreWithCategoryResponseDto> findNearbyStoresByCategory(
+      List<String> categoryNames,
+      double longitude, double latitude, Pageable pageable) {
+    final int RANGE = 3000;
+
+    if (getDecimalPlaces(longitude) < 2 || getDecimalPlaces(latitude) < 2) {
+      throw new IllegalArgumentException("주어진 좌표의 자릿수가 너무 작습니다.");
+    }
+
+    //카테고리 목록 뭘로할지 생각해보기
+    Page<StoreNearbyStoreWithCategoryResponseDto> nearbyStores = storeRepository.findNearbyStoresByCategories(
+        categoryNames,
+        longitude,
+        latitude,
+        RANGE,
+        pageable);
+
+    if (nearbyStores.isEmpty()) {
+      throw new NoSuchElementException("카테고리에 해당하는 근처 가게가 없습니다.");
+    }
+
+    return nearbyStores;
+  }
 }

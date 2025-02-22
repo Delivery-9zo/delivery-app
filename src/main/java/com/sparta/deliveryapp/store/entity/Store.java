@@ -1,16 +1,21 @@
 package com.sparta.deliveryapp.store.entity;
 
 import com.sparta.deliveryapp.auditing.BaseEntity;
+import com.sparta.deliveryapp.category.entity.Category;
 import com.sparta.deliveryapp.user.entity.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -47,9 +52,6 @@ public class Store extends BaseEntity {
   @Column(name = "b_regi_num", nullable = false)
   private String bRegiNum;
 
-  @Column(name = "rating")
-  private Double rating;
-
   @Column(name = "open_at")
   private LocalTime openAt;
 
@@ -68,6 +70,26 @@ public class Store extends BaseEntity {
 
   public boolean isAssociated(User user) {
     return this.user.equals(user);
+  }
+
+  @Builder.Default
+  @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<StoreCategory> storeCategories = new ArrayList<>();
+
+  @Transient
+  public List<Category> getCategories() {
+    List<Category> categories = new ArrayList<>();
+    for (StoreCategory storeCategory : storeCategories) {
+      categories.add(storeCategory.getCategory());
+    }
+    return categories;
+  }
+
+  public void addCategory(Category category) {
+    StoreCategory storeCategory = new StoreCategory();
+    storeCategory.setStore(this);
+    storeCategory.setCategory(category);
+    this.storeCategories.add(storeCategory);
   }
 
 }
