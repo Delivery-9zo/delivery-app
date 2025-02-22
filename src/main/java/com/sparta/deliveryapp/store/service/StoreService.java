@@ -1,21 +1,27 @@
 package com.sparta.deliveryapp.store.service;
 
+import com.sparta.deliveryapp.store.dto.StoreNearbyStoreResponseDto;
 import com.sparta.deliveryapp.store.dto.StoreRequestDto;
+import com.sparta.deliveryapp.store.dto.StoreResponseDto;
 import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.store.util.kakaoLocal.KakaoLocalAPI;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import jakarta.persistence.EntityNotFoundException;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -33,11 +39,6 @@ public class StoreService {
   @Transactional
   public void regiStore(StoreRequestDto storeRequestDto, UserDetailsImpl userDetails) {
 
-    //유저가 owner권한이 맞는지 체크
-    if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_OWNER"))) {
-      throw new AuthorizationDeniedException("가게 등록 권한이 없습니다.");
-    }
-
     // 상호명 중복 체크
     Optional<Store> storeEntity = storeRepository.findByStoreName(
         storeRequestDto.getStoreName());
@@ -53,8 +54,8 @@ public class StoreService {
     Store newStore = Store.builder()
         .storeName(storeRequestDto.getStoreName())
         .address(storeRequestDto.getAddress()).bRegiNum(storeRequestDto.getBRegiNum())
-        .storeCoordX(storeCoords[0]) // 경도
-        .storeCoordY(storeCoords[1])  // 위도
+        .storeCoordX(storeCoords[0]) // x:경도
+        .storeCoordY(storeCoords[1])  // y:위도
         .rating(0.0)
         .openAt(convertStringToTimestamp(storeRequestDto.getOpenAt()))
         .closeAt(convertStringToTimestamp(storeRequestDto.getCloseAt()))
@@ -72,10 +73,7 @@ public class StoreService {
    * @param: 가게 uuid(storeId), 유저 정보(userDetails)
    */
   @Transactional
-  public Store deleteStore(String storeId, UserDetailsImpl userDetails) {
-    if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_MASTER"))) {
-      throw new AuthorizationDeniedException("가게 삭제 권한이 없습니다.");
-    }
+  public Store deleteStore(String storeId) {
 
     Store storeEntity = storeRepository.findByStoreId(UUID.fromString(storeId))
         .orElseThrow(() -> new EntityNotFoundException(storeId + " 가게가 존재하지 않습니다."));
@@ -84,6 +82,86 @@ public class StoreService {
 
     return storeRepository.save(storeEntity);
 
+  }
+
+  /**
+   * 가게 이름으로 등록된 모든 가게 검색
+   *
+   * @param: 가게 이름 (storeName)
+   * @return: StoreResponseDto 리스트
+   */
+  public Page<StoreResponseDto> findStoresByStoreName(String storeName, Pageable pageable) {
+
+    Page<Store> stores = storeRepository.findByStoreNameContaining(storeName, pageable);
+
+    if (stores.isEmpty()) {
+      throw new NoSuchElementException("해당하는 가게가 없습니다.");
+    }
+
+    List<StoreResponseDto> storeResponseDtos = stores.stream()
+        .map(store -> StoreResponseDto.builder()
+            .storeId(store.getStoreId())
+            .storeName(store.getStoreName())
+            .address(store.getAddress())
+            .bRegiNum(store.getBRegiNum())
+            .openAt(store.getOpenAt())
+            .closeAt(store.getCloseAt())
+            .build())
+        .toList();
+
+    return new PageImpl<>(storeResponseDtos, pageable, stores.getTotalElements());
+  }
+
+  public StoreResponseDto findStoresByStoreId(String storeId) {
+    Optional<Store> store = storeRepository.findByStoreId(UUID.fromString(storeId));
+
+    StoreResponseDto storeResponseDto = store.map(s -> StoreResponseDto.builder()
+            .storeId(s.getStoreId())
+            .storeName(s.getStoreName())
+            .address(s.getAddress())
+            .bRegiNum(s.getBRegiNum())
+            .openAt(s.getOpenAt())
+            .closeAt(s.getCloseAt())
+            .build())
+        .orElseThrow(() -> new NoSuchElementException("해당하는 가게가 없습니다."));
+
+    return storeResponseDto;
+  }
+
+  public Page<StoreNearbyStoreResponseDto> findNearbyStoresWithoutCategory(double longitude, double latitude,
+      Pageable pageable) {
+    final int RANGE = 3000;
+
+    if (getDecimalPlaces(longitude) < 2 || getDecimalPlaces(latitude) < 2) {
+      throw new IllegalArgumentException("주어진 좌표의 자릿수가 너무 작습니다.");
+    }
+
+    Page<StoreNearbyStoreResponseDto> nearbyStores = storeRepository.findNearbyStoresWithoutCategory(longitude,
+        latitude, RANGE, pageable);
+
+    if (nearbyStores.isEmpty()) {
+      throw new NoSuchElementException("근처 가게가 없습니다.");
+    }
+
+    return nearbyStores;
+
+  }
+
+  /**
+   * 실수형 자릿수를 체크하는 메서드
+   *
+   * @param: 실수형
+   * @return: 소숫점 아래 자릿수 반환
+   */
+  public static int getDecimalPlaces(double value) {
+    String valueStr = Double.toString(value);
+    int decimalIndex = valueStr.indexOf('.');
+
+    if (decimalIndex == -1) {
+      return 0;
+    }
+
+    return valueStr.length() - decimalIndex - 1;
   }
 
   /**
@@ -97,5 +175,6 @@ public class StoreService {
     LocalTime localTime = LocalTime.parse(timeString, formatter);
     return localTime;
   }
+
 
 }

@@ -4,6 +4,7 @@ package com.sparta.deliveryapp.ai;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +20,7 @@ public class AIController {
   private final GeminiService geminiService;
 
   @PostMapping("/ask")
+  @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'ROLE_OWNER', 'ROLE_MANAGER')")
   public Mono<AIResponseDto> askAI(@RequestBody AIRequestDto requestDto, @AuthenticationPrincipal
       UserDetailsImpl userDetails) {
     String prompt = requestDto.getPrompt();

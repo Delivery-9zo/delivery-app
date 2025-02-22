@@ -45,10 +45,10 @@ public class Order extends BaseEntity {
     private int totalPrice;
 
     /*
-    * 주문타입별
-    * - FACE_TO_FACE: 불필요
-    * - NON_FACE_TO_FACE: 필수
-    */
+     * 주문타입별
+     * - FACE_TO_FACE: 불필요
+     * - NON_FACE_TO_FACE: 필수
+     */
     @Column(name = "user_address")
     private String userAddress;
 

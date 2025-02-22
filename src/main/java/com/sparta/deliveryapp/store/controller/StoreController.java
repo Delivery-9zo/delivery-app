@@ -1,20 +1,22 @@
 package com.sparta.deliveryapp.store.controller;
 
+import com.sparta.deliveryapp.store.dto.StoreNearbyStoreResponseDto;
 import com.sparta.deliveryapp.store.dto.StoreRequestDto;
-import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.service.StoreService;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/stores")
@@ -23,6 +25,7 @@ public class StoreController {
   private final StoreService storeService;
 
   @PostMapping("/regi")
+  @PreAuthorize("hasAnyAuthority('ROLE_OWNER', 'ROLE_MASTER')")
   public ResponseEntity<String> regiStore(
       @Valid @RequestBody StoreRequestDto storeRequestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -32,14 +35,24 @@ public class StoreController {
     return ResponseEntity.ok().body("가게가 정상적으로 등록되었습니다.");
   }
 
-  @DeleteMapping("/{storeId}")
-  public ResponseEntity<String> deleteStore(
-      @PathVariable String storeId,
-      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+  //카테고리 없이 경위도로만 근처 가게 검색
+  @GetMapping("/location")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<Page<StoreNearbyStoreResponseDto>> getNearbyStoresWithoutCategory(
+      @RequestParam(value = "longitude") double longitude,
+      @RequestParam(value = "latitude") double latitude,
+      @PageableDefault(
+          size = 10,
+          page = 0,
+          sort = "distanceFromRequest",
+          direction = Direction.ASC) Pageable pageable) {
 
-    Store deletedStore = storeService.deleteStore(storeId, userDetails);
+    Page<StoreNearbyStoreResponseDto> storeResponseDto = storeService.findNearbyStoresWithoutCategory(
+        longitude, latitude, pageable);
 
-    //Todo: 반환에 삭제된 가게 상호명 및 삭제 시간 추가하여 반환하기
-    return ResponseEntity.ok().body(deletedStore.getDeletedAt()+" 가게가 정상적으로 삭제되었습니다.");
+    //todo: 커스텀 AccessDenied 예외 처리 추가(GlobalExceptionHandler에)
+    return ResponseEntity.ok().body(storeResponseDto);
   }
+
+
 }
