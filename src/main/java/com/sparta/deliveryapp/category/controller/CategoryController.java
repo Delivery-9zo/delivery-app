@@ -27,4 +27,6 @@ public class CategoryController {
 
     return ResponseEntity.ok().body("카테고리 : " + categoryRequest.getCategoryName() + "이(가) 정상적으로 등록되었습니다.");
   }
+
+  
 }
