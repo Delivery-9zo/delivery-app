@@ -1,17 +1,21 @@
 package com.sparta.deliveryapp.category.controller;
 
 import com.sparta.deliveryapp.category.dto.CategoryRequestDto;
+import com.sparta.deliveryapp.category.dto.CategoryResponseDto;
 import com.sparta.deliveryapp.category.dto.CategoryUpdateRequestDto;
 import com.sparta.deliveryapp.category.service.CategoryService;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -70,5 +74,13 @@ public class CategoryMasterController {
     categoryService.deleteCategoryById(categoryRequestDto);
 
     return ResponseEntity.ok().body("카테고리가 정상적으로 삭제되었습니다.");
+  }
+
+  @GetMapping("")
+  public ResponseEntity<CategoryResponseDto> getCategoryByName(@RequestParam(name = "id") UUID categoryId) {
+
+    CategoryResponseDto categoryResponseDto = categoryService.getCategoryById(categoryId);
+
+    return ResponseEntity.ok().body(categoryResponseDto);
   }
 }

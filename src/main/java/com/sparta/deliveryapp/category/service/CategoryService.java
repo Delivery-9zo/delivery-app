@@ -160,4 +160,28 @@ public class CategoryService {
 
     return categoryList;
   }
+
+  public CategoryResponseDto getCategoryById(UUID categoryId) {
+
+    if(categoryId == null){
+      throw new IllegalArgumentException("카테고리 id가 없습니다.");
+    }
+
+    Optional<Category> category = categoryRepository.findByCategoryId(categoryId);
+
+    if(category.isEmpty()){
+      throw new NoSuchElementException("카테고리 id에 매칭되는 카테고리가 없습니다.");
+    }
+
+    CategoryResponseDto categoryResponseDto = category.map(o ->
+        CategoryResponseDto.builder()
+            .categoryId(o.getCategoryId())
+            .categoryName(o.getCategoryName())
+            .createAt(o.getCreatedAt())
+            .build()
+    ).orElseThrow(() -> new IllegalArgumentException("카테고리 없음"));
+
+    return categoryResponseDto;
+
+  }
 }
