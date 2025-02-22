@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/master/categories")
-public class CategoryController {
+public class CategoryMasterController {
 
   private final CategoryService categoryService;
 
@@ -28,5 +28,6 @@ public class CategoryController {
     return ResponseEntity.ok().body("카테고리 : " + categoryRequest.getCategoryName() + "이(가) 정상적으로 등록되었습니다.");
   }
 
-  
+
+
 }
