@@ -10,13 +10,14 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CategoryRequestDto {
+public class CategoryUpdateRequestDto {
 
   @JsonProperty("category_id")
   private UUID categoryId;
 
-  @NotBlank
   @JsonProperty("category_name")
   private String categoryName;
 
+  @JsonProperty("new_category_name")
+  private String newCategoryName;
 }
