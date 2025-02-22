@@ -31,11 +31,9 @@ public class ReviewController {
   private final ReviewService reviewService;
 
   @PostMapping("/{storeId}")
-  public ResponseEntity<String> postReview(
-      @RequestBody ReviewPostRequestDto dto,
+  public ResponseEntity<String> postReview(@RequestBody ReviewPostRequestDto dto,
       @PathVariable(name = "storeId") UUID storeId,
-      @AuthenticationPrincipal UserDetailsImpl userDetails
-  ) {
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
     reviewService.postReview(dto, storeId, userDetails);
     return ResponseEntity
         .status(HttpStatus.OK)
@@ -47,9 +45,7 @@ public class ReviewController {
   @GetMapping("/{storeId}")
   public ResponseEntity<Page<ReviewGetResponseDto>> getAllReviewsByStore(
       @PathVariable(name = "storeId") UUID storeId,
-      @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC)
-      Pageable pageable
-  ) {
+      @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
     return ResponseEntity
         .status(HttpStatus.OK)
         .contentType(MediaType.APPLICATION_JSON)
@@ -60,13 +56,22 @@ public class ReviewController {
   @GetMapping
   public ResponseEntity<Page<ReviewGetResponseDto>> getAllReviewsByCustomer(
       @AuthenticationPrincipal UserDetailsImpl userDetails,
-      @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC)
-      Pageable pageable
-  ) {
+      @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
     return ResponseEntity
         .status(HttpStatus.OK)
         .contentType(MediaType.APPLICATION_JSON)
         .body(reviewService.getAllReviewsByCustomer(userDetails, pageable));
+  }
+
+  @GetMapping("/{storeId}/avgRating")
+  public ResponseEntity<Double> getStoreAvgRating(@PathVariable UUID storeId) {
+
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(reviewService.getStoreAvgRating(storeId));
+
+
   }
 
   @PreAuthorize("hasAuthority('ROLE_MASTER')")
