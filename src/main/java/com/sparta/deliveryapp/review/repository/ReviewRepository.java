@@ -1,12 +1,15 @@
 package com.sparta.deliveryapp.review.repository;
 
 import com.sparta.deliveryapp.review.entity.Review;
+import com.sparta.deliveryapp.review.repository.querydsl.ReviewRepositoryCustom;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ReviewRepository extends JpaRepository<Review, UUID> {
+public interface ReviewRepository extends
+    JpaRepository<Review, UUID>,
+    ReviewRepositoryCustom {
 
   Page<Review> findAllByStore_StoreId(UUID storeId, Pageable pageable);
 
