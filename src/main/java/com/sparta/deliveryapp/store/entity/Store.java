@@ -21,6 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.annotations.Where;
 import org.locationtech.jts.geom.Point;
@@ -29,6 +30,7 @@ import org.locationtech.jts.geom.Point;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Setter
 @Getter
 @Where(clause = "deleted_at IS NULL")
 @Table(name = "p_store")
@@ -72,9 +74,8 @@ public class Store extends BaseEntity {
     return this.user.equals(user);
   }
 
-  @Builder.Default
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<StoreCategory> storeCategories = new ArrayList<>();
+  private List<StoreCategory> storeCategories;
 
   @Transient
   public List<Category> getCategories() {
@@ -83,13 +84,6 @@ public class Store extends BaseEntity {
       categories.add(storeCategory.getCategory());
     }
     return categories;
-  }
-
-  public void addCategory(Category category) {
-    StoreCategory storeCategory = new StoreCategory();
-    storeCategory.setStore(this);
-    storeCategory.setCategory(category);
-    this.storeCategories.add(storeCategory);
   }
 
 }

@@ -3,6 +3,7 @@ package com.sparta.deliveryapp.store.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,4 +32,7 @@ public class StoreRequestDto {
   @NotNull
   @JsonProperty("close_at")
   private String closeAt;
+
+  @JsonProperty("category")
+  private List<String> categories;
 }

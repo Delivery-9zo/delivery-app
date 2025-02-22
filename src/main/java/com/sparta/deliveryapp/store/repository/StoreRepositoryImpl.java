@@ -38,6 +38,8 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 
     QStore store = QStore.store;
 
+    //todo: JPAQuery<Tuple> 형태로 변경하기
+
     // 쿼리 결과 반환 및 결과 개수 한번에 저장
     QueryResults<Tuple> results = queryFactory
         .select(store.storeId, store.storeName, store.address, store.bRegiNum, store.openAt,
@@ -50,12 +52,12 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
             ).as("distanceFromRequest"))
         .from(store)
         .where(geoDistance(longitude, latitude, store.storeCoordX, store.storeCoordY, range))
-        .orderBy(Expressions.numberTemplate(Double.class,
-            "ST_Distance(geography(ST_SetSRID(ST_Point({0}, {1}), 4326)), geography(ST_SetSRID(ST_Point({2}, {3}), 4326)))",
-            longitude, latitude,
-            store.storeCoordX,
-            store.storeCoordY
-        ).asc())
+//        .orderBy(Expressions.numberTemplate(Double.class,
+//            "ST_Distance(geography(ST_SetSRID(ST_Point({0}, {1}), 4326)), geography(ST_SetSRID(ST_Point({2}, {3}), 4326)))",
+//            longitude, latitude,
+//            store.storeCoordX,
+//            store.storeCoordY
+//        ).asc())
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize())
         .fetchResults();
@@ -73,7 +75,6 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
         )
         .toList();
 
-    // Page 객체로 반환, 결과와 totalCount를 포함
     return new PageImpl<>(storeNearbyStoreResponseDtos, pageable, results.getTotal());
   }
 
@@ -114,8 +115,8 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 //            ).as("averageRating")
         )
         .from(store)
-        .innerJoin(store.storeCategories, storeCategory)
-        .innerJoin(storeCategory.category, category)
+        .innerJoin(store.storeCategories, storeCategory).fetchJoin()
+        .innerJoin(storeCategory.category, category).fetchJoin()
 //        .leftJoin(store.reviews, review)
         .where(
             category.categoryName.in(categoryNames),
@@ -152,6 +153,7 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
             .openAt(tuple.get(store.openAt))
             .closeAt(tuple.get(store.closeAt))
             .distanceFromRequest(tuple.get(6, Double.class))
+            .categories(categoryNames)
 //            .rating(tuple.get(7, Double.class))
             .build())
         .toList();

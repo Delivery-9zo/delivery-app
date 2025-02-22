@@ -1,16 +1,20 @@
 package com.sparta.deliveryapp.store.service;
 
+import com.sparta.deliveryapp.category.entity.Category;
+import com.sparta.deliveryapp.category.repository.CategoryRepository;
 import com.sparta.deliveryapp.store.dto.StoreNearbyStoreResponseDto;
 import com.sparta.deliveryapp.store.dto.StoreNearbyStoreWithCategoryResponseDto;
 import com.sparta.deliveryapp.store.dto.StoreRequestDto;
 import com.sparta.deliveryapp.store.dto.StoreResponseDto;
 import com.sparta.deliveryapp.store.entity.Store;
+import com.sparta.deliveryapp.store.entity.StoreCategory;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.store.util.kakaoLocal.KakaoLocalAPI;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -29,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class StoreService {
 
   private final StoreRepository storeRepository;
+  private final CategoryRepository categoryRepository;
   private final KakaoLocalAPI kakaoLocalAPI;
 
   /**
@@ -50,6 +55,10 @@ public class StoreService {
     // 주소를 기반으로 경위도 추출
     double[] storeCoords = kakaoLocalAPI.getCoordsFromAddress(storeRequestDto.getAddress());
 
+    // 카테고리 이름 리스트로 카테고리 테이블 조회
+    List<Category> categories = categoryRepository.findByCategoryNameIn(storeRequestDto.getCategories());
+
+//    log.info(categories.toString());
     // StoreEntity 생성 및 엔티티에서 빠진 컬럼 추가
     Store newStore = Store.builder()
         .storeName(storeRequestDto.getStoreName())
@@ -62,9 +71,25 @@ public class StoreService {
         .user(userDetails.getUser())
         .build();
 
+    // 카테고리 리스트를 받아서 중간 테이블과의 관계 설정
+    List<StoreCategory> storeCategories = createStoreCategories(categories, newStore);  // newStore 객체 전달
+
+    newStore.setStoreCategories(storeCategories);
+
     // 레포지토리를 이용해서 db에 저장
     storeRepository.save(newStore);
 
+  }
+  // 중간 테이블 연결
+  private List<StoreCategory> createStoreCategories(List<Category> categories, Store store) {
+    List<StoreCategory> storeCategories = new ArrayList<>();
+    for (Category category : categories) {
+      StoreCategory storeCategory = new StoreCategory();
+      storeCategory.setStore(store);  // Store-StoreCategory 연결
+      storeCategory.setCategory(category);  // StoreCategory-Category 연결
+      storeCategories.add(storeCategory);
+    }
+    return storeCategories;
   }
 
   /**
@@ -188,7 +213,6 @@ public class StoreService {
       throw new IllegalArgumentException("주어진 좌표의 자릿수가 너무 작습니다.");
     }
 
-    //카테고리 목록 뭘로할지 생각해보기
     Page<StoreNearbyStoreWithCategoryResponseDto> nearbyStores = storeRepository.findNearbyStoresByCategories(
         categoryNames,
         longitude,

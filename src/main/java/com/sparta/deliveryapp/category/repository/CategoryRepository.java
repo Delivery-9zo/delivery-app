@@ -2,6 +2,7 @@ package com.sparta.deliveryapp.category.repository;
 
 import com.sparta.deliveryapp.category.entity.Category;
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -19,4 +20,6 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
   Optional<Category> findByCategoryName(@NotBlank String categoryName);
 
   Page<Category> findAll(Pageable pageable);
+
+  List<Category> findByCategoryNameIn(List<String> categories);
 }
