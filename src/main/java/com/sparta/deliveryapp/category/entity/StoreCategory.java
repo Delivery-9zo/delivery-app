@@ -1,12 +1,17 @@
 package com.sparta.deliveryapp.category.entity;
 
 import com.sparta.deliveryapp.auditing.BaseEntity;
+import com.sparta.deliveryapp.store.entity.Store;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 import java.util.UUID;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +21,6 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.annotations.Where;
-import org.hibernate.validator.constraints.UniqueElements;
 
 @Entity
 @AllArgsConstructor
@@ -24,18 +28,22 @@ import org.hibernate.validator.constraints.UniqueElements;
 @Builder
 @Getter
 @Setter
-@SQLDelete(sql = "UPDATE p_category SET deleted_at=CURRENT_TIMESTAMP WHERE category_id=?")
+@SQLDelete(sql = "UPDATE p_storecategory SET deleted_at=CURRENT_TIMESTAMP WHERE storecategory_id=?")
 @SQLRestriction("deleted_at IS NULL")
-@Table(name = "p_category")
-public class Category extends BaseEntity {
+@Table(name = "p_storecategory")
+public class StoreCategory extends BaseEntity {
 
   @Id
   @UuidGenerator
-  @Column(name = "category_id")
-  private UUID categoryId;
+  @Column(name = "storecategory_id")
+  private UUID storeCategoryId;
 
-  @NotBlank
-  @Column(unique = true)
-  private String categoryName;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "store_id")
+  private Store store;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "category_id")
+  private Category category;
 
 }
