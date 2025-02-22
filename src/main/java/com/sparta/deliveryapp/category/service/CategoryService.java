@@ -1,14 +1,20 @@
 package com.sparta.deliveryapp.category.service;
 
 import com.sparta.deliveryapp.category.dto.CategoryRequestDto;
+import com.sparta.deliveryapp.category.dto.CategoryResponseDto;
 import com.sparta.deliveryapp.category.dto.CategoryUpdateRequestDto;
 import com.sparta.deliveryapp.category.entity.Category;
 import com.sparta.deliveryapp.category.repository.CategoryRepository;
 import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -136,5 +142,21 @@ public class CategoryService {
     } catch (Exception e) {
       throw new RuntimeException("카테고리 삭제 실패");
     }
+  }
+
+  public Page<CategoryResponseDto> getAllCategories(Pageable pageable) {
+
+    Page<CategoryResponseDto> categoryList = categoryRepository.findAll(pageable)
+        .map(category -> CategoryResponseDto.builder()
+            .categoryId(category.getCategoryId())
+            .categoryName(category.getCategoryName())
+            .build());
+
+
+    if (categoryList.isEmpty()) {
+      throw new NoSuchElementException("등록된 카테고리가 없습니다.");
+    }
+
+    return categoryList;
   }
 }
