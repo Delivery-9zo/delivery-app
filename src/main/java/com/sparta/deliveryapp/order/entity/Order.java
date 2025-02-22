@@ -61,11 +61,11 @@ public class Order extends BaseEntity {
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @OneToOne
-    @JoinColumn(name = "payment_paymentId")
+    @JoinColumn(name = "payment_id")
     private Payment payment;
 
     @ManyToOne
-    @JoinColumn(name = "store_storeId")
+    @JoinColumn(name = "store_id")
     private Store store;
 
     @Builder
