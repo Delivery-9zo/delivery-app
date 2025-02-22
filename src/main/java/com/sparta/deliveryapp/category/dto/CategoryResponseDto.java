@@ -2,6 +2,7 @@ package com.sparta.deliveryapp.category.dto;
 
 
 import jakarta.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -24,5 +25,5 @@ public class CategoryResponseDto {
   private String categoryName;
 
   @NotBlank
-  private LocalTime createAt;
+  private LocalDateTime createAt;
 }

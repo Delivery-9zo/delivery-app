@@ -150,6 +150,7 @@ public class CategoryService {
         .map(category -> CategoryResponseDto.builder()
             .categoryId(category.getCategoryId())
             .categoryName(category.getCategoryName())
+            .createAt(category.getCreatedAt())
             .build());
 
 
