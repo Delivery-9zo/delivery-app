@@ -1,5 +1,6 @@
 package com.sparta.deliveryapp.payment.dto;
 
+import com.sparta.deliveryapp.payment.entity.Payment;
 import com.sparta.deliveryapp.payment.entity.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,4 +21,12 @@ public class RegisterPaymentResponseDto {
     private int paymentAmount;
     private LocalDateTime paymentTime;
 
+    public RegisterPaymentResponseDto(Payment savedPayment) {
+        this.paymentId = savedPayment.getPaymentId();
+        this.orderId = savedPayment.getOrderId();
+        this.userId = savedPayment.getUserId();
+        this.paymentStatus = savedPayment.getPaymentStatus();
+        this.paymentAmount = savedPayment.getPaymentAmount();
+        this.paymentTime = savedPayment.getPaymentTime();
+    }
 }
