@@ -4,9 +4,15 @@ import com.sparta.deliveryapp.order.dto.SearchOrderResponseDto;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.service.MasterOrderStatusService;
 import com.sparta.deliveryapp.order.service.OrderSearchService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.tomcat.util.http.Parameters;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -23,15 +29,16 @@ import java.util.UUID;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "마스터-주문 API", description = "마스터 권한을 가진 사람이 사용가능한 주문 컨트롤러에 대한 설명입니다.")
 @RequestMapping("/api/master/orders")
 @PreAuthorize("hasAuthority('ROLE_MASTER')")
 public class MasterOrderController {
 
-    @Autowired
     private final OrderSearchService orderSearchService;
     private final MasterOrderStatusService masterOrderStatusService;
 
     @DeleteMapping("/{orderId}/{storeId}")
+    @Operation(summary = "가게의 주문삭제 기능", description = "주문 id로 특정 상점의 주문을 삭제하는 api")
     public ResponseEntity<String> deleteOrderMaster (@PathVariable(name = "orderId")  UUID orderId,
                                               @PathVariable(name = "storeId") UUID storeId) {
         log.info("deleteOrderMaster 컨트롤러 시작");
@@ -58,6 +65,19 @@ public class MasterOrderController {
 
     // 전체 주문 조회
     @GetMapping
+    @Operation(summary = "주문 전체조회 기능",
+            description = "전체 주문 내역을 조회하는 api",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "주문 전체조회 성공"
+                            , content = @Content(
+                            array = @ArraySchema(
+                                    schema = @Schema(implementation = SearchOrderResponseDto.class)))),
+                    @ApiResponse(responseCode = "403", description = "해당 권한을 가지지 않음"
+                            , content = @Content(
+                            array = @ArraySchema(
+                                    schema = @Schema(implementation = Parameters.FailReason.class))))
+            }
+    )
     public ResponseEntity<Page<SearchOrderResponseDto>> getOrdersByMaster(@PageableDefault(
             size = 10,
             page = 0,

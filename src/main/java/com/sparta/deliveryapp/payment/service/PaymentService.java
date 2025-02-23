@@ -21,7 +21,7 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
 
-    // 결제 등록
+    // 결제 등록 - 대면, 비대면
     public RegisterPaymentResponseDto postPayment(RegisterPaymentRequestDto requestDto, User user) {
 
         log.info("postPayment 결제 등록 시작");
