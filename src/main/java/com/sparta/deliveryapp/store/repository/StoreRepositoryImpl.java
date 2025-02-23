@@ -98,7 +98,6 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 
     BooleanExpression categoryCondition = category.categoryName.in(categoryNames);
 
-    // 🔍 카운트 쿼리 추가
     JPAQuery<Long> countQuery = queryFactory
         .select(store.countDistinct())
         .from(store)
@@ -110,7 +109,6 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 
     Long totalCount = countQuery.fetchOne();
 
-    // 🔍 메인 쿼리 수정: Store 엔티티 포함 + 카테고리 동적 수집
     List<Tuple> query = queryFactory
         .select(
             store.storeId,

@@ -62,19 +62,21 @@ public class Store extends BaseEntity {
     return this.user.equals(user);
   }
 
-  @OneToMany(mappedBy = "store")
-  private List<StoreCategory> storeCategories;
-
-  @Transient
-  public List<String> getCategories() {
-    List<String> categories = new ArrayList<>();
-    for (StoreCategory storeCategory : storeCategories) {
-      categories.add(storeCategory.getCategory().getCategoryName());
-    }
-    return categories;
-  }
+  @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<StoreCategory> storeCategories = new ArrayList<>();
 
   @OneToMany(fetch = FetchType.LAZY)
   @Column(name = "review_uuid")
-  private List<Review> reviews;
+  private List<Review> reviews = new ArrayList<>();
+
+  public void addStoreCategory(StoreCategory storeCategory) {
+    storeCategories.add(storeCategory);
+    storeCategory.setStore(this);
+  }
+
+  public void removeStoreCategory(StoreCategory storeCategory) {
+    storeCategories.remove(storeCategory);
+    storeCategory.setStore(null);
+  }
+
 }
