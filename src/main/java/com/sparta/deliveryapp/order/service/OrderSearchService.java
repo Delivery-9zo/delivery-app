@@ -10,6 +10,7 @@ import com.sparta.deliveryapp.payment.dto.PaymentResponseDto;
 import com.sparta.deliveryapp.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -57,12 +58,22 @@ public class OrderSearchService {
 
 
     // 전체 결과 조회 (CUSTOMER 제외)
-    public List<SearchOrderResponseDto> findAllOrder(Pageable pageable) {
+    public Page<SearchOrderResponseDto> findAllByCreatedAt(Pageable pageable) {
 
-        List<Order> orderList = orderRepository.findAll(pageable).stream().toList();
-        List<SearchOrderResponseDto> searchOrderResponseDtoList = getSearchOrderResponseDtos(orderList);
-
-        return searchOrderResponseDtoList;
+        return orderRepository.findAllByCreatedAt(pageable)
+            .map(order -> new SearchOrderResponseDto(
+                order.getUserId(),
+                order.getItemId(),
+                order.getOrderId(),
+                order.getOrderType(),
+                order.getOrderTime(),
+                order.getTotalPrice(),
+                order.getUserAddress(),
+                order.getOrderMemo(),
+                order.getOrderState(),
+                null,
+                null
+            ));
     }
 
 
@@ -80,6 +91,5 @@ public class OrderSearchService {
         }).toList();
         return searchOrderResponseDtoList;
     }
-
 
 }

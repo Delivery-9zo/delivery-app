@@ -3,10 +3,7 @@ package com.sparta.deliveryapp.payment.entity;
 import com.sparta.deliveryapp.auditing.BaseEntity;
 import com.sparta.deliveryapp.payment.dto.PaymentResponseDto;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
@@ -16,7 +13,8 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Table(name = "p_payment")
 public class Payment extends BaseEntity {

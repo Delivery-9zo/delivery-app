@@ -3,15 +3,14 @@ package com.sparta.deliveryapp.user.service;
 
 import com.sparta.deliveryapp.user.dto.MasterUserUpdateRequestDto;
 import com.sparta.deliveryapp.user.dto.UserResponseDto;
-import com.sparta.deliveryapp.user.dto.UserUpdateRequestDto;
 import com.sparta.deliveryapp.user.entity.User;
-import com.sparta.deliveryapp.user.entity.UserRole;
 import com.sparta.deliveryapp.user.repository.UserRepository;
 import com.sparta.deliveryapp.util.NullAwareBeanUtils;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j

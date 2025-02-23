@@ -86,11 +86,12 @@ public class OrderRegisterService {
             log.info("결제 상태={}", registerPaymentResponseDto.getPaymentStatus());
 
             // 결제 정보 설정 - Order 의  외래키
-            Payment payment = new Payment();
-            payment.setPaymentId(registerPaymentResponseDto.getPaymentId());
-            payment.setPaymentStatus(registerPaymentResponseDto.getPaymentStatus());
-            payment.setPaymentAmount(registerPaymentResponseDto.getPaymentAmount());
-            payment.setPaymentTime(registerPaymentResponseDto.getPaymentTime());
+            Payment payment = Payment.builder()
+                    .paymentId(registerPaymentResponseDto.getPaymentId())
+                    .paymentAmount(registerPaymentResponseDto.getPaymentAmount())
+                    .paymentStatus(registerPaymentResponseDto.getPaymentStatus())
+                    .paymentTime(registerPaymentResponseDto.getPaymentTime())
+                    .build();
 
             // 주문에 결제 정보 설정
             order.setPayment(payment);

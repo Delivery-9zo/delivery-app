@@ -3,18 +3,14 @@ package com.sparta.deliveryapp.review.entity;
 import com.sparta.deliveryapp.auditing.BaseEntity;
 import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.user.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import java.util.Objects;
-import java.util.UUID;
+import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UuidGenerator;
+
+import java.util.Objects;
+import java.util.UUID;
 
 
 @Entity

@@ -3,28 +3,15 @@ package com.sparta.deliveryapp.store.entity;
 import com.sparta.deliveryapp.auditing.BaseEntity;
 import com.sparta.deliveryapp.category.entity.Category;
 import com.sparta.deliveryapp.user.entity.User;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.annotations.Where;
+
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.UuidGenerator;
-import org.hibernate.annotations.Where;
-import org.locationtech.jts.geom.Point;
 
 @Entity
 @AllArgsConstructor
