@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -14,18 +15,19 @@ import java.util.UUID;
 @NoArgsConstructor
 public class RegisterOrderRequestDto {
 
-    private UUID menuId;
+//    private UUID menuId;
+    private int quantity;
     private OrderType orderType;
     private int price;
-    private int quantity;
+
     private String userAddress;
     private String orderMemo;
     private OrderState orderState;
+    private List<RegisterOrderItemRequestDto> registerOrderItemRequestDtoList;
 
-    public Order toEntity(UUID userId, UUID itemId, int totalPrice) {
+    public Order toEntity(UUID userId, int totalPrice) {
         return Order.builder()
             .userId(userId)
-            .itemId(itemId)
             .orderType(orderType)
             .totalPrice(totalPrice)
             .userAddress(userAddress)
