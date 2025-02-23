@@ -74,7 +74,7 @@ public class Store extends BaseEntity {
     return this.user.equals(user);
   }
 
-  @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "store")
   private List<StoreCategory> storeCategories;
 
   @Transient
