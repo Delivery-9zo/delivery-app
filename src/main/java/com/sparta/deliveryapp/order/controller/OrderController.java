@@ -1,10 +1,8 @@
 package com.sparta.deliveryapp.order.controller;
 
-import com.sparta.deliveryapp.order.dto.CancellationOrderRequestDto;
-import com.sparta.deliveryapp.order.dto.CancellationOrderResponseDto;
-import com.sparta.deliveryapp.order.dto.RegisterOrderRequestDto;
-import com.sparta.deliveryapp.order.dto.RegisterOrderResponseDto;
+import com.sparta.deliveryapp.order.dto.*;
 import com.sparta.deliveryapp.order.service.OrderRegisterService;
+import com.sparta.deliveryapp.order.service.OrderSearchService;
 import com.sparta.deliveryapp.order.service.OrderStatusService;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -25,8 +24,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderController {
 
-    private final OrderRegisterService orderRegisterService;
-    private final OrderStatusService orderStatusService;
+    private final OrderRegisterService orderRegisterService; // 주문 등록
+    private final OrderStatusService orderStatusService;  // 주문 수정
+    private final OrderSearchService orderSearchService;  // 주문 조회
 
     // 주문 취소(SUCCESS -> CANCEL)
     @PutMapping("/cancel/{orderId}")
@@ -63,4 +63,27 @@ public class OrderController {
 
         return ResponseEntity.ok(responseDto);
     }
+
+    // 주문 ID - 1건 조회(CUSTOMER)
+    @GetMapping("/{orderId}")
+    public ResponseEntity<?> OrderByOrderId(@PathVariable("orderId") UUID orderId,
+                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        SearchOrderResponseDto searchOrderResponseDto = orderSearchService.findOrderByOrderId(orderId, userDetails.getUser());
+
+        return ResponseEntity.ok(searchOrderResponseDto);
+    }
+
+
+    // 사용자 ID - 목록 조회(CUSTOMER)
+    @GetMapping("/user/{orderId}")
+    public ResponseEntity<?> OrderByUserId(@PathVariable("orderId") UUID orderId,
+                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        List<SearchOrderResponseDto> searchOrderResponseDtoList = orderSearchService.findOrderByUserId(userDetails.getUser());
+
+        return ResponseEntity.ok(searchOrderResponseDtoList);
+    }
+
+
 }

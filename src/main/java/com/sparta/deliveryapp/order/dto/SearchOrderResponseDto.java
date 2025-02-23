@@ -1,8 +1,8 @@
 package com.sparta.deliveryapp.order.dto;
 
-import com.sparta.deliveryapp.order.entity.OrderItem;
-import com.sparta.deliveryapp.order.entity.OrderState;
 import com.sparta.deliveryapp.order.entity.OrderType;
+import com.sparta.deliveryapp.payment.dto.PaymentResponseDto;
+import com.sparta.deliveryapp.payment.entity.Payment;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,14 +15,14 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@NoArgsConstructor
-public class RegisterOrderResponseDto {
+@Builder
+public class SearchOrderResponseDto {
 
-    private UUID orderId;
+    private UUID orderId;  // 주문 UUID
 
-    private OrderState orderState;
+    private UUID userId;  // 유저 UUID
 
-    private UUID itemId;
+    private UUID itemId;  // 주문 상세 UUID
 
     private OrderType orderType;
 
@@ -34,11 +34,8 @@ public class RegisterOrderResponseDto {
 
     private String orderMemo;
 
-    private List<OrderItem> orderItems = new ArrayList<>();
+    private List<SearchOrderItemResponseDto> itemList = new ArrayList<>();
 
-    @Builder
-    public RegisterOrderResponseDto(UUID orderId) {
-        this.orderId = orderId;
-        this.orderState = orderState;
-    }
+    private PaymentResponseDto paymentResponseDto;
+
 }
