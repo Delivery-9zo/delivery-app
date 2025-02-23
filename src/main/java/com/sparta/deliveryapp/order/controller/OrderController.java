@@ -5,6 +5,7 @@ import com.sparta.deliveryapp.order.dto.RegisterOrderResponseDto;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.service.OrderRegisterService;
 import com.sparta.deliveryapp.order.service.OrderStatusService;
+import com.sparta.deliveryapp.user.entity.UserRole;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,11 +38,19 @@ public class OrderController {
                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("deleteOrder 컨트롤러 시작");
         try {
-            Order deletedOrder = orderStatusService.deleteOrder(orderId, storeId, userDetails.getUser());
-            log.info("deleteOrder 컨트롤러 종료");
+            if(userDetails.getUser().getRole() == UserRole.MANAGER || userDetails.getUser().getRole() == UserRole.OWNER) {
+                Order deletedOrder = orderStatusService.deleteOrder(orderId, storeId, userDetails.getUser());
+                log.info("매니저,오너 - deleteOrder 컨트롤러 종료");
 
-            return ResponseEntity.ok().body(deletedOrder.getDeletedAt()
-                    + " 주문 및 결제가 취소되었습니다. 환불은 카드 영업일 1-3일 소요됩니다.");
+                return ResponseEntity.ok().body(deletedOrder.getDeletedAt() + " "
+                        + deletedOrder.getUserId().toString() + "고객님의 주문 및 결제가 취소되었습니다.");
+            } else {
+                Order deletedOrder = orderStatusService.deleteOrderCustomer(orderId, storeId, userDetails.getUser());
+                log.info("deleteOrder 컨트롤러 종료");
+
+                return ResponseEntity.ok().body(deletedOrder.getDeletedAt()
+                        + " 주문 및 결제가 취소되었습니다. 환불은 카드 영업일 1-3일 소요됩니다.");
+            }
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getStatusCode())
                     .body("message : " + e.getReason());

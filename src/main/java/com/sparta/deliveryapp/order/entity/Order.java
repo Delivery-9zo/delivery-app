@@ -59,7 +59,7 @@ public class Order extends BaseEntity {
     private OrderState orderState;
 
     @OneToMany
-    private List<OrderItem> orderItems = new ArrayList<>();
+    private final List<OrderItem> orderItems = new ArrayList<>();
 
     @OneToOne
     @JoinColumn(name = "payment_id")
