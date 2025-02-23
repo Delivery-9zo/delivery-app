@@ -26,11 +26,11 @@ public class StoreCategory extends BaseEntity {
   @Column(name = "storecategory_id")
   private UUID storeCategoryId;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "store_id")
   private Store store;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "category_id")
   private Category category;
 

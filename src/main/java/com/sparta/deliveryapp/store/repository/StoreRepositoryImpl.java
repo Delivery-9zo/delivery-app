@@ -1,9 +1,11 @@
 package com.sparta.deliveryapp.store.repository;
 
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.deliveryapp.category.entity.QCategory;
@@ -94,9 +96,6 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
     QCategory category = QCategory.category;
     QReview review = QReview.review;
 
-    BooleanExpression distanceCondition = geoDistance(longitude, latitude, store.storeCoordX,
-        store.storeCoordY, range);
-
     BooleanExpression categoryCondition = category.categoryName.in(categoryNames);
 
     // 🔍 카운트 쿼리 추가
@@ -128,6 +127,7 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
             ).as("distanceFromRequest"),
             review.rating.avg().as("rating"),
             store.storeCategories,
+            storeCategory.category,
             storeCategory,
             category
         )
