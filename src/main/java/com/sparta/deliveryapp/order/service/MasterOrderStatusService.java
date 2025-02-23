@@ -56,6 +56,9 @@ public class MasterOrderStatusService {
         Payment payment = paymentRepository.findByOrderId(order.getOrderId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 결제 내역이 없습니다."));
 
+        // 주문&결제 userId 추출
+        UUID fixUserId = payment.getUserId();
+
         // 주문 취소 조건(5분 이내 가능) 및 삭제 처리(주문->주문상세->결제 삭제)
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime orderTimeFiveMinutesLater = order.getOrderTime().plusMinutes(5);
@@ -66,6 +69,7 @@ public class MasterOrderStatusService {
             // 5분 이내
             // 주문상태 CANCEL 변경
             order.setOrderState(OrderState.CANCEL);
+            order.setUserId(fixUserId);
 
             // 주문 소프트 삭제 및 저장
             order.onPreRemove();
