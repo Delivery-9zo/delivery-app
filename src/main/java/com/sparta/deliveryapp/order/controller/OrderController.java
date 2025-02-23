@@ -1,14 +1,13 @@
 package com.sparta.deliveryapp.order.controller;
 
-import com.sparta.deliveryapp.order.dto.RegisterOrderRequestDto;
-import com.sparta.deliveryapp.order.dto.RegisterOrderResponseDto;
-import com.sparta.deliveryapp.order.dto.SearchOrderResponseDto;
+import com.sparta.deliveryapp.order.dto.*;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.service.OrderRegisterService;
 import com.sparta.deliveryapp.order.service.OrderSearchService;
 import com.sparta.deliveryapp.order.service.OrderStatusService;
 import com.sparta.deliveryapp.user.entity.UserRole;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -71,7 +70,7 @@ public class OrderController {
         }
     }
 
-    // 주문 등록(WAIT)
+    // 주문 등록(WAIT) -> 주문상세 수정(추가,수정,삭제)
     @PostMapping()
     public ResponseEntity<?> postOrder(@RequestBody RegisterOrderRequestDto registerOrderRequestDto,
                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -81,6 +80,35 @@ public class OrderController {
         RegisterOrderResponseDto responseDto = orderRegisterService.postOrder(registerOrderRequestDto, userDetails.getUser());
 
         return ResponseEntity.ok(responseDto);
+    }
+
+    // 주문완료 - 상태수정(SUCCESS) -> 결제 등록(SUCCESS) : CUSTOMER, MANAGER, OWNER
+    @PutMapping("/success/{orderId}")
+    public ResponseEntity<?> updateOrder(@PathVariable(name = "orderId") UUID orderId,
+                                                             @Valid @RequestBody UpdateOrderRequestDto updateOrderRequestDto,
+                                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        // 권한으로 고객 비대면, 매니저/오너 대면 서비스 분리
+        try {
+
+            if (userDetails.getUser().getRole() == UserRole.CUSTOMER) {
+                log.info("고객 비대면 주문완료 컨트롤러 시작");
+                UpdateOrderResponseDto responseDto = orderStatusService.updateOrderNotFace(orderId, updateOrderRequestDto, userDetails.getUser());
+                log.info("고객 비대면 주문완료 컨트롤러 종료");
+                return ResponseEntity.ok(responseDto);
+            } else if (userDetails.getUser().getRole() == UserRole.MANAGER || userDetails.getUser().getRole() == UserRole.OWNER) {
+                log.info("매니저, 오너의 대면 주문완료 컨트롤러 시작");
+                UpdateOrderResponseDto responseDto = orderStatusService.updateOrderFace(orderId, updateOrderRequestDto, userDetails.getUser());
+                log.info("매니저, 오너의 대면 주문완료 컨트롤러  종료");
+                return ResponseEntity.ok(responseDto);
+            } else {
+                log.warn("잘못된 권한으로 주문 업데이트 시도: {}", userDetails.getUser().getRole());
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("잘못된 권한입니다.");
+            }
+        } catch (Exception e) {
+            log.error("주문 상태 업데이트 중 오류 발생: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("message" + e.getMessage());
+        }
     }
 
     // 주문 ID - 1건 조회(CUSTOMER)
