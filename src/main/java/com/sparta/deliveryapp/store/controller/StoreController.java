@@ -1,10 +1,12 @@
 package com.sparta.deliveryapp.store.controller;
 
 import com.sparta.deliveryapp.store.dto.StoreNearbyStoreResponseDto;
+import com.sparta.deliveryapp.store.dto.StoreNearbyStoreWithCategoryResponseDto;
 import com.sparta.deliveryapp.store.dto.StoreRequestDto;
 import com.sparta.deliveryapp.store.service.StoreService;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -46,7 +48,7 @@ public class StoreController {
   public ResponseEntity<Page<StoreNearbyStoreResponseDto>> getNearbyStoresWithoutCategory(
       @RequestParam(value = "longitude") double longitude,
       @RequestParam(value = "latitude") double latitude,
-      @PageableDefault(
+      @PageableDefault( //todo: 등록시간 기준 최신순, 오래된 순을 기본 정렬 조건으로, 차후 정렬 조건으로 거리순
           size = 10,
           page = 0,
           sort = "distanceFromRequest",
@@ -59,5 +61,23 @@ public class StoreController {
     return ResponseEntity.ok().body(storeResponseDto);
   }
 
+  //카테고리에 해당하는 주변 가게 검색
+  @GetMapping("/locandcat")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<Page<StoreNearbyStoreWithCategoryResponseDto>> getNearbyStoresWithCategory(
+      @RequestParam(value = "category") List<String> categoryNames,
+      @RequestParam(value = "longitude") double longitude,
+      @RequestParam(value = "latitude") double latitude,
+      @PageableDefault( //todo: 등록시간 기준 최신순, 오래된 순을 기본 정렬 조건으로, 차후 정렬 조건으로 거리순
+          size = 10,
+          page = 0,
+          sort = "distanceFromRequest",
+          direction = Direction.ASC) Pageable pageable) {
+
+    Page<StoreNearbyStoreWithCategoryResponseDto> storeDtos = storeService.findNearbyStoresByCategory(
+        categoryNames, longitude, latitude, pageable);
+
+    return ResponseEntity.ok().body(storeDtos);
+  }
 
 }

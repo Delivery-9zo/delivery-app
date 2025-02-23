@@ -1,38 +1,46 @@
 package com.sparta.deliveryapp.store.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class StoreRequestDto {
+@Builder
+// 응답 값에 거리와 카테고리가 포함된 가게 정보 DTO
+public class StoreNearbyStoreWithCategoryResponseDto {
+
+  @NotNull
+  private UUID storeId;
 
   @NotBlank
-  @JsonProperty("store_name")
   private String storeName;
 
   @NotBlank
-  @JsonProperty("address")
   private String address;
 
   @NotBlank
-  @JsonProperty("b_regi_num")
   private String bRegiNum;
 
   @NotNull
-  @JsonProperty("open_at")
-  private String openAt;
+  private LocalTime openAt;
 
   @NotNull
-  @JsonProperty("close_at")
-  private String closeAt;
+  private LocalTime closeAt;
 
-  @JsonProperty("category")
   private List<String> categories;
+
+  private Double distanceFromRequest;
+
+//  private Double rating;
+
 }
