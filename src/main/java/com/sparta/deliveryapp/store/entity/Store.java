@@ -78,5 +78,4 @@ public class Store extends BaseEntity {
     storeCategories.remove(storeCategory);
     storeCategory.setStore(null);
   }
-
 }
