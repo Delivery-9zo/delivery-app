@@ -1,6 +1,7 @@
 package com.sparta.deliveryapp.store.repository;
 
 import com.sparta.deliveryapp.store.dto.StoreNearbyStoreResponseDto;
+import com.sparta.deliveryapp.store.dto.StoreNearbyStoreWithCategoryResponseDto;
 import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.user.entity.User;
 import jakarta.validation.constraints.NotBlank;
@@ -24,9 +25,19 @@ public interface StoreRepository extends JpaRepository<Store, UUID>, StoreReposi
 
   Page<Store> findByStoreNameContaining(String storeName, Pageable pageable);
 
+
 }
 
 interface StoreRepositoryCustom {
-  Page<StoreNearbyStoreResponseDto> findNearbyStoresWithoutCategory(double longitude, double latitude, int range,
+
+  Page<StoreNearbyStoreResponseDto> findNearbyStoresWithoutCategory(double longitude,
+      double latitude, int range,
+      Pageable pageable);
+
+  Page<StoreNearbyStoreWithCategoryResponseDto> findNearbyStoresByCategories(
+      List<String> categoryNames,
+      double longitude,
+      double latitude,
+      int range,
       Pageable pageable);
 }

@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -31,4 +33,7 @@ public class StoreRequestDto {
   @NotNull
   @JsonProperty("close_at")
   private String closeAt;
+
+  @JsonProperty("category")
+  private List<String> categories;
 }

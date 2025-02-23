@@ -2,8 +2,10 @@ package com.sparta.deliveryapp.order.controller;
 
 import com.sparta.deliveryapp.order.dto.RegisterOrderRequestDto;
 import com.sparta.deliveryapp.order.dto.RegisterOrderResponseDto;
+import com.sparta.deliveryapp.order.dto.SearchOrderResponseDto;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.service.OrderRegisterService;
+import com.sparta.deliveryapp.order.service.OrderSearchService;
 import com.sparta.deliveryapp.order.service.OrderStatusService;
 import com.sparta.deliveryapp.user.entity.UserRole;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
@@ -18,6 +20,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -29,6 +32,8 @@ public class OrderController {
     private final OrderRegisterService orderRegisterService;
     @Autowired
     private final OrderStatusService orderStatusService;
+    @Autowired
+    private OrderSearchService orderSearchService;
 
     // 주문 취소(SUCCESS -> CANCEL) : CUSTOMER / MANAGER,OWNER
     @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_MANGER', 'ROLE_OWNER')")
@@ -77,4 +82,27 @@ public class OrderController {
 
         return ResponseEntity.ok(responseDto);
     }
+
+    // 주문 ID - 1건 조회(CUSTOMER)
+    @GetMapping("/{orderId}")
+    public ResponseEntity<?> OrderByOrderId(@PathVariable("orderId") UUID orderId,
+                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        SearchOrderResponseDto searchOrderResponseDto = orderSearchService.findOrderByOrderId(orderId, userDetails.getUser());
+
+        return ResponseEntity.ok(searchOrderResponseDto);
+    }
+
+
+    // 사용자 ID - 목록 조회(CUSTOMER)
+    @GetMapping("/user/{orderId}")
+    public ResponseEntity<?> OrderByUserId(@PathVariable("orderId") UUID orderId,
+                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        List<SearchOrderResponseDto> searchOrderResponseDtoList = orderSearchService.findOrderByUserId(userDetails.getUser());
+
+        return ResponseEntity.ok(searchOrderResponseDtoList);
+    }
+
+
 }

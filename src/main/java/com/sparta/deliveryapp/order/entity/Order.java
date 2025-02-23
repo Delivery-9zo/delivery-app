@@ -1,6 +1,9 @@
 package com.sparta.deliveryapp.order.entity;
 
 import com.sparta.deliveryapp.auditing.BaseEntity;
+import com.sparta.deliveryapp.order.dto.SearchOrderItemResponseDto;
+import com.sparta.deliveryapp.order.dto.SearchOrderResponseDto;
+import com.sparta.deliveryapp.payment.dto.PaymentResponseDto;
 import com.sparta.deliveryapp.payment.entity.Payment;
 import com.sparta.deliveryapp.store.entity.Store;
 import jakarta.persistence.*;
@@ -80,4 +83,21 @@ public class Order extends BaseEntity {
         this.orderMemo = orderMemo;
         this.orderState = OrderState.WAIT;
     }
+
+    public SearchOrderResponseDto toSearchOrderResponseDto(List<SearchOrderItemResponseDto> itemList,
+                                                           PaymentResponseDto paymentResponseDto) {
+        return SearchOrderResponseDto.builder()
+                .orderId(orderId)
+                .userId(userId)
+                .itemId(itemId)
+                .orderType(orderType)
+                .orderTime(orderTime)
+                .totalPrice(totalPrice)
+                .userAddress(userAddress)
+                .orderMemo(orderMemo)
+                .itemList(itemList)
+                .paymentResponseDto(paymentResponseDto)
+                .build();
+    }
+
 }

@@ -1,22 +1,23 @@
 package com.sparta.deliveryapp.store.entity;
 
 import com.sparta.deliveryapp.auditing.BaseEntity;
+import com.sparta.deliveryapp.category.entity.Category;
 import com.sparta.deliveryapp.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.annotations.Where;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Setter
 @Getter
 @Where(clause = "deleted_at IS NULL")
 @Table(name = "p_store")
@@ -40,9 +41,6 @@ public class Store extends BaseEntity {
   @Column(name = "b_regi_num", nullable = false)
   private String bRegiNum;
 
-  @Column(name = "rating")
-  private Double rating;
-
   @Column(name = "open_at")
   private LocalTime openAt;
 
@@ -61,6 +59,18 @@ public class Store extends BaseEntity {
 
   public boolean isAssociated(User user) {
     return this.user.equals(user);
+  }
+
+  @OneToMany(mappedBy = "store")
+  private List<StoreCategory> storeCategories;
+
+  @Transient
+  public List<Category> getCategories() {
+    List<Category> categories = new ArrayList<>();
+    for (StoreCategory storeCategory : storeCategories) {
+      categories.add(storeCategory.getCategory());
+    }
+    return categories;
   }
 
 }
