@@ -15,20 +15,8 @@ import com.sparta.deliveryapp.store.dto.StoreNearbyStoreWithCategoryResponseDto;
 import com.sparta.deliveryapp.store.entity.QStore;
 import com.sparta.deliveryapp.store.entity.QStoreCategory;
 import jakarta.persistence.EntityManager;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
+
 import java.util.List;
-=======
-=======
->>>>>>> Stashed changes
-<<<<<<< HEAD
-=======
-import java.util.List;
->>>>>>> f3943ca (feat: 가게 검색 시 리뷰 평점 컬럼 조회 기능 추가)
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -109,23 +97,11 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
     QCategory category = QCategory.category;
     QReview review = QReview.review;
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    BooleanExpression categoryCondition = category.categoryName.in(categoryNames);
-
-=======
-=======
->>>>>>> Stashed changes
     BooleanExpression distanceCondition = geoDistance(longitude, latitude, store.storeCoordX,
         store.storeCoordY, range);
 
     BooleanExpression categoryCondition = category.categoryName.in(categoryNames);
 
-    // 🔍 카운트 쿼리 추가
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     JPAQuery<Long> countQuery = queryFactory
         .select(store.countDistinct())
         .from(store)
@@ -137,31 +113,8 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 
     Long totalCount = countQuery.fetchOne();
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     List<Tuple> query = queryFactory
         .select(
-=======
-=======
->>>>>>> Stashed changes
-    // 🔍 메인 쿼리 수정: Store 엔티티 포함 + 카테고리 동적 수집
-    List<Tuple> query = queryFactory
-        .select(
-//            ExpressionUtils.as(
-//                JPAExpressions
-//                    .select(store.count())
-//                    .from(store)
-//                    .innerJoin(store.storeCategories, storeCategory)
-//                    .innerJoin(storeCategory.category, category)
-//                    .leftJoin(store.reviews, review)
-//                    .where(categoryCondition, geoDistance(longitude, latitude, store.storeCoordX,
-//                        store.storeCoordY, range))
-//                , "storeCount"
-//            ),
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
             store.storeId,
             store.storeName,
             store.address,
@@ -176,13 +129,7 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
             ).as("distanceFromRequest"),
             review.rating.avg().as("rating"),
             store.storeCategories,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
             storeCategory.category,
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
             storeCategory,
             category
         )

@@ -34,12 +34,6 @@ public class StoreResponseDto {
   @NotNull
   private LocalTime closeAt;
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
   private List<String> categories;
 
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 }
