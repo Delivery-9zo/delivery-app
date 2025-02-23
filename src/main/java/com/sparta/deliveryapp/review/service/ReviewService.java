@@ -58,7 +58,7 @@ public class ReviewService {
   }
 
   public Double getStoreAvgRating(UUID storeId) {
-    return avgRating = reviewRepository.getAvgRatingByStoreId(storeId);
+    return reviewRepository.getAvgRatingByStoreId(storeId);
   }
 
   public void deleteReview(UUID reviewId) {
