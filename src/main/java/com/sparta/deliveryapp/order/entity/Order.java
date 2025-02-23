@@ -62,8 +62,8 @@ public class Order extends BaseEntity {
     @Enumerated(value = EnumType.STRING)
     private OrderState orderState;
 
-    @OneToMany
-    private final List<OrderItem> orderItems = new ArrayList<>();
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderItem> orderItems = new ArrayList<>();
 
     @OneToOne
     @JoinColumn(name = "payment_id")
@@ -85,17 +85,17 @@ public class Order extends BaseEntity {
         this.orderState = OrderState.WAIT;
     }
 
-    public SearchOrderResponseDto toSearchOrderResponseDto(List<SearchOrderItemResponseDto> itemList,
+    public SearchOrderResponseDto toSearchOrderByOrderIdResponseDto(Order order, List<SearchOrderItemResponseDto> itemList,
                                                            PaymentResponseDto paymentResponseDto) {
         return SearchOrderResponseDto.builder()
-                .orderId(orderId)
-                .userId(userId)
-                .itemId(itemId)
-                .orderType(orderType)
-                .orderTime(orderTime)
-                .totalPrice(totalPrice)
-                .userAddress(userAddress)
-                .orderMemo(orderMemo)
+                .orderId(order.getOrderId())
+                .userId(order.getUserId())
+                .orderType(order.getOrderType())
+                .orderTime(order.getOrderTime())
+                .totalPrice(order.getTotalPrice())
+                .userAddress(order.getUserAddress())
+                .orderMemo(order.getOrderMemo())
+                .orderState(order.getOrderState())
                 .itemList(itemList)
                 .paymentResponseDto(paymentResponseDto)
                 .build();

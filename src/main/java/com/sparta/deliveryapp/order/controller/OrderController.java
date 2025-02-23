@@ -11,7 +11,10 @@ import com.sparta.deliveryapp.user.entity.UserRole;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -20,7 +23,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -30,10 +32,8 @@ import java.util.UUID;
 public class OrderController {
 
     private final OrderRegisterService orderRegisterService;
-    @Autowired
     private final OrderStatusService orderStatusService;
-    @Autowired
-    private OrderSearchService orderSearchService;
+    private final OrderSearchService orderSearchService;
 
     // 주문 취소(SUCCESS -> CANCEL) : CUSTOMER / MANAGER,OWNER
     @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_MANGER', 'ROLE_OWNER')")
@@ -85,24 +85,22 @@ public class OrderController {
 
     // 주문 ID - 1건 조회(CUSTOMER)
     @GetMapping("/{orderId}")
-    public ResponseEntity<?> OrderByOrderId(@PathVariable("orderId") UUID orderId,
-                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<SearchOrderResponseDto> getOrderByOrderId(@PathVariable("orderId") UUID orderId,
+                                                                     @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         SearchOrderResponseDto searchOrderResponseDto = orderSearchService.findOrderByOrderId(orderId, userDetails.getUser());
 
         return ResponseEntity.ok(searchOrderResponseDto);
     }
 
-
     // 사용자 ID - 목록 조회(CUSTOMER)
-    @GetMapping("/user/{orderId}")
-    public ResponseEntity<?> OrderByUserId(@PathVariable("orderId") UUID orderId,
-                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    @GetMapping("/user")
+    public ResponseEntity<Page<SearchOrderResponseDto>> getOrdersByUserId(@PageableDefault(size = 10, page = 0, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+                                                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        List<SearchOrderResponseDto> searchOrderResponseDtoList = orderSearchService.findOrderByUserId(userDetails.getUser());
+        Page<SearchOrderResponseDto> searchOrderResponseDtoList = orderSearchService.findOrdersByUserId(pageable, userDetails.getUser());
 
         return ResponseEntity.ok(searchOrderResponseDtoList);
     }
-
 
 }

@@ -6,6 +6,7 @@ import com.sparta.deliveryapp.order.service.MasterOrderStatusService;
 import com.sparta.deliveryapp.order.service.OrderSearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -26,6 +27,7 @@ import java.util.UUID;
 @PreAuthorize("hasAuthority('ROLE_MASTER')")
 public class MasterOrderController {
 
+    @Autowired
     private final OrderSearchService orderSearchService;
     private final MasterOrderStatusService masterOrderStatusService;
 
@@ -56,13 +58,13 @@ public class MasterOrderController {
 
     // 전체 주문 조회
     @GetMapping
-    public ResponseEntity<Page<SearchOrderResponseDto>> OrderList(@PageableDefault(
+    public ResponseEntity<Page<SearchOrderResponseDto>> getOrdersByMaster(@PageableDefault(
             size = 10,
             page = 0,
             sort = "createdAt",
             direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<SearchOrderResponseDto> searchOrderResponseDtoList = orderSearchService.findAllByCreatedAt(pageable);
+        Page<SearchOrderResponseDto> searchOrderResponseDtoList = orderSearchService.findAllByOrderByCreatedAtDesc(pageable);
 
         return ResponseEntity.ok(searchOrderResponseDtoList);
     }
