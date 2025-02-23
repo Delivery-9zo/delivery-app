@@ -65,7 +65,7 @@ public class PaymentSearchService {
 
     // 사용자별 결제 조회
     @Transactional(readOnly = true)
-    public Page<PaymentByUserIdResponseDto> getPaymentByUserId(UUID userId, User user) {
+    public Page<PaymentByUserIdResponseDto> getPaymentsByUserId(UUID userId, Pageable pageable, User user) {
 
         if(user.getRole() != UserRole.CUSTOMER) {
             throw new AccessDeniedException("CUSTOMER 권한만 결제 조회 가능합니다.");
@@ -75,11 +75,10 @@ public class PaymentSearchService {
             throw new IllegalArgumentException("사용자가 일치하지 않습니다.");
         }
 
-        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Payment> paymentList = paymentRepository.findAllByUserId(userId, pageable);
+        Page<Payment> paymentList = paymentRepository.findAllByUserIdOrderByCreatedAtDesc(userId, pageable);
 
         if (paymentList.isEmpty()) {
-            throw new NoSuchElementException("결제 내역이 없습니다.");
+            throw new NoSuchElementException("고객님의 결제 내역이 없습니다.");
         }
 
         List<PaymentByUserIdResponseDto> paymentResponseList = paymentList.getContent().stream()

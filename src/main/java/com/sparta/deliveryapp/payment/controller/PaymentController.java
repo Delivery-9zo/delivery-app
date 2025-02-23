@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -73,10 +75,11 @@ public class PaymentController {
 
     // 사용자별 결제 조회
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getPaymentByUserId(@PathVariable(name = "userId") UUID userId,
-        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<?> getPaymentsByUserId(@PathVariable(name = "userId") UUID userId,
+                        @PageableDefault(size = 10, page = 0) Pageable pageable,
+                        @AuthenticationPrincipal UserDetailsImpl userDetails) {
         try {
-            Page<PaymentByUserIdResponseDto> paymentResponse = paymentSearchService.getPaymentByUserId(userId, userDetails.getUser());
+            Page<PaymentByUserIdResponseDto> paymentResponse = paymentSearchService.getPaymentsByUserId(userId, pageable, userDetails.getUser());
             return ResponseEntity.ok(paymentResponse);
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Collections.singletonMap("message", "AccessDeniedException: " + e.getMessage()));
