@@ -10,7 +10,8 @@ import java.util.UUID;
 
 public interface PaymentRepository extends JpaRepository<Payment, UUID> {
     Page<Payment> findAllByUserIdOrderByCreatedAtDesc(UUID userId, Pageable pageable);
-    Page<Payment> findAll(Pageable pageable);
+    Page<Payment> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
     Optional<Payment> findByOrderId(UUID orderId);
+
 }
