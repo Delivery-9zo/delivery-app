@@ -33,6 +33,4 @@ public class StoreResponseDto {
   @NotNull
   private LocalTime closeAt;
 
-  private Double rating;
-
 }

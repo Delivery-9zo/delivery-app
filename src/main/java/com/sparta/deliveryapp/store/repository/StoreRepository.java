@@ -2,6 +2,7 @@ package com.sparta.deliveryapp.store.repository;
 
 import com.sparta.deliveryapp.store.dto.StoreNearbyStoreResponseDto;
 import com.sparta.deliveryapp.store.dto.StoreNearbyStoreWithCategoryResponseDto;
+import com.sparta.deliveryapp.store.dto.StoreResponseDto;
 import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.user.entity.User;
 import jakarta.validation.constraints.NotBlank;
@@ -40,4 +41,5 @@ interface StoreRepositoryCustom {
       double latitude,
       int range,
       Pageable pageable);
+
 }

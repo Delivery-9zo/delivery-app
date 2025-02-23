@@ -2,6 +2,7 @@ package com.sparta.deliveryapp.store.entity;
 
 import com.sparta.deliveryapp.auditing.BaseEntity;
 import com.sparta.deliveryapp.category.entity.Category;
+import com.sparta.deliveryapp.review.entity.Review;
 import com.sparta.deliveryapp.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -65,12 +66,15 @@ public class Store extends BaseEntity {
   private List<StoreCategory> storeCategories;
 
   @Transient
-  public List<Category> getCategories() {
-    List<Category> categories = new ArrayList<>();
+  public List<String> getCategories() {
+    List<String> categories = new ArrayList<>();
     for (StoreCategory storeCategory : storeCategories) {
-      categories.add(storeCategory.getCategory());
+      categories.add(storeCategory.getCategory().getCategoryName());
     }
     return categories;
   }
 
+  @OneToMany(fetch = FetchType.LAZY)
+  @Column(name = "review_uuid")
+  private List<Review> reviews;
 }
