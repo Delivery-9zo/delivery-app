@@ -1,11 +1,10 @@
 package com.sparta.deliveryapp.payment.controller;
 
 import com.sparta.deliveryapp.payment.dto.PaymentAllResponseDto;
-import com.sparta.deliveryapp.payment.service.PaymentSearchService;
+import com.sparta.deliveryapp.payment.service.MasterPaymentService;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,18 +20,18 @@ import java.util.Collections;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/master")
+@RequestMapping("/api/master/payments")
+@PreAuthorize("hasAuthority('ROLE_MASTER')")
+
 public class MasterPaymentController {
 
-    @Autowired
-    private PaymentSearchService paymentSearchService;
+    private final MasterPaymentService masterPaymentService;
 
     // 전사용자 결제 조회 - MASTER
-    @GetMapping("/payments")
-    @PreAuthorize("hasAuthority('ROLE_MASTER')")
+    @GetMapping()
     public ResponseEntity<?> getAllPayments(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         try {
-            Page<PaymentAllResponseDto> paymentResponse = paymentSearchService.getAllPayments(userDetails.getUser());
+            Page<PaymentAllResponseDto> paymentResponse = masterPaymentService.getAllPayments(userDetails.getUser());
             return ResponseEntity.ok(paymentResponse);
         } catch(AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
