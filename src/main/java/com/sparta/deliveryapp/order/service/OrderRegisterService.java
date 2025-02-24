@@ -9,7 +9,6 @@ import com.sparta.deliveryapp.order.entity.OrderItem;
 import com.sparta.deliveryapp.order.entity.OrderState;
 import com.sparta.deliveryapp.order.repository.OrderItemRepository;
 import com.sparta.deliveryapp.order.repository.OrderRepository;
-import com.sparta.deliveryapp.payment.service.PaymentService;
 import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.user.entity.User;
@@ -28,9 +27,6 @@ import java.util.UUID;
 public class OrderRegisterService {
 
     private final OrderRepository orderRepository;
-    private final OrderItemRegisterService orderItemRegisterService;
-
-    private final PaymentService paymentService;
     private final StoreRepository storeRepository;
     private final MenuRepository menuRepository;
     private final OrderItemRepository orderItemRepository;
