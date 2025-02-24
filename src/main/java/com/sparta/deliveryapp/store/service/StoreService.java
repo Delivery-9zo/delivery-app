@@ -8,10 +8,20 @@ import com.sparta.deliveryapp.store.dto.StoreRequestDto;
 import com.sparta.deliveryapp.store.dto.StoreResponseDto;
 import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.entity.StoreCategory;
+import com.sparta.deliveryapp.store.repository.StoreCategoryRepository;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.store.util.kakaoLocal.KakaoLocalAPI;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -31,6 +41,7 @@ public class StoreService {
 
   private final StoreRepository storeRepository;
   private final CategoryRepository categoryRepository;
+  private final StoreCategoryRepository storeCategoryRepository;
   private final KakaoLocalAPI kakaoLocalAPI;
 
   /**
@@ -53,23 +64,23 @@ public class StoreService {
     double[] storeCoords = kakaoLocalAPI.getCoordsFromAddress(storeRequestDto.getAddress());
 
     // 카테고리 이름 리스트로 카테고리 테이블 조회
-    List<Category> categories = categoryRepository.findByCategoryNameIn(storeRequestDto.getCategories());
+    List<Category> categories = categoryRepository.findByCategoryNameIn(
+        storeRequestDto.getCategories());
 
-//    log.info(categories.toString());
     // StoreEntity 생성 및 엔티티에서 빠진 컬럼 추가
     Store newStore = Store.builder()
         .storeName(storeRequestDto.getStoreName())
         .address(storeRequestDto.getAddress()).bRegiNum(storeRequestDto.getBRegiNum())
         .storeCoordX(storeCoords[0]) // x:경도
         .storeCoordY(storeCoords[1])  // y:위도
-//        .rating(0.0)
         .openAt(convertStringToTimestamp(storeRequestDto.getOpenAt()))
         .closeAt(convertStringToTimestamp(storeRequestDto.getCloseAt()))
         .user(userDetails.getUser())
         .build();
 
     // 카테고리 리스트를 받아서 중간 테이블과의 관계 설정
-    List<StoreCategory> storeCategories = createStoreCategories(categories, newStore);  // newStore 객체 전달
+    List<StoreCategory> storeCategories = createStoreCategories(categories,
+        newStore);  // newStore 객체 전달
 
     newStore.setStoreCategories(storeCategories);
 
@@ -77,6 +88,7 @@ public class StoreService {
     storeRepository.save(newStore);
 
   }
+
   // 중간 테이블 연결
   private List<StoreCategory> createStoreCategories(List<Category> categories, Store store) {
     List<StoreCategory> storeCategories = new ArrayList<>();
@@ -114,7 +126,8 @@ public class StoreService {
    */
   public Page<StoreResponseDto> findStoresByStoreName(String storeName, Pageable pageable) {
 
-    Page<Store> stores = storeRepository.findByStoreNameContaining(storeName, pageable);
+    Page<Store> stores = storeRepository.findByStoreNameContainingWithCategories(storeName,
+        pageable);
 
     if (stores.isEmpty()) {
       throw new NoSuchElementException("해당하는 가게가 없습니다.");
@@ -128,24 +141,30 @@ public class StoreService {
             .bRegiNum(store.getBRegiNum())
             .openAt(store.getOpenAt())
             .closeAt(store.getCloseAt())
+            .categories(store.getStoreCategories().stream()
+                .map(storeCategory -> storeCategory.getCategory().getCategoryName())
+                .collect(Collectors.toList()))
             .build())
         .toList();
 
     return new PageImpl<>(storeResponseDtos, pageable, stores.getTotalElements());
   }
 
-  public StoreResponseDto findStoresByStoreId(String storeId) {
-    Optional<Store> store = storeRepository.findByStoreId(UUID.fromString(storeId));
-
-    StoreResponseDto storeResponseDto = store.map(s -> StoreResponseDto.builder()
-            .storeId(s.getStoreId())
-            .storeName(s.getStoreName())
-            .address(s.getAddress())
-            .bRegiNum(s.getBRegiNum())
-            .openAt(s.getOpenAt())
-            .closeAt(s.getCloseAt())
-            .build())
+  public StoreResponseDto findStoresByStoreId(UUID storeId) {
+    Store store = storeRepository.findByStoreId(storeId)
         .orElseThrow(() -> new NoSuchElementException("해당하는 가게가 없습니다."));
+
+    StoreResponseDto storeResponseDto = StoreResponseDto.builder()
+            .storeId(store.getStoreId())
+            .storeName(store.getStoreName())
+            .address(store.getAddress())
+            .bRegiNum(store.getBRegiNum())
+            .openAt(store.getOpenAt())
+            .closeAt(store.getCloseAt())
+            .categories(store.getStoreCategories().stream()
+                .map(storeCategory -> storeCategory.getCategory().getCategoryName())
+                .collect(Collectors.toList()))
+            .build();
 
     return storeResponseDto;
   }
@@ -223,4 +242,119 @@ public class StoreService {
 
     return nearbyStores;
   }
+
+  //master 권한 가게 정보 업데이트
+  public void updateStoreMaster(StoreRequestDto storeRequestDto, UserDetailsImpl userDetails) {
+
+    // 가게 유무 체크
+    Store existingStore = storeRepository.findByStoreName(storeRequestDto.getStoreName())
+        .orElseThrow(() -> new NoSuchElementException("가게 정보를 찾을 수 없습니다."));
+
+    // 카테고리 이름 리스트로 카테고리 테이블 조회(카테고리 검증)
+    List<Category> categories = categoryRepository.findByCategoryNameIn(
+        storeRequestDto.getCategories());
+
+    // 기존 StoreCategory 가져오기
+    List<StoreCategory> existingCategories = existingStore.getStoreCategories();
+
+    // 기존 카테고리 이름 목록
+    Set<String> existingCategoryNames = existingCategories.stream()
+        .map(sc -> sc.getCategory().getCategoryName())
+        .collect(Collectors.toSet());
+
+    // 새로 요청된 카테고리 이름 목록
+    Set<String> newCategoryNames = categories.stream()
+        .map(Category::getCategoryName)
+        .collect(Collectors.toSet());
+
+    // 삭제할 카테고리 찾기 (기존에는 있지만 새로운 요청에는 없는)
+    List<StoreCategory> categoriesToRemove = existingCategories.stream()
+        .filter(sc -> !newCategoryNames.contains(sc.getCategory().getCategoryName()))
+        .collect(Collectors.toList());
+
+    // 추가할 카테고리 찾기 (새로운 요청에는 있지만 기존에는 없는)
+    List<Category> categoriesToAdd = categories.stream()
+        .filter(c -> !existingCategoryNames.contains(c.getCategoryName()))
+        .collect(Collectors.toList());
+
+    // 삭제 로직
+    categoriesToRemove.forEach(existingStore::removeStoreCategory);
+    storeCategoryRepository.deleteAll(categoriesToRemove);
+
+    // 추가 로직
+    List<StoreCategory> newStoreCategories = createStoreCategories(categoriesToAdd, existingStore);
+    newStoreCategories.forEach(existingStore::addStoreCategory);
+
+    // 변경할 필드만 수정
+    existingStore = Store.builder()
+        .storeId(existingStore.getStoreId())
+        .storeName(storeRequestDto.getStoreName())
+        .address(storeRequestDto.getAddress())
+        .bRegiNum(storeRequestDto.getBRegiNum())
+        .openAt(convertStringToTimestamp(storeRequestDto.getOpenAt()))
+        .closeAt(convertStringToTimestamp(storeRequestDto.getCloseAt()))
+        .user(userDetails.getUser())
+        .storeCategories(existingStore.getStoreCategories())
+        .build();
+
+    // 업데이트된 엔티티 저장
+    storeRepository.save(existingStore);
+  }
+
+
+  //owner 권한 가게 정보 수정
+  public void updateStore(StoreRequestDto storeRequestDto, UserDetailsImpl userDetails) {
+    // 유저 가게 정보 조회
+    List<Store> storeEntity = storeRepository.findByUser(userDetails.getUser());
+    Store userStore = storeEntity.stream()
+        .filter(store -> store.getStoreName().equals(storeRequestDto.getStoreName()))
+        .findFirst()
+        .orElse(null);
+
+    if (userStore == null) {
+      throw new IllegalArgumentException("가게 정보를 찾을 수 없습니다.");
+    }
+
+    List<Category> categories = categoryRepository.findByCategoryNameIn(
+        storeRequestDto.getCategories());
+
+    List<StoreCategory> existingCategories = userStore.getStoreCategories();
+
+    Set<String> existingCategoryNames = existingCategories.stream()
+        .map(sc -> sc.getCategory().getCategoryName())
+        .collect(Collectors.toSet());
+
+    Set<String> newCategoryNames = categories.stream()
+        .map(Category::getCategoryName)
+        .collect(Collectors.toSet());
+
+    List<StoreCategory> categoriesToRemove = existingCategories.stream()
+        .filter(sc -> !newCategoryNames.contains(sc.getCategory().getCategoryName()))
+        .collect(Collectors.toList());
+
+    List<Category> categoriesToAdd = categories.stream()
+        .filter(c -> !existingCategoryNames.contains(c.getCategoryName()))
+        .collect(Collectors.toList());
+
+    categoriesToRemove.forEach(userStore::removeStoreCategory);
+    storeCategoryRepository.deleteAll(categoriesToRemove);
+
+    List<StoreCategory> newStoreCategories = createStoreCategories(categoriesToAdd, userStore);
+    newStoreCategories.forEach(userStore::addStoreCategory);
+
+    userStore = Store.builder()
+        .storeId(userStore.getStoreId())
+        .storeName(storeRequestDto.getStoreName())
+        .address(storeRequestDto.getAddress())
+        .bRegiNum(storeRequestDto.getBRegiNum())
+        .openAt(convertStringToTimestamp(storeRequestDto.getOpenAt()))
+        .closeAt(convertStringToTimestamp(storeRequestDto.getCloseAt()))
+        .user(userDetails.getUser())
+        .storeCategories(userStore.getStoreCategories())
+        .build();
+
+    storeRepository.save(userStore);
+  }
+
+
 }

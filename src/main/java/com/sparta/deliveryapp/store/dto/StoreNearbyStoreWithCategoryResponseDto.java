@@ -38,6 +38,6 @@ public class StoreNearbyStoreWithCategoryResponseDto {
 
   private Double distanceFromRequest;
 
-//  private Double rating;
+  private Double rating;
 
 }
