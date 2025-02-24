@@ -2,7 +2,6 @@ package com.sparta.deliveryapp.store.controller;
 
 import com.sparta.deliveryapp.store.dto.StoreRequestDto;
 import com.sparta.deliveryapp.store.dto.StoreResponseDto;
-import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.service.StoreService;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,13 +18,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -37,14 +34,15 @@ public class StoreMasterController {
 
   private final StoreService storeService;
 
-  @DeleteMapping("/{storeId}")
+  @DeleteMapping("")
   @Operation(summary = "가게 삭제 기능", description = "가게 UUID를 이용하여 가게를 삭제하는 API")
   public ResponseEntity<String> deleteStore(
-      @PathVariable String storeId) {
+      @RequestParam(name = "storeId") String storeId,
+  @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-    Store deletedStore = storeService.deleteStore(storeId);
+    storeService.deleteStore(storeId, userDetails);
 
-    return ResponseEntity.ok().body(deletedStore.getDeletedAt()+" 가게가 정상적으로 삭제되었습니다.");
+    return ResponseEntity.ok().body("가게가 정상적으로 삭제되었습니다.");
   }
 
   //이름으로 가게 목록 조회
@@ -55,10 +53,11 @@ public class StoreMasterController {
       @PageableDefault(
           size = 10,
           page = 0,
-          sort = "createAt",
+          sort = {"createdAt", "updatedAt"},
           direction = Direction.ASC) Pageable pageable) {
 
-    Page<StoreResponseDto> storeResponseDtos = storeService.findStoresByStoreName(storeName, pageable);
+    Page<StoreResponseDto> storeResponseDtos = storeService.findStoresByStoreName(storeName,
+        pageable);
 
     return ResponseEntity.ok().body(storeResponseDtos);
   }

@@ -1,20 +1,29 @@
 package com.sparta.deliveryapp.category.service;
 
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.ALREADY_REGISTERED_CATEGORY;
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.NOT_EXISTS_CATEGORY;
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.NOT_EXISTS_INPUT_CATEGORY_DATA;
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.REGISTERED_FAILED_CATEGORY;
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.UPDATED_FAILED_CATEGORY;
+
 import com.sparta.deliveryapp.category.dto.CategoryRequestDto;
 import com.sparta.deliveryapp.category.dto.CategoryResponseDto;
 import com.sparta.deliveryapp.category.dto.CategoryUpdateRequestDto;
 import com.sparta.deliveryapp.category.entity.Category;
 import com.sparta.deliveryapp.category.repository.CategoryRepository;
+import com.sparta.deliveryapp.commons.exception.error.CustomException;
+import com.sparta.deliveryapp.store.repository.StoreCategoryRepository;
+import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import jakarta.transaction.Transactional;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -22,12 +31,13 @@ import java.util.UUID;
 public class CategoryService {
 
   private final CategoryRepository categoryRepository;
+  private final StoreCategoryRepository storeCategoryRepository;
 
   @Transactional
   public void regiCategory(String categoryName) {
 
     if (categoryRepository.existsByCategoryName(categoryName)) {
-      throw new IllegalArgumentException("동일한 카테고리가 존재합니다.");
+      throw new CustomException(ALREADY_REGISTERED_CATEGORY);
     }
     Category category = new Category();
     category.setCategoryName(categoryName);
@@ -35,7 +45,7 @@ public class CategoryService {
     try {
       categoryRepository.save(category);
     } catch (Exception e) {
-      throw new IllegalArgumentException("카테고리 등록이 실패했습니다.");
+      throw new CustomException(REGISTERED_FAILED_CATEGORY);
     }
 
   }
@@ -48,13 +58,13 @@ public class CategoryService {
         : categoryUpdateRequestDto.getNewCategoryName();
 
     if (categoryName.isEmpty() || newCategoryName.isEmpty()) {
-      throw new IllegalArgumentException("카테고리나 새로운 카테고리가 입력되지 않았습니다.");
+      throw new CustomException(NOT_EXISTS_INPUT_CATEGORY_DATA);
     }
 
     Optional<Category> categoryOptional = categoryRepository.findByCategoryName(categoryName);
 
     if (categoryOptional.isEmpty()) {
-      throw new IllegalArgumentException("존재하지 않는 카테고리입니다.");
+      throw new CustomException(NOT_EXISTS_CATEGORY);
     }
 
     Category category = categoryOptional.get();
@@ -64,7 +74,7 @@ public class CategoryService {
     try {
       categoryRepository.save(category);  // 카테고리 저장
     } catch (Exception e) {
-      throw new RuntimeException("카테고리 업데이트에 실패했습니다.");
+      throw new CustomException(REGISTERED_FAILED_CATEGORY);
     }
   }
 
@@ -75,16 +85,16 @@ public class CategoryService {
         : categoryUpdateRequestDto.getNewCategoryName();
 
     if (categoryId == null) {
-      throw new IllegalArgumentException("카테고리 id가 비어있습니다.");
+      throw new CustomException(NOT_EXISTS_INPUT_CATEGORY_DATA);
     }
     if (newCategoryName.trim().isEmpty()) {
-      throw new IllegalArgumentException("카테고리 명이 없습니다.");
+      throw new CustomException(NOT_EXISTS_INPUT_CATEGORY_DATA);
     }
 
     Optional<Category> categoryOptional = categoryRepository.findByCategoryId(categoryId);
 
     if (categoryOptional.isEmpty()) {
-      throw new IllegalArgumentException("존재하지 않는 카테고리 id입니다.");
+      throw new CustomException(NOT_EXISTS_CATEGORY);
     }
 
     Category category = categoryOptional.get();
@@ -94,7 +104,7 @@ public class CategoryService {
     try {
       categoryRepository.save(category);  // 카테고리 저장
     } catch (Exception e) {
-      throw new RuntimeException("카테고리 업데이트에 실패했습니다.");
+      throw new CustomException(REGISTERED_FAILED_CATEGORY);
     }
   }
 
@@ -105,19 +115,23 @@ public class CategoryService {
         categoryRequestDto.getCategoryName() == null ? "" : categoryRequestDto.getCategoryName();
 
     if (categoryName.isEmpty()) {
-      throw new IllegalArgumentException("카테고리가 입력되지 않았습니다.");
+      throw new CustomException(NOT_EXISTS_INPUT_CATEGORY_DATA);
     }
 
     Optional<Category> categoryOptional = categoryRepository.findByCategoryName(categoryName);
 
     if (categoryOptional.isEmpty()) {
-      throw new IllegalArgumentException("존재하지 않는 카테고리입니다.");
+      throw new CustomException(NOT_EXISTS_CATEGORY);
     }
 
     try {
-      categoryRepository.delete(categoryOptional.get());
+      categoryRepository.deleteCategory(categoryOptional.get().getCategoryId(),
+          getCurrentUserEmail());
+      storeCategoryRepository.deleteStoreCategoriesByCategoryId(getCurrentUserEmail(),
+          categoryOptional.orElseThrow()
+              .getCategoryId());
     } catch (Exception e) {
-      throw new RuntimeException("카테고리 삭제 실패");
+      throw new CustomException(UPDATED_FAILED_CATEGORY);
     }
 
   }
@@ -126,19 +140,21 @@ public class CategoryService {
     UUID categoryId = categoryRequestDto.getCategoryId();
 
     if (categoryId == null) {
-      throw new IllegalArgumentException("카테고리가 입력되지 않았습니다.");
+      throw new CustomException(NOT_EXISTS_INPUT_CATEGORY_DATA);
     }
 
     Optional<Category> categoryOptional = categoryRepository.findByCategoryId(categoryId);
 
     if (categoryOptional.isEmpty()) {
-      throw new IllegalArgumentException("존재하지 않는 카테고리입니다.");
+      throw new CustomException(NOT_EXISTS_CATEGORY);
     }
 
     try {
-      categoryRepository.delete(categoryOptional.get());
+      categoryRepository.deleteCategory(categoryOptional.get().getCategoryId(),
+          getCurrentUserEmail());
+      storeCategoryRepository.deleteStoreCategoriesByCategoryId(getCurrentUserEmail(), categoryId);
     } catch (Exception e) {
-      throw new RuntimeException("카테고리 삭제 실패");
+      throw new CustomException(UPDATED_FAILED_CATEGORY);
     }
   }
 
@@ -151,9 +167,8 @@ public class CategoryService {
             .createAt(category.getCreatedAt())
             .build());
 
-
     if (categoryList.isEmpty()) {
-      throw new NoSuchElementException("등록된 카테고리가 없습니다.");
+      throw new CustomException(NOT_EXISTS_CATEGORY);
     }
 
     return categoryList;
@@ -161,14 +176,14 @@ public class CategoryService {
 
   public CategoryResponseDto getCategoryById(UUID categoryId) {
 
-    if(categoryId == null){
-      throw new IllegalArgumentException("카테고리 id가 없습니다.");
+    if (categoryId == null) {
+      throw new CustomException(NOT_EXISTS_INPUT_CATEGORY_DATA);
     }
 
     Optional<Category> category = categoryRepository.findByCategoryId(categoryId);
 
-    if(category.isEmpty()){
-      throw new NoSuchElementException("카테고리 id에 매칭되는 카테고리가 없습니다.");
+    if (category.isEmpty()) {
+      throw new CustomException(NOT_EXISTS_INPUT_CATEGORY_DATA);
     }
 
     CategoryResponseDto categoryResponseDto = category.map(o ->
@@ -177,11 +192,17 @@ public class CategoryService {
             .categoryName(o.getCategoryName())
             .createAt(o.getCreatedAt())
             .build()
-    ).orElseThrow(() -> new IllegalArgumentException("카테고리 없음"));
+    ).orElseThrow(() -> new CustomException(NOT_EXISTS_CATEGORY));
 
     return categoryResponseDto;
 
   }
 
-
+  private String getCurrentUserEmail() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth != null && auth.getPrincipal() instanceof UserDetailsImpl) {
+      return ((UserDetailsImpl) auth.getPrincipal()).getEmail();
+    }
+    throw new SecurityException("No authenticated user found");
+  }
 }

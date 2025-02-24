@@ -1,11 +1,10 @@
 package com.sparta.deliveryapp.store.repository;
 
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
-import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.deliveryapp.category.entity.QCategory;
@@ -15,7 +14,7 @@ import com.sparta.deliveryapp.store.dto.StoreNearbyStoreWithCategoryResponseDto;
 import com.sparta.deliveryapp.store.entity.QStore;
 import com.sparta.deliveryapp.store.entity.QStoreCategory;
 import jakarta.persistence.EntityManager;
-
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -56,14 +55,23 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
                 store.storeCoordX,
                 store.storeCoordY
             ).as("distanceFromRequest"),
-            review.rating.avg().as("averageRating")
+            review.rating.avg().as("averageRating"),
+            store.createdAt,
+            store.updatedAt
         )
         .from(store)
-        .leftJoin(store.reviews, review).fetchJoin()
-        .where(geoDistance(longitude, latitude, store.storeCoordX, store.storeCoordY, range))
+        .leftJoin(store.reviews, review)
+        .where(distanceCondition)
         .groupBy(store.storeId)
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize());
+
+    NumberTemplate<Double> distanceExpression = Expressions.numberTemplate(Double.class,
+        "ST_Distance(geography(ST_SetSRID(ST_Point({0}, {1}), 4326)), geography(ST_SetSRID(ST_Point({2}, {3}), 4326)))",
+        longitude, latitude,
+        store.storeCoordX,
+        store.storeCoordY
+    );
 
     List<StoreNearbyStoreResponseDto> contents = query.fetch().stream()
         .map(tuple -> StoreNearbyStoreResponseDto.builder()
@@ -73,9 +81,12 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
             .bRegiNum(tuple.get(store.bRegiNum)) // bRegiNum
             .openAt(tuple.get(store.openAt))  // openAt
             .closeAt(tuple.get(store.closeAt)) // closeAt
-            .distanceFromRequest(tuple.get(Expressions.numberTemplate(Double.class,
-                "distanceFromRequest"))) // distanceFromRequest
+            .distanceFromRequest(
+                tuple.get(distanceExpression) != null ? tuple.get(distanceExpression)
+                    : 0.0) // distanceFromRequest: null 체크 추가
             .rating(tuple.get(7, Double.class) == null ? 0.0 : tuple.get(7, Double.class)) // rating
+            .createdAt(tuple.get(8, LocalDateTime.class))
+            .updatedAt(tuple.get(9, LocalDateTime.class))
             .build()
         )
         .toList();
@@ -128,6 +139,8 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
                 store.storeCoordY
             ).as("distanceFromRequest"),
             review.rating.avg().as("rating"),
+            store.createdAt,
+            store.updatedAt,
             store.storeCategories,
             storeCategory.category,
             storeCategory,
@@ -137,14 +150,12 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
         .innerJoin(store.storeCategories, storeCategory)
         .innerJoin(storeCategory.category, category)
         .leftJoin(store.reviews, review)
-        .where(categoryCondition, geoDistance(longitude, latitude, store.storeCoordX,
-            store.storeCoordY, range))
+        .where(categoryCondition, distanceCondition)
         .groupBy(store.storeId, storeCategory.storeCategoryId, category.categoryId)
         .distinct() // 중복 제거
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize())
         .fetch();
-
 
     List<StoreNearbyStoreWithCategoryResponseDto> contents = query.stream()
         .map(tuple -> StoreNearbyStoreWithCategoryResponseDto.builder()
@@ -156,6 +167,8 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
             .closeAt(tuple.get(store.closeAt))
             .distanceFromRequest(tuple.get(6, Double.class))
             .rating(tuple.get(7, Double.class) == null ? 0.0 : tuple.get(7, Double.class))
+            .createdAt(tuple.get(8, LocalDateTime.class))
+            .updatedAt(tuple.get(9, LocalDateTime.class))
             .categories(categoryNames)
             .build())
         .toList();

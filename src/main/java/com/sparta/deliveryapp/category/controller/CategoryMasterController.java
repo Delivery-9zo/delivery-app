@@ -4,15 +4,24 @@ import com.sparta.deliveryapp.category.dto.CategoryRequestDto;
 import com.sparta.deliveryapp.category.dto.CategoryResponseDto;
 import com.sparta.deliveryapp.category.dto.CategoryUpdateRequestDto;
 import com.sparta.deliveryapp.category.service.CategoryService;
+import com.sparta.deliveryapp.store.entity.StoreCategory;
+import com.sparta.deliveryapp.store.repository.StoreCategoryRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -23,6 +32,7 @@ import java.util.UUID;
 public class CategoryMasterController {
 
   private final CategoryService categoryService;
+  private final StoreCategoryRepository storeCategoryRepository;
 
   @PostMapping("/regi")
   @Operation(summary = "카테고리 등록 기능", description = "카테고리를 등록하는 API")
@@ -64,6 +74,8 @@ public class CategoryMasterController {
 
     categoryService.deleteCategoryByName(categoryRequestDto);
 
+    List<StoreCategory> storeCategories = storeCategoryRepository.findAllByCategoryId(categoryRequestDto.getCategoryName());
+
     return ResponseEntity.ok().body("카테고리가 정상적으로 삭제되었습니다.");
   }
 
@@ -80,7 +92,8 @@ public class CategoryMasterController {
 
   @GetMapping("")
   @Operation(summary = "카테고리 검색 기능(이름 기준)", description = "등록된 카테고리 이름으로 검색하여 정보를 조회하는 API")
-  public ResponseEntity<CategoryResponseDto> getCategoryByName(@RequestParam(name = "id") UUID categoryId) {
+  public ResponseEntity<CategoryResponseDto> getCategoryByName(
+      @RequestParam(name = "id") UUID categoryId) {
 
     CategoryResponseDto categoryResponseDto = categoryService.getCategoryById(categoryId);
 
