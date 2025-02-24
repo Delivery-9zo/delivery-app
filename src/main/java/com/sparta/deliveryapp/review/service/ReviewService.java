@@ -1,35 +1,40 @@
 package com.sparta.deliveryapp.review.service;
 
+import com.sparta.deliveryapp.order.entity.Order;
+import com.sparta.deliveryapp.order.entity.OrderState;
+import com.sparta.deliveryapp.order.repository.OrderRepository;
 import com.sparta.deliveryapp.review.dto.ReviewGetResponseDto;
 import com.sparta.deliveryapp.review.dto.ReviewPostRequestDto;
 import com.sparta.deliveryapp.review.entity.Review;
 import com.sparta.deliveryapp.review.repository.ReviewRepository;
-import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.user.entity.User;
 import com.sparta.deliveryapp.user.repository.UserRepository;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
 
   private final ReviewRepository reviewRepository;
-  private final StoreRepository storeRepository;
   private final UserRepository userRepository;
+  private final OrderRepository orderRepository;
 
-  public void postReview(ReviewPostRequestDto dto, UUID storeId, UserDetailsImpl userDetails) {
-    Store store = storeRepository.getReferenceById(storeId);
+  public void postReview(ReviewPostRequestDto dto, UUID orderId, UserDetailsImpl userDetails) {
+    Order order = orderRepository.getReferenceById(orderId);
+
+    if (order.getOrderState() != OrderState.SUCCESS) {
+      throw new IllegalArgumentException("주문 완료된 상태에서만 리뷰를 작성할 수 있습니다.")
+    }
+
     User user = userRepository.findByEmail(userDetails.getEmail())
         .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
-
-    Review review = Review.of(dto.comment(), store, user, dto.image(), dto.rating());
+    Review review = Review.of(dto.comment(), order.getStore(), user, dto.image(), dto.rating());
     reviewRepository.save(review);
   }
 
