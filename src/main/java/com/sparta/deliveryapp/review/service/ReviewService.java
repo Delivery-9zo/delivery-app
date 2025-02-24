@@ -7,7 +7,6 @@ import com.sparta.deliveryapp.review.dto.ReviewGetResponseDto;
 import com.sparta.deliveryapp.review.dto.ReviewPostRequestDto;
 import com.sparta.deliveryapp.review.entity.Review;
 import com.sparta.deliveryapp.review.repository.ReviewRepository;
-import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.user.entity.User;
 import com.sparta.deliveryapp.user.repository.UserRepository;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
@@ -31,7 +30,7 @@ public class ReviewService {
     Order order = orderRepository.getReferenceById(orderId);
 
     if (order.getOrderState() != OrderState.SUCCESS) {
-      throw new IllegalArgumentException("주문 완료된 상태에서만 리뷰를 작성할 수 있습니다.")
+      throw new IllegalArgumentException("주문 완료된 상태에서만 리뷰를 작성할 수 있습니다.");
     }
 
     User user = userRepository.findByEmail(userDetails.getEmail())

@@ -5,6 +5,13 @@ import com.sparta.deliveryapp.menu.dto.MenuPatchRequestDto;
 import com.sparta.deliveryapp.menu.dto.MenuPostRequestDto;
 import com.sparta.deliveryapp.menu.service.MenuService;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,22 +35,43 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/menus")
 @RequiredArgsConstructor
+@Tag(name = "메뉴 API", description = "메뉴 CRUD 관련 API 엔드포인트")
 public class MenuController {
 
   private final MenuService menuService;
 
+
+  @Operation(summary = "메뉴 추가", description = "메뉴 정보를 전달하여 메뉴를 추가합니다.")
+  @ApiResponse(responseCode = "200", description = "메뉴 추가 성공", content = @Content(
+      schema = @Schema(type = "string", example = "메뉴가 등록되었습니다.")
+  ), headers = @Header(name = "Authorization", description = "jwt 토큰을 전달하여 인증"))
   @PostMapping
   public ResponseEntity<String> postMenu(
-      @RequestBody MenuPostRequestDto dto,
+      @RequestBody
+      @io.swagger.v3.oas.annotations.parameters.RequestBody(
+          required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = MenuPostRequestDto.class)
+          )
+      )
+      MenuPostRequestDto dto,
       @AuthenticationPrincipal UserDetailsImpl userDetails
   ) {
     menuService.postMenu(dto, userDetails);
     return ResponseEntity
         .status(HttpStatus.OK)
         .contentType(MediaType.APPLICATION_JSON)
-        .body("메뉴가 등록되었습니다.");
+        .body("Message: " + "메뉴가 등록되었습니다.");
   }
 
+  @Operation(summary = "이름으로 메뉴 조회", description = "메뉴 이름으로 가게의 메뉴를 조회합니다.")
+  @ApiResponse(responseCode = "200", description = "메뉴 조회 성공",
+      content = @Content(schema = @Schema(implementation = MenuGetResponseDto.class)),
+      headers = @Header(name = "Authorization", description = "jwt 토큰을 전달하여 인증"))
+  @Parameter(name = "menuName", description = "조회할 메뉴의 이름", required = true, example = "수박")
+  @Parameter(name = "storeId", description = "메뉴 조회할 상점의 Id", required = true, example =
+      "730320d6-cd32-4ddc-b56b-78f810d7d543")
   @GetMapping("/menu/{storeId}")
   public ResponseEntity<MenuGetResponseDto> getMenu(
       @RequestParam(name = "menuName") String menuName,
