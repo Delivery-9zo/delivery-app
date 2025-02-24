@@ -10,9 +10,15 @@ import static com.sparta.deliveryapp.commons.exception.ErrorCode.STORE_NOT_FOUND
 import com.sparta.deliveryapp.category.entity.Category;
 import com.sparta.deliveryapp.category.repository.CategoryRepository;
 import com.sparta.deliveryapp.commons.exception.error.CustomException;
+import com.sparta.deliveryapp.menu.entity.Menu;
+import com.sparta.deliveryapp.menu.repository.MenuRepository;
+import com.sparta.deliveryapp.menu.service.MenuService;
 import com.sparta.deliveryapp.order.dto.SearchOrderResponseDto;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.repository.OrderRepository;
+import com.sparta.deliveryapp.review.entity.Review;
+import com.sparta.deliveryapp.review.repository.ReviewRepository;
+import com.sparta.deliveryapp.review.service.ReviewService;
 import com.sparta.deliveryapp.store.dto.StoreNearbyStoreResponseDto;
 import com.sparta.deliveryapp.store.dto.StoreNearbyStoreWithCategoryResponseDto;
 import com.sparta.deliveryapp.store.dto.StoreRequestDto;
@@ -36,6 +42,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,6 +57,10 @@ public class StoreService {
   private final StoreCategoryRepository storeCategoryRepository;
   private final KakaoLocalAPI kakaoLocalAPI;
   private final OrderRepository orderRepository;
+  private final MenuRepository menuRepository;
+  private final MenuService menuService;
+  private final ReviewService reviewService;
+  private final ReviewRepository reviewRepository;
 
   /**
    * 가게 정보를 받아 store 테이블에 저장하는 메서드
@@ -113,7 +125,7 @@ public class StoreService {
    * @param: 가게 uuid(storeId), 유저 정보(userDetails)
    */
   @Transactional
-  public void deleteStore(String storeId) {
+  public void deleteStore(String storeId, UserDetailsImpl userDetails) {
 
     Store storeEntity = storeRepository.findByStoreId(UUID.fromString(storeId))
         .orElseThrow(() -> new CustomException(NOT_EXISTS_STORE_ID));
@@ -122,9 +134,21 @@ public class StoreService {
       throw new CustomException(ALREADY_DELETED_STORE_ID);
     }
 
-    storeRepository.delete(storeEntity);
+    storeRepository.deleteStoreByStoreId(getCurrentUserEmail(), storeEntity.getStoreId());
 
-    storeCategoryRepository.deleteAllByStore(storeEntity);
+    storeCategoryRepository.deleteStoreCategories(getCurrentUserEmail(),
+        storeEntity.getStoreId());
+
+    List<Menu> menus = menuRepository.findAllByStore_StoreId(storeEntity.getStoreId());
+    for (Menu menu : menus) {
+      menuService.deleteMenu(menu.getId(), storeEntity.getStoreId(), userDetails);
+    }
+
+    Page<Review> reviews = reviewRepository.findAllByStore_StoreId(storeEntity.getStoreId(),
+        Pageable.unpaged());
+    for (Review review : reviews.getContent()) {
+      reviewService.deleteReview(review.getId());
+    }
 
   }
 
@@ -385,5 +409,12 @@ public class StoreService {
     return new PageImpl<>(orderDtos, pageable, ordersPage.size());
   }
 
+  private String getCurrentUserEmail() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth != null && auth.getPrincipal() instanceof UserDetailsImpl) {
+      return ((UserDetailsImpl) auth.getPrincipal()).getEmail();
+    }
+    throw new SecurityException("No authenticated user found");
+  }
 
 }

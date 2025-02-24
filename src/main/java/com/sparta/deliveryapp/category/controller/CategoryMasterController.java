@@ -4,8 +4,11 @@ import com.sparta.deliveryapp.category.dto.CategoryRequestDto;
 import com.sparta.deliveryapp.category.dto.CategoryResponseDto;
 import com.sparta.deliveryapp.category.dto.CategoryUpdateRequestDto;
 import com.sparta.deliveryapp.category.service.CategoryService;
+import com.sparta.deliveryapp.store.entity.StoreCategory;
+import com.sparta.deliveryapp.store.repository.StoreCategoryRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CategoryMasterController {
 
   private final CategoryService categoryService;
+  private final StoreCategoryRepository storeCategoryRepository;
 
   @PostMapping("/regi")
   @Operation(summary = "카테고리 등록 기능", description = "카테고리를 등록하는 API")
@@ -69,6 +73,8 @@ public class CategoryMasterController {
       @RequestBody CategoryRequestDto categoryRequestDto) {
 
     categoryService.deleteCategoryByName(categoryRequestDto);
+
+    List<StoreCategory> storeCategories = storeCategoryRepository.findAllByCategoryId(categoryRequestDto.getCategoryName());
 
     return ResponseEntity.ok().body("카테고리가 정상적으로 삭제되었습니다.");
   }

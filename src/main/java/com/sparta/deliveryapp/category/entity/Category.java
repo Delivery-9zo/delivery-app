@@ -12,7 +12,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UuidGenerator;
 
@@ -22,7 +21,6 @@ import org.hibernate.annotations.UuidGenerator;
 @Builder
 @Getter
 @Setter
-@SQLDelete(sql = "UPDATE p_category SET deleted_at=CURRENT_TIMESTAMP WHERE category_id=?")
 @SQLRestriction("deleted_at IS NULL")
 @Table(name = "p_category")
 public class Category extends BaseEntity {

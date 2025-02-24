@@ -37,9 +37,10 @@ public class StoreMasterController {
   @DeleteMapping("")
   @Operation(summary = "가게 삭제 기능", description = "가게 UUID를 이용하여 가게를 삭제하는 API")
   public ResponseEntity<String> deleteStore(
-      @RequestParam(name = "storeId") String storeId) {
+      @RequestParam(name = "storeId") String storeId,
+  @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-    storeService.deleteStore(storeId);
+    storeService.deleteStore(storeId, userDetails);
 
     return ResponseEntity.ok().body("가게가 정상적으로 삭제되었습니다.");
   }
