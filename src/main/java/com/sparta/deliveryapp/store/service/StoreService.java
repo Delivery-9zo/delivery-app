@@ -1,7 +1,15 @@
 package com.sparta.deliveryapp.store.service;
 
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.ALREADY_DELETED_STORE_ID;
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.ALREADY_REGISTERED_STORE_ID;
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.INVALILD_LOCATION_DATA;
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.NOT_EXISTS_STORE_ID;
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.NOT_EXISTS_STORE_NAME;
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.STORE_NOT_FOUND;
+
 import com.sparta.deliveryapp.category.entity.Category;
 import com.sparta.deliveryapp.category.repository.CategoryRepository;
+import com.sparta.deliveryapp.commons.exception.error.CustomException;
 import com.sparta.deliveryapp.order.dto.SearchOrderResponseDto;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.repository.OrderRepository;
@@ -57,7 +65,7 @@ public class StoreService {
         storeRequestDto.getStoreName());
 
     if (storeEntity.isPresent()) {
-      throw new IllegalArgumentException("이미 존재하는 상호명입니다.");
+      throw new CustomException(ALREADY_REGISTERED_STORE_ID);
     }
 
     // 주소를 기반으로 경위도 추출
@@ -110,10 +118,10 @@ public class StoreService {
   public void deleteStore(String storeId) {
 
     Store storeEntity = storeRepository.findByStoreId(UUID.fromString(storeId))
-        .orElseThrow(() -> new EntityNotFoundException(storeId + " 가게가 존재하지 않습니다."));
+        .orElseThrow(() -> new CustomException(NOT_EXISTS_STORE_ID));
 
     if(storeEntity.getDeletedAt() != null){
-      throw new IllegalArgumentException("이미 삭제된 가게입니다.");
+      throw new CustomException(ALREADY_DELETED_STORE_ID);
     }
 
     storeRepository.delete(storeEntity);
@@ -134,7 +142,7 @@ public class StoreService {
         pageable);
 
     if (stores.isEmpty()) {
-      throw new NoSuchElementException("해당하는 가게가 없습니다.");
+      throw new CustomException(STORE_NOT_FOUND);
     }
 
     List<StoreResponseDto> storeResponseDtos = stores.stream()
@@ -158,7 +166,7 @@ public class StoreService {
 
   public StoreResponseDto findStoresByStoreId(UUID storeId) {
     Store store = storeRepository.findByStoreId(storeId)
-        .orElseThrow(() -> new NoSuchElementException("해당하는 가게가 없습니다."));
+        .orElseThrow(() -> new CustomException(STORE_NOT_FOUND));
 
     StoreResponseDto storeResponseDto = StoreResponseDto.builder()
             .storeId(store.getStoreId())
@@ -181,7 +189,7 @@ public class StoreService {
     final int RANGE = 3000;
 
     if (getDecimalPlaces(longitude) < 2 || getDecimalPlaces(latitude) < 2) {
-      throw new IllegalArgumentException("주어진 좌표의 자릿수가 너무 작습니다.");
+      throw new CustomException(INVALILD_LOCATION_DATA);
     }
 
     Page<StoreNearbyStoreResponseDto> nearbyStores = storeRepository.findNearbyStoresWithoutCategory(
@@ -189,7 +197,7 @@ public class StoreService {
         latitude, RANGE, pageable);
 
     if (nearbyStores.isEmpty()) {
-      throw new NoSuchElementException("근처 가게가 없습니다.");
+      throw new CustomException(STORE_NOT_FOUND);
     }
 
     return nearbyStores;
@@ -232,7 +240,7 @@ public class StoreService {
     final int RANGE = 3000;
 
     if (getDecimalPlaces(longitude) < 2 || getDecimalPlaces(latitude) < 2) {
-      throw new IllegalArgumentException("주어진 좌표의 자릿수가 너무 작습니다.");
+      throw new CustomException(INVALILD_LOCATION_DATA);
     }
 
     Page<StoreNearbyStoreWithCategoryResponseDto> nearbyStores = storeRepository.findNearbyStoresByCategories(
@@ -243,7 +251,7 @@ public class StoreService {
         pageable);
 
     if (nearbyStores.isEmpty()) {
-      throw new NoSuchElementException("카테고리에 해당하는 근처 가게가 없습니다.");
+      throw new CustomException(STORE_NOT_FOUND);
     }
 
     return nearbyStores;
@@ -254,7 +262,7 @@ public class StoreService {
 
     // 가게 유무 체크
     Store existingStore = storeRepository.findByStoreName(storeRequestDto.getStoreName())
-        .orElseThrow(() -> new NoSuchElementException("가게 정보를 찾을 수 없습니다."));
+        .orElseThrow(() -> new CustomException(NOT_EXISTS_STORE_NAME));
 
     // 카테고리 이름 리스트로 카테고리 테이블 조회(카테고리 검증)
     List<Category> categories = categoryRepository.findByCategoryNameIn(
@@ -318,7 +326,7 @@ public class StoreService {
         .orElse(null);
 
     if (userStore == null) {
-      throw new IllegalArgumentException("가게 정보를 찾을 수 없습니다.");
+      throw new CustomException(STORE_NOT_FOUND);
     }
 
     List<Category> categories = categoryRepository.findByCategoryNameIn(
