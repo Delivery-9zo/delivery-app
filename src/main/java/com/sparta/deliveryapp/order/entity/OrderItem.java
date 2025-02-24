@@ -25,7 +25,7 @@ public class OrderItem extends BaseEntity {
     @Column(name = "user_id")
     private UUID userId;
 
-    @Column(name = "menu_id", nullable = false)
+    @Column(name = "menu_uuid", nullable = false)
     private UUID menuId;
 
     @Column(name = "quantity")

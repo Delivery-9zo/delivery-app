@@ -2,7 +2,6 @@ package com.sparta.deliveryapp.order.dto;
 
 import com.sparta.deliveryapp.order.entity.OrderState;
 import com.sparta.deliveryapp.order.entity.OrderType;
-import com.sparta.deliveryapp.payment.dto.PaymentResponseDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,8 +18,6 @@ public class SearchOrderResponseDto {
 
     private UUID userId;  // 유저 UUID
 
-    private UUID itemId;  // 주문 상세 UUID
-
     private OrderType orderType;
 
     private LocalDateTime orderTime;
@@ -35,13 +32,10 @@ public class SearchOrderResponseDto {
 
     private List<SearchOrderItemResponseDto> itemList;
 
-    private PaymentResponseDto paymentResponseDto;
-
     @Builder
-    public SearchOrderResponseDto(UUID orderId, UUID userId, UUID itemId, OrderType orderType, LocalDateTime orderTime, int totalPrice, String userAddress, String orderMemo, OrderState orderState, List<SearchOrderItemResponseDto> itemList, PaymentResponseDto paymentResponseDto) {
+    public SearchOrderResponseDto(UUID orderId, UUID userId, OrderType orderType, LocalDateTime orderTime, int totalPrice, String userAddress, String orderMemo, OrderState orderState, List<SearchOrderItemResponseDto> itemList) {
         this.orderId = orderId;
         this.userId = userId;
-        this.itemId = itemId;
         this.orderType = orderType;
         this.orderTime = orderTime;
         this.totalPrice = totalPrice;
@@ -49,7 +43,6 @@ public class SearchOrderResponseDto {
         this.orderMemo = orderMemo;
         this.orderState = orderState; // 추가
         this.itemList = itemList; // 추가
-        this.paymentResponseDto = paymentResponseDto; // 추가
     }
 
 }

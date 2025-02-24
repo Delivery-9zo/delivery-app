@@ -6,7 +6,6 @@ import com.sparta.deliveryapp.order.dto.SearchOrderItemResponseDto;
 import com.sparta.deliveryapp.order.dto.SearchOrderResponseDto;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.repository.OrderRepository;
-import com.sparta.deliveryapp.payment.dto.PaymentResponseDto;
 import com.sparta.deliveryapp.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,19 +41,15 @@ public class OrderSearchService {
                 }).toList();
 
         // 결제 정보 조회 후 Dto로 변환
-        PaymentResponseDto paymentResponseDto = order.getPayment().toPaymentResponseDto();
+        //PaymentResponseDto paymentResponseDto = order.getPayment().toPaymentResponseDto();
 
-        return order.toSearchOrderByOrderIdResponseDto(order, itemList, paymentResponseDto);
+        return order.toSearchOrderByOrderIdResponseDto(order, itemList);
     }
 
 
     // 사용자 ID - 목록 조회(CUSTOMER)
     public Page<SearchOrderResponseDto> findOrdersByUserId(Pageable pageable, User user) {
 
-        //List<Order> orderList = orderRepository.findByUserId(pageable, user.getUserId());
-        //List<SearchOrderResponseDto> searchOrderResponseDtoList = getSearchOrderResponseDtos(orderList);
-
-        //return searchOrderResponseDtoList;
         List<Order> orderList = orderRepository.findAllByUserId(user.getUserId());
         if (orderList.isEmpty()) {
             throw new CustomException(ErrorCode.ORDER_NOT_FOUND);
@@ -63,7 +58,6 @@ public class OrderSearchService {
         return orderRepository.findByUserId(pageable, user.getUserId())
                 .map(order -> new SearchOrderResponseDto(
                     order.getUserId(),
-                    order.getItemId(),
                     order.getOrderId(),
                     order.getOrderType(),
                     order.getOrderTime(),
@@ -74,8 +68,7 @@ public class OrderSearchService {
                     order.getOrderItems().stream()
                             .map(orderItem -> {
                                 return orderItem.toSearchOrderItemResponseDto(orderItem);
-                            }).toList(),
-                    order.getPayment().toPaymentResponseDto()
+                            }).toList()
                 ));
     }
 
@@ -86,7 +79,6 @@ public class OrderSearchService {
         return orderRepository.findAllByOrderByCreatedAtDesc(pageable)
             .map(order -> new SearchOrderResponseDto(
                 order.getUserId(),
-                order.getItemId(),
                 order.getOrderId(),
                 order.getOrderType(),
                 order.getOrderTime(),
@@ -97,24 +89,8 @@ public class OrderSearchService {
                 order.getOrderItems().stream()
                         .map(orderItem -> {
                             return orderItem.toSearchOrderItemResponseDto(orderItem);
-                        }).toList(),
-                order.getPayment().toPaymentResponseDto()
+                        }).toList()
             ));
     }
 
-
-//    // Order -> List<SearchOrderResponseDto> 로 변환
-//    private static List<SearchOrderResponseDto> getSearchOrderResponseDtos(List<Order> orderList) {
-//        List<SearchOrderResponseDto> searchOrderResponseDtoList = orderList.stream().map(order -> {
-//            List<SearchOrderItemResponseDto> itemList = order.getOrderItems().stream().map(orderItem -> {
-//                return orderItem.toSearchOrderItemResponseDto(orderItem);
-//            }).toList();
-//
-//            // 결제 정보 조회 후 Dto로 변환
-//            PaymentResponseDto paymentResponseDto = order.getPayment().toPaymentResponseDto();
-//
-//            return order.toSearchOrderByOrderIdResponseDto(order, itemList, paymentResponseDto);
-//        }).toList();
-//        return searchOrderResponseDtoList;
-//    }
 }
