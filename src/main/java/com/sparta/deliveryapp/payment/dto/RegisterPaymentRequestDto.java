@@ -15,6 +15,11 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RegisterPaymentRequestDto {
 
+    @Parameter(description = "사용자 uuid")
+    @Schema(description = "사용자 uuid를 입력하세요.")
+    @NotNull(message = "Order userId cannot be null")
+    private UUID userId;
+
     @Parameter(description = "주문 uuid")
     @Schema(description = "사용자의 주문 uuid를 입력하세요.")
     @NotNull(message = "Order Id cannot be null")
