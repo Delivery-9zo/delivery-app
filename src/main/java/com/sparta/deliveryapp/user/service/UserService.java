@@ -2,6 +2,16 @@ package com.sparta.deliveryapp.user.service;
 
 import com.sparta.deliveryapp.ai.AI;
 import com.sparta.deliveryapp.ai.AIRepository;
+import com.sparta.deliveryapp.menu.entity.Menu;
+import com.sparta.deliveryapp.menu.repository.MenuRepository;
+import com.sparta.deliveryapp.order.entity.Order;
+import com.sparta.deliveryapp.order.repository.OrderRepository;
+import com.sparta.deliveryapp.payment.entity.Payment;
+import com.sparta.deliveryapp.payment.repository.PaymentRepository;
+import com.sparta.deliveryapp.review.entity.Review;
+import com.sparta.deliveryapp.review.repository.ReviewRepository;
+import com.sparta.deliveryapp.store.entity.Store;
+import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.user.dto.SignInRequestDto;
 import com.sparta.deliveryapp.user.dto.SignUpRequestDto;
 import com.sparta.deliveryapp.user.dto.UserResponseDto;
@@ -29,7 +39,12 @@ public class UserService {
   private final UserRepository userRepository;
   private final AIRepository aiRepository;
   private final PasswordEncoder passwordEncoder;
+  private final ReviewRepository reviewRepository;
+  private final StoreRepository storeRepository;
+  private final OrderRepository orderRepository;
+  private final MenuRepository menuRepository;
   private final JwtUtil jwtUtil;
+  private final PaymentRepository paymentRepository;
 
 
   @Transactional
@@ -65,7 +80,6 @@ public class UserService {
     User findUser = userRepository.findByEmail(email)
         .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
-
     if (!findUser.getUserId().equals(user.getUserId())) {
       throw new AccessDeniedException("사용자 정보를 수정할 권한이 없습니다.");
     }
@@ -94,12 +108,23 @@ public class UserService {
 
     userRepository.delete(findUser);
     // ai 데이터도 삭제
-    List<AI> listAi = aiRepository.findByUser(user);
-    if(listAi != null){
-      aiRepository.deleteAll(listAi);
+    List<AI> aiList = aiRepository.findByUser(findUser);
+    if (aiList != null && !aiList.isEmpty()) {
+      aiRepository.deleteAll(aiList);
     }
 
-    // TODO: 연관되어 있는 리뷰,주문,상점도 soft delete 삭제 로직 추가
+    // 리뷰
+    List<Review> reviewList = reviewRepository.findByUser(findUser);
+    if (reviewList != null && !reviewList.isEmpty()) {
+      reviewRepository.deleteAll(reviewList);
+    }
+
+    // 상점 관련 소프트 삭제
+    softDeleteStore(findUser);
+
+    // 주문 관련 소프트 삭제
+    softDeleteOrder(findUser);
+
   }
 
   public UserResponseDto getUser(String email, User user) {
@@ -121,6 +146,34 @@ public class UserService {
     if (!usersToDelete.isEmpty()) {
       userRepository.deleteAllDeletedBefore(minusDays);
       log.info("{}개의 유저 데이터가 삭제되었습니다.", usersToDelete.size());
+    }
+  }
+
+  public void softDeleteStore(User user) {
+    List<Store> storeList = storeRepository.findByUser(user);
+
+    if (storeList != null && !storeList.isEmpty()) {
+      for (Store store : storeList) {
+        List<Menu> menuList = menuRepository.findAllByStore(store);
+
+        if (menuList != null && !menuList.isEmpty()) {
+          menuRepository.deleteAll(menuList);
+        }
+      }
+    }
+  }
+
+  public void softDeleteOrder(User user) {
+    List<Order> orderList = orderRepository.findAllByUserId(user.getUserId());
+
+    if (orderList != null && !orderList.isEmpty()) {
+      for (Order order : orderList) {
+        List<Payment> paymentList = paymentRepository.findAllByOrderId(order.getOrderId());
+
+        if (paymentList != null && !paymentList.isEmpty()) {
+          paymentRepository.deleteAll(paymentList);
+        }
+      }
     }
   }
 }

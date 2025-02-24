@@ -1,6 +1,7 @@
 package com.sparta.deliveryapp.payment.repository;
 
 import com.sparta.deliveryapp.payment.entity.Payment;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,4 +15,5 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
 
     Optional<Payment> findByOrderId(UUID orderId);
 
+    List<Payment> findAllByOrderId(UUID userId);
 }
