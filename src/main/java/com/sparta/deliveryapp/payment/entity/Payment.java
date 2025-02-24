@@ -1,6 +1,7 @@
 package com.sparta.deliveryapp.payment.entity;
 
 import com.sparta.deliveryapp.auditing.BaseEntity;
+import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.payment.dto.PaymentResponseDto;
 import jakarta.persistence.*;
 import lombok.*;
@@ -40,6 +41,9 @@ public class Payment extends BaseEntity {
     @Column(name = "payment_time", updatable = false, nullable = false)
     private LocalDateTime paymentTime;
 
+    @OneToOne
+    @JoinColumn(name = "payment_id")
+    private Order order;
 
     public PaymentResponseDto toPaymentResponseDto() {
         return PaymentResponseDto.builder()
