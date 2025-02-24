@@ -43,11 +43,11 @@ public class OrderItem extends BaseEntity {
         this.order = order;
     }
 
-    public SearchOrderItemResponseDto toSearchOrderItemResponseDto() {
+    public SearchOrderItemResponseDto toSearchOrderItemResponseDto(OrderItem orderItem) {
         return SearchOrderItemResponseDto.builder()
-                .itemId(itemId)
-                .menuId(menuId)
-                .quantity(quantity)
+                .itemId(orderItem.getItemId())
+                .menuId(orderItem.getMenuId())
+                .quantity(orderItem.getQuantity())
                 .build();
     }
 

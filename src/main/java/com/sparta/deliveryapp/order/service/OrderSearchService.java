@@ -36,31 +36,54 @@ public class OrderSearchService {
         }
 
         // 주문 상세 데이터 조회 후 Dto로 변환
-        List<SearchOrderItemResponseDto> itemList = order.getOrderItems().stream().map(orderItem -> {
-            return orderItem.toSearchOrderItemResponseDto();
-        }).toList();
+        List<SearchOrderItemResponseDto> itemList = order.getOrderItems().stream()
+                .map(orderItem -> {
+                    return orderItem.toSearchOrderItemResponseDto(orderItem);
+                }).toList();
 
         // 결제 정보 조회 후 Dto로 변환
         PaymentResponseDto paymentResponseDto = order.getPayment().toPaymentResponseDto();
 
-        return order.toSearchOrderResponseDto(itemList, paymentResponseDto);
+        return order.toSearchOrderByOrderIdResponseDto(order, itemList, paymentResponseDto);
     }
 
 
     // 사용자 ID - 목록 조회(CUSTOMER)
-    public List<SearchOrderResponseDto> findOrderByUserId(User user) {
+    public Page<SearchOrderResponseDto> findOrdersByUserId(Pageable pageable, User user) {
 
-        List<Order> orderList = orderRepository.findByUserId(user.getUserId());
-        List<SearchOrderResponseDto> searchOrderResponseDtoList = getSearchOrderResponseDtos(orderList);
+        //List<Order> orderList = orderRepository.findByUserId(pageable, user.getUserId());
+        //List<SearchOrderResponseDto> searchOrderResponseDtoList = getSearchOrderResponseDtos(orderList);
 
-        return searchOrderResponseDtoList;
+        //return searchOrderResponseDtoList;
+        List<Order> orderList = orderRepository.findAllByUserId(user.getUserId());
+        if (orderList.isEmpty()) {
+            throw new CustomException(ErrorCode.ORDER_NOT_FOUND);
+        }
+
+        return orderRepository.findByUserId(pageable, user.getUserId())
+                .map(order -> new SearchOrderResponseDto(
+                    order.getUserId(),
+                    order.getItemId(),
+                    order.getOrderId(),
+                    order.getOrderType(),
+                    order.getOrderTime(),
+                    order.getTotalPrice(),
+                    order.getUserAddress(),
+                    order.getOrderMemo(),
+                    order.getOrderState(),
+                    order.getOrderItems().stream()
+                            .map(orderItem -> {
+                                return orderItem.toSearchOrderItemResponseDto(orderItem);
+                            }).toList(),
+                    order.getPayment().toPaymentResponseDto()
+                ));
     }
 
 
     // 전체 결과 조회 (CUSTOMER 제외)
-    public Page<SearchOrderResponseDto> findAllByCreatedAt(Pageable pageable) {
+    public Page<SearchOrderResponseDto> findAllByOrderByCreatedAtDesc(Pageable pageable) {
 
-        return orderRepository.findAllByCreatedAt(pageable)
+        return orderRepository.findAllByOrderByCreatedAtDesc(pageable)
             .map(order -> new SearchOrderResponseDto(
                 order.getUserId(),
                 order.getItemId(),
@@ -71,25 +94,27 @@ public class OrderSearchService {
                 order.getUserAddress(),
                 order.getOrderMemo(),
                 order.getOrderState(),
-                null,
-                null
+                order.getOrderItems().stream()
+                        .map(orderItem -> {
+                            return orderItem.toSearchOrderItemResponseDto(orderItem);
+                        }).toList(),
+                order.getPayment().toPaymentResponseDto()
             ));
     }
 
 
-    // Order -> List<SearchOrderResponseDto> 로 변환
-    private static List<SearchOrderResponseDto> getSearchOrderResponseDtos(List<Order> orderList) {
-        List<SearchOrderResponseDto> searchOrderResponseDtoList = orderList.stream().map(order -> {
-            List<SearchOrderItemResponseDto> itemList = order.getOrderItems().stream().map(orderItem -> {
-                return orderItem.toSearchOrderItemResponseDto();
-            }).toList();
-
-            // 결제 정보 조회 후 Dto로 변환
-            PaymentResponseDto paymentResponseDto = order.getPayment().toPaymentResponseDto();
-
-            return order.toSearchOrderResponseDto(itemList, paymentResponseDto);
-        }).toList();
-        return searchOrderResponseDtoList;
-    }
-
+//    // Order -> List<SearchOrderResponseDto> 로 변환
+//    private static List<SearchOrderResponseDto> getSearchOrderResponseDtos(List<Order> orderList) {
+//        List<SearchOrderResponseDto> searchOrderResponseDtoList = orderList.stream().map(order -> {
+//            List<SearchOrderItemResponseDto> itemList = order.getOrderItems().stream().map(orderItem -> {
+//                return orderItem.toSearchOrderItemResponseDto(orderItem);
+//            }).toList();
+//
+//            // 결제 정보 조회 후 Dto로 변환
+//            PaymentResponseDto paymentResponseDto = order.getPayment().toPaymentResponseDto();
+//
+//            return order.toSearchOrderByOrderIdResponseDto(order, itemList, paymentResponseDto);
+//        }).toList();
+//        return searchOrderResponseDtoList;
+//    }
 }
