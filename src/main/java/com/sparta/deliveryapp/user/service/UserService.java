@@ -48,10 +48,6 @@ public class UserService {
     User user = userRepository.findByEmail(requestDto.getEmail())
         .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
-    if (user.getDeletedAt() != null) {
-      throw new IllegalArgumentException("이 사용자는 삭제된 사용자 입니다.");
-    }
-
     if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
       throw new IllegalArgumentException("비밀번호가 다릅니다.");
     }
@@ -66,9 +62,6 @@ public class UserService {
     User findUser = userRepository.findByEmail(email)
         .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
-    if (findUser.getDeletedAt() != null) {
-      throw new IllegalArgumentException("이 사용자는 삭제된 사용자 입니다.");
-    }
 
     if (!findUser.getUserId().equals(user.getUserId())) {
       throw new AccessDeniedException("사용자 정보를 수정할 권한이 없습니다.");
@@ -96,16 +89,9 @@ public class UserService {
       throw new AccessDeniedException("사용자 정보를 수정할 권한이 없습니다.");
     }
 
-    findUser.onPreRemove();
+    userRepository.delete(findUser);
 
-    userRepository.save(findUser);
-  }
-
-  public List<UserResponseDto> getUsers() {
-    List<UserResponseDto> users = userRepository.findAll().stream()
-        .map(UserResponseDto::new).toList();
-
-    return users;
+    // TODO: 연관되어 있는 리뷰,주문,상점도 soft delete 삭제 로직 추가
   }
 
   public UserResponseDto getUser(String email, User user) {
@@ -114,9 +100,6 @@ public class UserService {
       throw new AccessDeniedException("접근 권한이 없습니다.");
     }
 
-    if (user.getDeletedAt() != null) {
-      throw new IllegalArgumentException("이 사용자는 삭제된 사용자 입니다.");
-    }
 
     return new UserResponseDto(user);
 

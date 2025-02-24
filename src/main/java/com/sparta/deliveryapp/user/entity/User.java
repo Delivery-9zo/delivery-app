@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.Objects;
@@ -18,6 +20,8 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@SQLDelete(sql = "UPDATE p_user SET deleted_at=CURRENT_TIMESTAMP WHERE user_id=?")
+@SQLRestriction("deleted_at IS NULL")
 @Table(name = "p_user")
 public class User extends BaseEntity {
 
