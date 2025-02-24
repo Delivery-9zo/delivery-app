@@ -93,8 +93,6 @@ public class UserService {
     }
 
     userRepository.delete(findUser);
-    findUser.onPreRemove();
-
     // ai 데이터도 삭제
     List<AI> listAi = aiRepository.findByUser(user);
     if(listAi != null){
