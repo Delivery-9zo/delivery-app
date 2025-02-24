@@ -35,4 +35,6 @@ public class StoreNearbyStoreResponseDto {
 
   private double distanceFromRequest;
 
+  private Double rating;
+
 }

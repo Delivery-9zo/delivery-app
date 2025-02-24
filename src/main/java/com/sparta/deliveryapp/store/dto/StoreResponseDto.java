@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -32,5 +33,7 @@ public class StoreResponseDto {
 
   @NotNull
   private LocalTime closeAt;
+
+  private List<String> categories;
 
 }

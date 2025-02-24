@@ -22,7 +22,7 @@ public class Review extends BaseEntity {
 
   @Id
   @UuidGenerator
-  @Column(name = "menu_uuid")
+  @Column(name = "review_uuid")
   private UUID id;
 
   @Column(name = "comment", length = 250)
