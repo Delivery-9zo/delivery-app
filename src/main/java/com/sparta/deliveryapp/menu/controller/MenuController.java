@@ -41,7 +41,7 @@ public class MenuController {
     return ResponseEntity
         .status(HttpStatus.OK)
         .contentType(MediaType.APPLICATION_JSON)
-        .body("Message: " + "메뉴가 등록되었습니다.");
+        .body("메뉴가 등록되었습니다.");
   }
 
   @GetMapping("/menu/{storeId}")
@@ -78,7 +78,7 @@ public class MenuController {
     return ResponseEntity
         .status(HttpStatus.OK)
         .contentType(MediaType.APPLICATION_JSON)
-        .body("Message: " + "메뉴가 수정되었습니다.");
+        .body("메뉴가 수정되었습니다.");
   }
 
   @DeleteMapping
@@ -91,7 +91,7 @@ public class MenuController {
     return ResponseEntity
         .status(HttpStatus.OK)
         .contentType(MediaType.APPLICATION_JSON)
-        .body("Message: " + "메뉴가 삭제되었습니다.");
+        .body("메뉴가 삭제되었습니다.");
   }
 
 }
