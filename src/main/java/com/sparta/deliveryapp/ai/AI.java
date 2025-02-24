@@ -41,5 +41,6 @@ public class AI extends BaseEntity {
   private User user;
 
   private LocalDateTime createdAt;
+  private String createdBy;
 
 }

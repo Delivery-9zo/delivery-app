@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -28,6 +29,7 @@ public class GeminiService {
     this.aiRepository = aiRepository;
   }
 
+  @Transactional
   public Mono<AIResponseDto> askGemini(String prompt, User user) {
 
     Map<String, Object> requestBody = Map.of(
@@ -51,6 +53,7 @@ public class GeminiService {
           ai.setAnswer(extractTextFromResponse(reponse));
           ai.setUser(user);
           ai.setCreatedAt(LocalDateTime.now());
+          ai.setCreatedBy(user.getEmail());
           aiRepository.save(ai);
 
           return new AIResponseDto(ai);

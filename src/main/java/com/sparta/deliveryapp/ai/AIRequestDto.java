@@ -2,11 +2,11 @@ package com.sparta.deliveryapp.ai;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
+@NoArgsConstructor
 @Schema(description = "AI 요청에 필요한 데이터")
 public class AIRequestDto {
 
