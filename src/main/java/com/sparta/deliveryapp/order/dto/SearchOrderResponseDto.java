@@ -18,8 +18,6 @@ public class SearchOrderResponseDto {
 
     private UUID userId;  // 유저 UUID
 
-    private UUID itemId;  // 주문 상세 UUID
-
     private OrderType orderType;
 
     private LocalDateTime orderTime;
