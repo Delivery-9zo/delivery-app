@@ -1,6 +1,9 @@
 package com.sparta.deliveryapp.order.controller;
 
-import com.sparta.deliveryapp.order.dto.*;
+import com.sparta.deliveryapp.order.dto.RegisterOrderRequestDto;
+import com.sparta.deliveryapp.order.dto.SearchOrderResponseDto;
+import com.sparta.deliveryapp.order.dto.UpdateOrderRequestDto;
+import com.sparta.deliveryapp.order.dto.UpdateOrderResponseDto;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.service.OrderRegisterService;
 import com.sparta.deliveryapp.order.service.OrderSearchService;
@@ -78,17 +81,21 @@ public class OrderController {
         }
     }
 
-    // 주문 등록(WAIT) -> 주문상세 수정(추가,수정,삭제)
-    @PostMapping()
-    @Operation(summary = "주문등록 기능", description = "메뉴 추가,수정,삭제 할 수 있는 장바구니 기능 같은 주문 등록하는 api")
-    public ResponseEntity<?> postOrder(@RequestBody RegisterOrderRequestDto registerOrderRequestDto,
-                                        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    // 주문 등록(WAIT) -> 주문상세 메뉴를 추가하면 주문등록이 됨
+    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_MANGER', 'ROLE_OWNER')")
+    @PostMapping("/{storeId}")
+    @Operation(summary = "주문등록 기능", description = "주문메뉴를 추가하는 장바구니 담기 기능 같은 주문을 등록하는 api")
+    public ResponseEntity<UUID> postOrder(
+            @PathVariable UUID storeId,
+            @RequestBody RegisterOrderRequestDto registerOrderRequestDto,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        log.info("Authenticated User : {} ", userDetails);
 
-        RegisterOrderResponseDto responseDto = orderRegisterService.postOrder(registerOrderRequestDto, userDetails.getUser());
+        // 주문 등록 서비스 호출
+        UUID orderId = orderRegisterService.postOrder(storeId, registerOrderRequestDto, userDetails.getUser());
 
-        return ResponseEntity.ok(responseDto);
+        // 주문 ID 반환
+        return ResponseEntity.ok(orderId);
     }
 
     // 주문 완료 - 상태수정(SUCCESS) -> 결제 등록(SUCCESS) : CUSTOMER, MANAGER, OWNER
