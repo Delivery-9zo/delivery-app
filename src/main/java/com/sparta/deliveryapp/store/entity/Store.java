@@ -2,29 +2,17 @@ package com.sparta.deliveryapp.store.entity;
 
 import com.sparta.deliveryapp.auditing.BaseEntity;
 import com.sparta.deliveryapp.category.entity.Category;
+import com.sparta.deliveryapp.review.entity.Review;
 import com.sparta.deliveryapp.user.entity.User;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.annotations.Where;
+
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.UuidGenerator;
-import org.hibernate.annotations.Where;
-import org.locationtech.jts.geom.Point;
 
 @Entity
 @AllArgsConstructor
@@ -75,15 +63,19 @@ public class Store extends BaseEntity {
   }
 
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<StoreCategory> storeCategories;
+  private List<StoreCategory> storeCategories = new ArrayList<>();
 
-  @Transient
-  public List<Category> getCategories() {
-    List<Category> categories = new ArrayList<>();
-    for (StoreCategory storeCategory : storeCategories) {
-      categories.add(storeCategory.getCategory());
-    }
-    return categories;
+  @OneToMany(fetch = FetchType.LAZY)
+  @Column(name = "review_uuid")
+  private List<Review> reviews = new ArrayList<>();
+
+  public void addStoreCategory(StoreCategory storeCategory) {
+    storeCategories.add(storeCategory);
+    storeCategory.setStore(this);
   }
 
+  public void removeStoreCategory(StoreCategory storeCategory) {
+    storeCategories.remove(storeCategory);
+    storeCategory.setStore(null);
+  }
 }

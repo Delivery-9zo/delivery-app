@@ -14,6 +14,7 @@ public class RegisterOrderItemRequestDto {
 
     private UUID menuId;
     private int quantity;
+    private int price;
 
 
     public OrderItem toEntity(UUID userId) {

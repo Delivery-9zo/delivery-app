@@ -1,17 +1,12 @@
 package com.sparta.deliveryapp.store.dto;
 
-import com.sparta.deliveryapp.auditing.BaseEntity;
-import com.sparta.deliveryapp.store.entity.Store;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDate;
+import lombok.*;
+
 import java.time.LocalTime;
+import java.util.List;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @Setter
@@ -38,5 +33,7 @@ public class StoreResponseDto {
 
   @NotNull
   private LocalTime closeAt;
+
+  private List<String> categories;
 
 }

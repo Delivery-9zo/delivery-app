@@ -2,9 +2,10 @@ package com.sparta.deliveryapp.review.repository.querydsl;
 
 import com.sparta.deliveryapp.review.entity.QReview;
 import com.sparta.deliveryapp.review.entity.Review;
+import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
+
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
 public class ReviewRepositoryCustomImpl extends QuerydslRepositorySupport
     implements ReviewRepositoryCustom {

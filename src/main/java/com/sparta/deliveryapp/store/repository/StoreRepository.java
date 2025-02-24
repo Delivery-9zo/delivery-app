@@ -2,16 +2,20 @@ package com.sparta.deliveryapp.store.repository;
 
 import com.sparta.deliveryapp.store.dto.StoreNearbyStoreResponseDto;
 import com.sparta.deliveryapp.store.dto.StoreNearbyStoreWithCategoryResponseDto;
+import com.sparta.deliveryapp.store.dto.StoreResponseDto;
 import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.user.entity.User;
 import jakarta.validation.constraints.NotBlank;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface StoreRepository extends JpaRepository<Store, UUID>, StoreRepositoryCustom {
@@ -24,7 +28,11 @@ public interface StoreRepository extends JpaRepository<Store, UUID>, StoreReposi
 
   Page<Store> findByStoreNameContaining(String storeName, Pageable pageable);
 
-
+  @Query("SELECT s FROM Store s " +
+      "LEFT JOIN FETCH s.storeCategories sc " +
+      "LEFT JOIN FETCH sc.category c " +
+      "WHERE s.storeName LIKE %:storeName%")
+  Page<Store> findByStoreNameContainingWithCategories(@Param("storeName") String storeName, Pageable pageable);
 }
 
 interface StoreRepositoryCustom {
@@ -39,4 +47,5 @@ interface StoreRepositoryCustom {
       double latitude,
       int range,
       Pageable pageable);
+
 }

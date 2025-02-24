@@ -4,30 +4,28 @@ import com.sparta.deliveryapp.category.dto.CategoryRequestDto;
 import com.sparta.deliveryapp.category.dto.CategoryResponseDto;
 import com.sparta.deliveryapp.category.dto.CategoryUpdateRequestDto;
 import com.sparta.deliveryapp.category.service.CategoryService;
-import java.util.UUID;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/master/categories")
 @PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
+@Tag(name = "카테고리 기능 API", description = "카테고리 정보 관리 기능을 제공하는 API")
 public class CategoryMasterController {
 
   private final CategoryService categoryService;
 
   @PostMapping("/regi")
+  @Operation(summary = "카테고리 등록 기능", description = "카테고리를 등록하는 API")
   public ResponseEntity<String> regiCategory(@RequestBody CategoryRequestDto categoryRequest) {
 
     categoryService.regiCategory(categoryRequest.getCategoryName());
@@ -38,6 +36,7 @@ public class CategoryMasterController {
 
   //카테고리 이름으로 변경
   @PutMapping("/name")
+  @Operation(summary = "카테고리 수정 기능(이름 기준)", description = "등록된 카테고리 이름으로 카테고리 정보를 수정하는 API")
   public ResponseEntity<String> updateCategoryByName(
       @RequestBody CategoryUpdateRequestDto categoryUpdateRequestDto) {
 
@@ -48,6 +47,7 @@ public class CategoryMasterController {
 
   //카테고리 id로 변경
   @PutMapping("/id")
+  @Operation(summary = "카테고리 수정 기능(ID 기준)", description = "등록된 카테고리 UUID로 카테고리 정보를 수정하는 API")
   public ResponseEntity<String> updateCategoryById(
       @RequestBody CategoryUpdateRequestDto categoryUpdateRequestDto) {
 
@@ -58,6 +58,7 @@ public class CategoryMasterController {
 
   //카테고리 이름으로 삭제
   @DeleteMapping("/name")
+  @Operation(summary = "카테고리 삭제 기능(이름 기준)", description = "등록된 카테고리 이름으로 검색하여 삭제하는 API")
   public ResponseEntity<String> deleteCategoryByName(
       @RequestBody CategoryRequestDto categoryRequestDto) {
 
@@ -68,6 +69,7 @@ public class CategoryMasterController {
 
   //카테고리 id로 삭제
   @DeleteMapping("/id")
+  @Operation(summary = "카테고리 삭제 기능(ID 기준)", description = "등록된 카테고리 UUID로 검색하여 삭제하는 API")
   public ResponseEntity<String> deleteCategoryById(
       @RequestBody CategoryRequestDto categoryRequestDto) {
 
@@ -77,6 +79,7 @@ public class CategoryMasterController {
   }
 
   @GetMapping("")
+  @Operation(summary = "카테고리 검색 기능(이름 기준)", description = "등록된 카테고리 이름으로 검색하여 정보를 조회하는 API")
   public ResponseEntity<CategoryResponseDto> getCategoryByName(@RequestParam(name = "id") UUID categoryId) {
 
     CategoryResponseDto categoryResponseDto = categoryService.getCategoryById(categoryId);

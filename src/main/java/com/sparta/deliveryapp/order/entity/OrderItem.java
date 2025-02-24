@@ -1,5 +1,7 @@
 package com.sparta.deliveryapp.order.entity;
 
+import com.sparta.deliveryapp.auditing.BaseEntity;
+import com.sparta.deliveryapp.order.dto.SearchOrderItemResponseDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -12,7 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "p_orderItem")
-public class OrderItem {
+public class OrderItem extends BaseEntity {
 
     @Id
     @GeneratedValue
@@ -29,10 +31,25 @@ public class OrderItem {
     @Column(name = "quantity")
     private int quantity;
 
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
+
     @Builder
-    public OrderItem(UUID userId, UUID menuId, int quantity) {
+    public OrderItem(UUID userId, UUID menuId, int quantity, Order order) {
         this.userId = userId;
         this.menuId = menuId;
         this.quantity = quantity;
+        this.order = order;
     }
+
+    public SearchOrderItemResponseDto toSearchOrderItemResponseDto(OrderItem orderItem) {
+        return SearchOrderItemResponseDto.builder()
+                .itemId(orderItem.getItemId())
+                .menuId(orderItem.getMenuId())
+                .quantity(orderItem.getQuantity())
+                .build();
+    }
+
+
 }

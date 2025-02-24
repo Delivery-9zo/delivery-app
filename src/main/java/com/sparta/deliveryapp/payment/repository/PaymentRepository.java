@@ -5,9 +5,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface PaymentRepository extends JpaRepository<Payment, UUID> {
-    Page<Payment> findAllByUserId(UUID userId, Pageable pageable);
-    Page<Payment> findAll(Pageable pageable);
+    Page<Payment> findAllByUserIdOrderByCreatedAtDesc(UUID userId, Pageable pageable);
+    Page<Payment> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
+    Optional<Payment> findByOrderId(UUID orderId);
+
 }

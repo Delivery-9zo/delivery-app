@@ -2,22 +2,16 @@ package com.sparta.deliveryapp.user.controller;
 
 import com.sparta.deliveryapp.user.dto.MasterUserUpdateRequestDto;
 import com.sparta.deliveryapp.user.dto.UserResponseDto;
-import com.sparta.deliveryapp.user.dto.UserUpdateRequestDto;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import com.sparta.deliveryapp.user.service.MasterUserService;
-import com.sparta.deliveryapp.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

@@ -1,6 +1,9 @@
 package com.sparta.deliveryapp.order.entity;
 
 import com.sparta.deliveryapp.auditing.BaseEntity;
+import com.sparta.deliveryapp.order.dto.SearchOrderItemResponseDto;
+import com.sparta.deliveryapp.order.dto.SearchOrderResponseDto;
+import com.sparta.deliveryapp.payment.dto.PaymentResponseDto;
 import com.sparta.deliveryapp.payment.entity.Payment;
 import com.sparta.deliveryapp.store.entity.Store;
 import jakarta.persistence.*;
@@ -16,6 +19,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "p_order")
@@ -30,7 +34,8 @@ public class Order extends BaseEntity {
     @Column(name = "user_id")
     private UUID userId;
 
-    @Column(name = "item_id", nullable = false)
+    // TODO 삭제 예정
+    @Column(name = "item_id")
     private UUID itemId;
 
     @Enumerated(value = EnumType.STRING)
@@ -57,7 +62,7 @@ public class Order extends BaseEntity {
     @Enumerated(value = EnumType.STRING)
     private OrderState orderState;
 
-    @OneToMany
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @OneToOne
@@ -79,4 +84,21 @@ public class Order extends BaseEntity {
         this.orderMemo = orderMemo;
         this.orderState = OrderState.WAIT;
     }
+
+    public SearchOrderResponseDto toSearchOrderByOrderIdResponseDto(Order order, List<SearchOrderItemResponseDto> itemList,
+                                                           PaymentResponseDto paymentResponseDto) {
+        return SearchOrderResponseDto.builder()
+                .orderId(order.getOrderId())
+                .userId(order.getUserId())
+                .orderType(order.getOrderType())
+                .orderTime(order.getOrderTime())
+                .totalPrice(order.getTotalPrice())
+                .userAddress(order.getUserAddress())
+                .orderMemo(order.getOrderMemo())
+                .orderState(order.getOrderState())
+                .itemList(itemList)
+                .paymentResponseDto(paymentResponseDto)
+                .build();
+    }
+
 }
