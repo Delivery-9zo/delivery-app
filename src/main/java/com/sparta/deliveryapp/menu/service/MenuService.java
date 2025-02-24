@@ -8,6 +8,7 @@ import com.sparta.deliveryapp.menu.repository.MenuRepository;
 import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
+import jakarta.persistence.EntityManager;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ public class MenuService {
 
   private final MenuRepository menuRepository;
   private final StoreRepository storeRepository;
+  private final EntityManager entityManager;
 
   @Transactional
   public void postMenu(MenuPostRequestDto dto, UserDetailsImpl userDetails) {
@@ -113,7 +115,12 @@ public class MenuService {
 
     checkStoreAccessPermission(userDetails, store);
 
-    menuRepository.deleteByIdAndStore_StoreId(menuId, storeId);
+    entityManager.createNativeQuery(
+            "UPDATE p_menu SET deleted_at = current_timestamp, deleted_by = ? WHERE menu_uuid = ?"
+        ).setParameter(1, userDetails.getEmail())
+        .setParameter(2, menuId)
+        .executeUpdate();
+
   }
 
   private void checkStoreAccessPermission(UserDetailsImpl userDetails, Store store) {
@@ -121,4 +128,6 @@ public class MenuService {
       throw new IllegalArgumentException("이 상점에 접근 권한이 없는 사용자입니다.");
     }
   }
+
+
 }
