@@ -87,10 +87,6 @@ public class Store extends BaseEntity {
   private List<StoreCategory> storeCategories = new ArrayList<>();
 
   @OneToMany(fetch = FetchType.LAZY)
-  @Column(name = "review_uuid")
-  private List<Review> reviews = new ArrayList<>();
-
-  @OneToMany(fetch = FetchType.LAZY)
   @Column(name = "order_id")
   private List<Order> orders = new ArrayList<>();
 
