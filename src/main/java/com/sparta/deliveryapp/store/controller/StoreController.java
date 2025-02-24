@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -28,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.*;
 
 
 @Slf4j
@@ -61,7 +59,7 @@ public class StoreController {
       @RequestParam(value = "longitude") double longitude,
       @RequestParam(value = "latitude") double latitude,
       @PageableDefault(size = 10, page = 0,
-      sort = {"createdAt", "updatedAt", "distanceFromRequest"},
+          sort = {"createdAt", "updatedAt", "distanceFromRequest"},
           direction = Direction.ASC) Pageable pageable) {
 
     Page<StoreNearbyStoreResponseDto> storeResponseDto = storeService.findNearbyStoresWithoutCategory(
@@ -111,7 +109,7 @@ public class StoreController {
       @RequestParam(name = "storeId") String storeId,
       @PageableDefault(size = 10, page = 0,
           sort = {"createdAt", "updatedAt"},
-          direction = Direction.ASC) Pageable pageable ) {
+          direction = Direction.ASC) Pageable pageable) {
 
     Page<SearchOrderResponseDto> orders = storeService.getOrdersByStore(storeId, pageable);
 

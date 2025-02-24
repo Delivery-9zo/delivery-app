@@ -2,7 +2,6 @@ package com.sparta.deliveryapp.store.controller;
 
 import com.sparta.deliveryapp.store.dto.StoreRequestDto;
 import com.sparta.deliveryapp.store.dto.StoreResponseDto;
-import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.service.StoreService;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,13 +18,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -58,7 +55,8 @@ public class StoreMasterController {
           sort = {"createdAt", "updatedAt"},
           direction = Direction.ASC) Pageable pageable) {
 
-    Page<StoreResponseDto> storeResponseDtos = storeService.findStoresByStoreName(storeName, pageable);
+    Page<StoreResponseDto> storeResponseDtos = storeService.findStoresByStoreName(storeName,
+        pageable);
 
     return ResponseEntity.ok().body(storeResponseDtos);
   }

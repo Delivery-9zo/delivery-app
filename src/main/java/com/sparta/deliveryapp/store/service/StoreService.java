@@ -23,12 +23,10 @@ import com.sparta.deliveryapp.store.repository.StoreCategoryRepository;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.store.util.kakaoLocal.KakaoLocalAPI;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
-import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -120,7 +118,7 @@ public class StoreService {
     Store storeEntity = storeRepository.findByStoreId(UUID.fromString(storeId))
         .orElseThrow(() -> new CustomException(NOT_EXISTS_STORE_ID));
 
-    if(storeEntity.getDeletedAt() != null){
+    if (storeEntity.getDeletedAt() != null) {
       throw new CustomException(ALREADY_DELETED_STORE_ID);
     }
 
@@ -169,16 +167,16 @@ public class StoreService {
         .orElseThrow(() -> new CustomException(STORE_NOT_FOUND));
 
     StoreResponseDto storeResponseDto = StoreResponseDto.builder()
-            .storeId(store.getStoreId())
-            .storeName(store.getStoreName())
-            .address(store.getAddress())
-            .bRegiNum(store.getBRegiNum())
-            .openAt(store.getOpenAt())
-            .closeAt(store.getCloseAt())
-            .categories(store.getStoreCategories().stream()
-                .map(storeCategory -> storeCategory.getCategory().getCategoryName())
-                .collect(Collectors.toList()))
-            .build();
+        .storeId(store.getStoreId())
+        .storeName(store.getStoreName())
+        .address(store.getAddress())
+        .bRegiNum(store.getBRegiNum())
+        .openAt(store.getOpenAt())
+        .closeAt(store.getCloseAt())
+        .categories(store.getStoreCategories().stream()
+            .map(storeCategory -> storeCategory.getCategory().getCategoryName())
+            .collect(Collectors.toList()))
+        .build();
 
     return storeResponseDto;
   }

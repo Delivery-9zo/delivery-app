@@ -14,7 +14,6 @@ import com.sparta.deliveryapp.store.dto.StoreNearbyStoreWithCategoryResponseDto;
 import com.sparta.deliveryapp.store.entity.QStore;
 import com.sparta.deliveryapp.store.entity.QStoreCategory;
 import jakarta.persistence.EntityManager;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -82,7 +81,9 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
             .bRegiNum(tuple.get(store.bRegiNum)) // bRegiNum
             .openAt(tuple.get(store.openAt))  // openAt
             .closeAt(tuple.get(store.closeAt)) // closeAt
-            .distanceFromRequest(tuple.get(distanceExpression) != null ? tuple.get(distanceExpression) : 0.0) // distanceFromRequest: null 체크 추가
+            .distanceFromRequest(
+                tuple.get(distanceExpression) != null ? tuple.get(distanceExpression)
+                    : 0.0) // distanceFromRequest: null 체크 추가
             .rating(tuple.get(7, Double.class) == null ? 0.0 : tuple.get(7, Double.class)) // rating
             .createdAt(tuple.get(8, LocalDateTime.class))
             .updatedAt(tuple.get(9, LocalDateTime.class))
