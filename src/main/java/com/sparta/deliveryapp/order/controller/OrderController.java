@@ -85,7 +85,7 @@ public class OrderController {
     @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_MANGER', 'ROLE_OWNER')")
     @PostMapping("/{storeId}")
     @Operation(summary = "주문등록 기능", description = "주문메뉴를 추가하는 장바구니 담기 기능 같은 주문을 등록하는 api")
-    public ResponseEntity<UUID> postOrder(
+    public ResponseEntity<String> postOrder(
             @PathVariable UUID storeId,
             @RequestBody RegisterOrderRequestDto registerOrderRequestDto,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -95,7 +95,7 @@ public class OrderController {
         UUID orderId = orderRegisterService.postOrder(storeId, registerOrderRequestDto, userDetails.getUser());
 
         // 주문 ID 반환
-        return ResponseEntity.ok(orderId);
+        return ResponseEntity.ok().body("주문 id = " + orderId);
     }
 
     // 주문 완료 - 상태수정(SUCCESS) -> 결제 등록(SUCCESS) : CUSTOMER, MANAGER, OWNER

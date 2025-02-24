@@ -6,6 +6,7 @@ import com.sparta.deliveryapp.order.dto.RegisterOrderItemRequestDto;
 import com.sparta.deliveryapp.order.dto.RegisterOrderRequestDto;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.entity.OrderItem;
+import com.sparta.deliveryapp.order.entity.OrderState;
 import com.sparta.deliveryapp.order.repository.OrderItemRepository;
 import com.sparta.deliveryapp.order.repository.OrderRepository;
 import com.sparta.deliveryapp.payment.service.PaymentService;
@@ -65,6 +66,9 @@ public class OrderRegisterService {
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("해당 메뉴가 존재하지 않습니다."));
 
+            // 총 가격 계산
+            totalPrice += Integer.parseInt(menu.getPrice().toString()) * itemDto.getQuantity();
+
             // 주문 항목 생성
             OrderItem orderItem = OrderItem.builder()
                     .userId(user.getUserId())
@@ -72,17 +76,21 @@ public class OrderRegisterService {
                     .quantity(itemDto.getQuantity())
                     .build();
 
-            // 총 가격 계산
-            totalPrice += Integer.parseInt(menu.getPrice().toString()) * itemDto.getQuantity();
             orderItems.add(orderItem); // 주문 항목 리스트에 추가
         }
 
         // 주문 엔티티 생성
         Order order = registerOrderRequestDto.toEntity(user.getUserId(), totalPrice);
-        order.setOrderItems(orderItems);
+        order.setOrderState(OrderState.WAIT);
+        order.setStore(store);
 
         // 주문 저장
         Order savedOrder = orderRepository.save(order);
+
+        for (OrderItem item : orderItems) {
+            item.setOrder(savedOrder);
+            orderItemRepository.save(item);
+        }
 
         // 주문 ID 반환
         return savedOrder.getOrderId();

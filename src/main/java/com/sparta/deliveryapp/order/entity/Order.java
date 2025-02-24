@@ -88,6 +88,7 @@ public class Order extends BaseEntity {
                 .userAddress(order.getUserAddress())
                 .orderMemo(order.getOrderMemo())
                 .orderState(order.getOrderState())
+                .itemList(itemList)
                 .build();
     }
 
