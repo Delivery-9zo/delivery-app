@@ -50,7 +50,7 @@ public class StoreMasterController {
       @PageableDefault(
           size = 10,
           page = 0,
-          sort = "storeName",
+          sort = "createAt",
           direction = Direction.ASC) Pageable pageable) {
 
     Page<StoreResponseDto> storeResponseDtos = storeService.findStoresByStoreName(storeName, pageable);

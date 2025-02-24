@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -45,17 +46,18 @@ public class StoreController {
 
     return ResponseEntity.ok().body("가게가 정상적으로 등록되었습니다.");
   }
+
   //카테고리 없이 경위도로만 근처 가게 검색
   @GetMapping("/location")
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Page<StoreNearbyStoreResponseDto>> getNearbyStoresWithoutCategory(
       @RequestParam(value = "longitude") double longitude,
       @RequestParam(value = "latitude") double latitude,
-      @PageableDefault( //todo: 등록시간 기준 최신순, 오래된 순을 기본 정렬 조건으로, 차후 정렬 조건으로 거리순
-          size = 10,
-          page = 0,
-          sort = "distanceFromRequest",
-          direction = Direction.ASC) Pageable pageable) {
+      @SortDefault.SortDefaults({
+          @SortDefault(sort = "createAt", direction = Direction.ASC),
+          @SortDefault(sort = "distanceFromRequest", direction = Direction.ASC)
+      })
+      @PageableDefault(size = 10, page = 0) Pageable pageable) {
 
     Page<StoreNearbyStoreResponseDto> storeResponseDto = storeService.findNearbyStoresWithoutCategory(
         longitude, latitude, pageable);
@@ -71,11 +73,13 @@ public class StoreController {
       @RequestParam(value = "category") List<String> categoryNames,
       @RequestParam(value = "longitude") double longitude,
       @RequestParam(value = "latitude") double latitude,
-      @PageableDefault( //todo: 등록시간 기준 최신순, 오래된 순을 기본 정렬 조건으로, 차후 정렬 조건으로 거리순
+      @SortDefault.SortDefaults({
+          @SortDefault(sort = "createAt", direction = Direction.ASC),
+          @SortDefault(sort = "distanceFromRequest", direction = Direction.ASC)
+      })
+      @PageableDefault(
           size = 10,
-          page = 0,
-          sort = "distanceFromRequest",
-          direction = Direction.ASC) Pageable pageable) {
+          page = 0) Pageable pageable) {
 
     Page<StoreNearbyStoreWithCategoryResponseDto> storeDtos = storeService.findNearbyStoresByCategory(
         categoryNames, longitude, latitude, pageable);
