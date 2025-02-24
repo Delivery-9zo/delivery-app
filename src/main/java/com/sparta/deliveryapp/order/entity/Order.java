@@ -1,6 +1,7 @@
 package com.sparta.deliveryapp.order.entity;
 
 import com.sparta.deliveryapp.auditing.BaseEntity;
+import com.sparta.deliveryapp.order.dto.SearchOrderItemResponseDto;
 import com.sparta.deliveryapp.order.dto.SearchOrderResponseDto;
 import com.sparta.deliveryapp.store.entity.Store;
 import jakarta.persistence.*;
@@ -35,10 +36,6 @@ public class Order extends BaseEntity {
     @Column(name = "user_id")
     private UUID userId;
 
-//    // TODO 삭제 예정
-//    @Column(name = "item_id")
-//    private UUID itemId;
-
     @Enumerated(value = EnumType.STRING)
     private OrderType orderType;
 
@@ -66,10 +63,6 @@ public class Order extends BaseEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> orderItems = new ArrayList<>();
 
-//    @OneToOne
-//    @JoinColumn(name = "payment_id")
-//    private Payment payment;
-
     @ManyToOne
     @JoinColumn(name = "store_uuid")
     private Store store;
@@ -85,7 +78,7 @@ public class Order extends BaseEntity {
         this.orderState = OrderState.WAIT;
     }
 
-    public SearchOrderResponseDto toSearchOrderByOrderIdResponseDto(Order order) {
+    public SearchOrderResponseDto toSearchOrderByOrderIdResponseDto(Order order, List<SearchOrderItemResponseDto> itemList) {
         return SearchOrderResponseDto.builder()
                 .orderId(order.getOrderId())
                 .userId(order.getUserId())
