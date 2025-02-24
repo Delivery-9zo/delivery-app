@@ -1,6 +1,8 @@
 package com.sparta.deliveryapp.order.entity;
 
 import com.sparta.deliveryapp.auditing.BaseEntity;
+import com.sparta.deliveryapp.menu.entity.Menu;
+import com.sparta.deliveryapp.order.dto.OrderItemRequestDto;
 import com.sparta.deliveryapp.order.dto.SearchOrderItemResponseDto;
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,26 +23,22 @@ public class OrderItem extends BaseEntity {
     @UuidGenerator
     private UUID itemId;
 
-    // 주문타입 - FACE_TO_FACE: 불필요
-    @Column(name = "user_id")
-    private UUID userId;
+    @ManyToOne
+    @JoinColumn(name = "order_uuid")
+    private Order orderId;
 
-    @Column(name = "menu_uuid", nullable = false)
-    private UUID menuId;
+    @ManyToOne
+    @JoinColumn(name = "menu_uuid", nullable = false)
+    private Menu menuId;
 
     @Column(name = "quantity")
     private int quantity;
 
-    @ManyToOne
-    @JoinColumn(name = "order_id")
-    private Order order;
 
-    @Builder
-    public OrderItem(UUID userId, UUID menuId, int quantity, Order order) {
-        this.userId = userId;
-        this.menuId = menuId;
+    public OrderItem(Order order, Menu menu, int quantity) {
+        this.orderId = order;
+        this.menuId = menu;
         this.quantity = quantity;
-        this.order = order;
     }
 
     public SearchOrderItemResponseDto toSearchOrderItemResponseDto(OrderItem orderItem) {
