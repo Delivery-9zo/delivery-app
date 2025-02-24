@@ -85,17 +85,24 @@ public class OrderController {
     @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_MANGER', 'ROLE_OWNER')")
     @PostMapping("/{storeId}")
     @Operation(summary = "주문등록 기능", description = "주문메뉴를 추가하는 장바구니 담기 기능 같은 주문을 등록하는 api")
-    public ResponseEntity<String> postOrder(
+    public ResponseEntity<?> postOrder(
             @PathVariable UUID storeId,
             @RequestBody RegisterOrderRequestDto registerOrderRequestDto,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
+        // 권한으로 고객 비대면, 매니저/오너 대면 서비스 분리
+        try {
+            log.info("주문 등록 컨트롤러 시작");
+            UUID orderId = orderRegisterService.postOrder(storeId, registerOrderRequestDto, userDetails.getUser());
+            log.info("주문 등록 컨트롤러 종료");
 
-        // 주문 등록 서비스 호출
-        UUID orderId = orderRegisterService.postOrder(storeId, registerOrderRequestDto, userDetails.getUser());
+            return ResponseEntity.ok().body("주문 id = " + orderId);
 
-        // 주문 ID 반환
-        return ResponseEntity.ok().body("주문 id = " + orderId);
+        } catch (Exception e) {
+            log.error("주문 상태 업데이트 중 오류 발생={}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("message" + e.getMessage());
+        }
     }
 
     // 주문 완료 - 상태수정(SUCCESS) -> 결제 등록(SUCCESS) : CUSTOMER, MANAGER, OWNER
