@@ -2,6 +2,9 @@ package com.sparta.deliveryapp.store.service;
 
 import com.sparta.deliveryapp.category.entity.Category;
 import com.sparta.deliveryapp.category.repository.CategoryRepository;
+import com.sparta.deliveryapp.order.dto.SearchOrderResponseDto;
+import com.sparta.deliveryapp.order.entity.Order;
+import com.sparta.deliveryapp.order.repository.OrderRepository;
 import com.sparta.deliveryapp.store.dto.StoreNearbyStoreResponseDto;
 import com.sparta.deliveryapp.store.dto.StoreNearbyStoreWithCategoryResponseDto;
 import com.sparta.deliveryapp.store.dto.StoreRequestDto;
@@ -30,10 +33,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -43,6 +42,7 @@ public class StoreService {
   private final CategoryRepository categoryRepository;
   private final StoreCategoryRepository storeCategoryRepository;
   private final KakaoLocalAPI kakaoLocalAPI;
+  private final OrderRepository orderRepository;
 
   /**
    * 가게 정보를 받아 store 테이블에 저장하는 메서드
@@ -360,6 +360,23 @@ public class StoreService {
         .build();
 
     storeRepository.save(userStore);
+  }
+
+
+  public Page<SearchOrderResponseDto> getOrdersByStore(String storeId, Pageable pageable) {
+    Optional<Store> store = storeRepository.findByStoreId(UUID.fromString(storeId));
+    List<Order> ordersPage = orderRepository.findOrdersByStore(store.orElse(null), pageable);
+
+    List<SearchOrderResponseDto> orderDtos = ordersPage.stream()
+        .map(order -> SearchOrderResponseDto.builder()
+            .orderId(order.getOrderId())
+            .userId(order.getUserId())
+            .orderType(order.getOrderType())
+            .orderTime(order.getOrderTime())
+            .build())
+        .collect(Collectors.toList());
+
+    return new PageImpl<>(orderDtos, pageable, ordersPage.size());
   }
 
 
