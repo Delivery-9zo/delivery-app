@@ -2,7 +2,6 @@ package com.sparta.deliveryapp.order.controller;
 
 import com.sparta.deliveryapp.order.dto.RegisterOrderRequestDto;
 import com.sparta.deliveryapp.order.dto.SearchOrderResponseDto;
-import com.sparta.deliveryapp.order.dto.UpdateOrderRequestDto;
 import com.sparta.deliveryapp.order.dto.UpdateOrderResponseDto;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.service.OrderRegisterService;
@@ -16,7 +15,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -109,19 +107,18 @@ public class OrderController {
     @PutMapping("/success/{orderId}")
     @Operation(summary = "주문수정 기능", description = "대면/비대면 분기처리하여 주문상태를 SUCCESS 로 변경하는 주문 완료하는 api")
     public ResponseEntity<?> updateOrder(@PathVariable(name = "orderId") UUID orderId,
-                                                             @Valid @RequestBody UpdateOrderRequestDto updateOrderRequestDto,
-                                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
         // 권한으로 고객 비대면, 매니저/오너 대면 서비스 분리
         try {
-
             if (userDetails.getUser().getRole() == UserRole.CUSTOMER) {
                 log.info("고객 비대면 주문완료 컨트롤러 시작");
-                UpdateOrderResponseDto responseDto = orderStatusService.updateOrderNotFace(orderId, updateOrderRequestDto, userDetails.getUser());
+                UpdateOrderResponseDto responseDto = orderStatusService.updateOrderNotFace(orderId, userDetails.getUser());
                 log.info("고객 비대면 주문완료 컨트롤러 종료");
                 return ResponseEntity.ok(responseDto);
             } else if (userDetails.getUser().getRole() == UserRole.MANAGER || userDetails.getUser().getRole() == UserRole.OWNER) {
                 log.info("매니저, 오너의 대면 주문완료 컨트롤러 시작");
-                UpdateOrderResponseDto responseDto = orderStatusService.updateOrderFace(orderId, updateOrderRequestDto, userDetails.getUser());
+                UpdateOrderResponseDto responseDto = orderStatusService.updateOrderFace(orderId, userDetails.getUser());
                 log.info("매니저, 오너의 대면 주문완료 컨트롤러  종료");
                 return ResponseEntity.ok(responseDto);
             } else {
