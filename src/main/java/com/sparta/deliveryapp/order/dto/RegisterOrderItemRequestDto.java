@@ -1,6 +1,5 @@
 package com.sparta.deliveryapp.order.dto;
 
-import com.sparta.deliveryapp.order.entity.OrderItem;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -25,14 +24,5 @@ public class RegisterOrderItemRequestDto {
     @Parameter(description = "메뉴 가격")
     @Schema(description = "메뉴 가격을 입력하세요.")
     private int price;
-
-
-    public OrderItem toEntity(UUID userId) {
-        return OrderItem.builder()
-            .userId(userId)
-            .menuId(menuId)
-            .quantity(quantity)
-            .build();
-    }
 
 }

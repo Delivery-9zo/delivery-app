@@ -13,7 +13,6 @@ import com.sparta.deliveryapp.payment.service.PaymentService;
 import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.user.entity.User;
-import com.sparta.deliveryapp.user.entity.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -56,8 +55,14 @@ public class OrderRegisterService {
         // 메뉴 목록 조회
         List<Menu> menuList = menuRepository.findAllByStore_StoreId(store.getStoreId());
 
-        // 주문 항목 생성 및 총 가격 계산
+        // 주문 객체 생성
         int totalPrice = 0;
+        Order order = registerOrderRequestDto.toEntity();
+        order.setOrderState(OrderState.WAIT);
+        order.setStore(store);
+        Order savedOrder = orderRepository.save(order);
+
+        // 주문 항목 생성 및 저장
         List<OrderItem> orderItems = new ArrayList<>();
 
         for (RegisterOrderItemRequestDto itemDto : registerOrderRequestDto.getRegisterOrderItemRequestDtoList()) {
@@ -67,31 +72,23 @@ public class OrderRegisterService {
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("해당 메뉴가 존재하지 않습니다."));
 
-            // 총 가격 계산
-            totalPrice += Integer.parseInt(menu.getPrice().toString()) * itemDto.getQuantity();
+            int itemTotalPrice = Integer.parseInt(menu.getPrice().toString());
 
-            // 주문 항목 생성
-            OrderItem orderItem = OrderItem.builder()
-                    .userId(user.getUserId())
-                    .menuId(menu.getId())
-                    .quantity(itemDto.getQuantity())
-                    .build();
+            // 총 가격 계산
+            totalPrice += itemTotalPrice * itemDto.getQuantity();
+
+            // 주문 항목 저장
+            OrderItem orderItem = new OrderItem(savedOrder, menu, itemDto.getQuantity());
 
             orderItems.add(orderItem); // 주문 항목 리스트에 추가
         }
 
-        // 주문 엔티티 생성
-        Order order = registerOrderRequestDto.toEntity(user.getRole() != UserRole.CUSTOMER ? null : user.getUserId(), totalPrice);
-        order.setOrderState(OrderState.WAIT);
-        order.setStore(store);
+        orderItemRepository.saveAll(orderItems);
 
-        // 주문 저장
-        Order savedOrder = orderRepository.save(order);
+        savedOrder.setOrderItems(orderItems);
+        savedOrder.setTotalPrice(totalPrice);
 
-        for (OrderItem item : orderItems) {
-            item.setOrder(savedOrder);
-            orderItemRepository.save(item);
-        }
+        orderRepository.save(savedOrder);
 
         // 주문 ID 반환
         return savedOrder.getOrderId();

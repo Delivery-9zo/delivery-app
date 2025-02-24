@@ -2,10 +2,12 @@ package com.sparta.deliveryapp.order.entity;
 
 import com.sparta.deliveryapp.auditing.BaseEntity;
 import com.sparta.deliveryapp.menu.entity.Menu;
-import com.sparta.deliveryapp.order.dto.OrderItemRequestDto;
 import com.sparta.deliveryapp.order.dto.SearchOrderItemResponseDto;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.UUID;
@@ -44,7 +46,7 @@ public class OrderItem extends BaseEntity {
     public SearchOrderItemResponseDto toSearchOrderItemResponseDto(OrderItem orderItem) {
         return SearchOrderItemResponseDto.builder()
                 .itemId(orderItem.getItemId())
-                .menuId(orderItem.getMenuId())
+                .menuId(orderItem.getMenuId().getId())
                 .quantity(orderItem.getQuantity())
                 .build();
     }
