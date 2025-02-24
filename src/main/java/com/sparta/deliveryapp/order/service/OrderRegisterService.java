@@ -13,6 +13,7 @@ import com.sparta.deliveryapp.payment.service.PaymentService;
 import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.user.entity.User;
+import com.sparta.deliveryapp.user.entity.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -80,7 +81,7 @@ public class OrderRegisterService {
         }
 
         // 주문 엔티티 생성
-        Order order = registerOrderRequestDto.toEntity(user.getUserId(), totalPrice);
+        Order order = registerOrderRequestDto.toEntity(user.getRole() != UserRole.CUSTOMER ? null : user.getUserId(), totalPrice);
         order.setOrderState(OrderState.WAIT);
         order.setStore(store);
 
