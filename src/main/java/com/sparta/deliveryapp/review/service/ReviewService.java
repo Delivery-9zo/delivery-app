@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +26,7 @@ public class ReviewService {
   private final UserRepository userRepository;
   private final OrderRepository orderRepository;
 
+  @Transactional
   public void postReview(ReviewPostRequestDto dto, UUID orderId, UserDetailsImpl userDetails) {
     Order order = orderRepository.getReferenceById(orderId);
 
@@ -38,6 +40,7 @@ public class ReviewService {
     reviewRepository.save(review);
   }
 
+  @Transactional
   public Page<ReviewGetResponseDto> getAllReviewsByStore(UUID storeId,
       Pageable pageable
   ) {
@@ -51,6 +54,7 @@ public class ReviewService {
         ));
   }
 
+  @Transactional
   public Page<ReviewGetResponseDto> getAllReviewsByCustomer(UserDetailsImpl userDetails,
       Pageable pageable) {
     return reviewRepository.findAllByUser_Email(userDetails.getEmail(), pageable)
@@ -63,10 +67,12 @@ public class ReviewService {
         ));
   }
 
+  @Transactional
   public Double getStoreAvgRating(UUID storeId) {
     return reviewRepository.getAvgRatingByStoreId(storeId);
   }
 
+  @Transactional
   public void deleteReview(UUID reviewId) {
     reviewRepository.deleteById(reviewId);
   }
