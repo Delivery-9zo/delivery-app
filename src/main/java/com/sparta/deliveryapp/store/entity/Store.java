@@ -4,6 +4,12 @@ import com.sparta.deliveryapp.auditing.BaseEntity;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.review.entity.Review;
 import com.sparta.deliveryapp.user.entity.User;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.UuidGenerator;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +37,8 @@ import org.hibernate.annotations.Where;
 @Builder
 @Setter
 @Getter
-@Where(clause = "deleted_at IS NULL")
+@SQLDelete(sql = "UPDATE p_store SET deleted_at=CURRENT_TIMESTAMP WHERE store_id=?")
+@SQLRestriction("deleted_at IS NULL")
 @Table(name = "p_store")
 public class Store extends BaseEntity {
 
@@ -76,12 +83,13 @@ public class Store extends BaseEntity {
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<StoreCategory> storeCategories = new ArrayList<>();
 
-  @OneToMany(mappedBy = "store")
-  private List<Order> orders = new ArrayList<>();
-
   @OneToMany(fetch = FetchType.LAZY)
   @Column(name = "review_uuid")
   private List<Review> reviews = new ArrayList<>();
+
+  @OneToMany(fetch = FetchType.LAZY)
+  @Column(name = "order_id")
+  private List<Order> orders = new ArrayList<>();
 
   public void addStoreCategory(StoreCategory storeCategory) {
     storeCategories.add(storeCategory);

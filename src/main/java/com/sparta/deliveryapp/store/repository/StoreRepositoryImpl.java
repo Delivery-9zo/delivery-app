@@ -1,11 +1,9 @@
 package com.sparta.deliveryapp.store.repository;
 
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.deliveryapp.category.entity.QCategory;
@@ -60,7 +58,7 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
         )
         .from(store)
         .leftJoin(store.reviews, review).fetchJoin()
-        .where(geoDistance(longitude, latitude, store.storeCoordX, store.storeCoordY, range))
+        .where(distanceCondition)
         .groupBy(store.storeId)
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize());
@@ -137,14 +135,12 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
         .innerJoin(store.storeCategories, storeCategory)
         .innerJoin(storeCategory.category, category)
         .leftJoin(store.reviews, review)
-        .where(categoryCondition, geoDistance(longitude, latitude, store.storeCoordX,
-            store.storeCoordY, range))
+        .where(categoryCondition, distanceCondition)
         .groupBy(store.storeId, storeCategory.storeCategoryId, category.categoryId)
         .distinct() // 중복 제거
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize())
         .fetch();
-
 
     List<StoreNearbyStoreWithCategoryResponseDto> contents = query.stream()
         .map(tuple -> StoreNearbyStoreWithCategoryResponseDto.builder()

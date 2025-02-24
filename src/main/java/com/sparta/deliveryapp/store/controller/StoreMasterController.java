@@ -37,14 +37,12 @@ public class StoreMasterController {
 
   private final StoreService storeService;
 
-  @DeleteMapping("/{storeId}")
+  @DeleteMapping("")
   @Operation(summary = "가게 삭제 기능", description = "가게 UUID를 이용하여 가게를 삭제하는 API")
   public ResponseEntity<String> deleteStore(
-      @PathVariable String storeId) {
+      @RequestParam(name = "storeId") String storeId) {
 
-    Store deletedStore = storeService.deleteStore(storeId);
-
-    return ResponseEntity.ok().body(deletedStore.getDeletedAt()+" 가게가 정상적으로 삭제되었습니다.");
+    return ResponseEntity.ok().body("가게가 정상적으로 삭제되었습니다.");
   }
 
   //이름으로 가게 목록 조회

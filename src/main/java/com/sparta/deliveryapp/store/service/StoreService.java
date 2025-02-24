@@ -107,15 +107,16 @@ public class StoreService {
    * @param: 가게 uuid(storeId), 유저 정보(userDetails)
    */
   @Transactional
-  public Store deleteStore(String storeId) {
+  public void deleteStore(String storeId) {
 
     Store storeEntity = storeRepository.findByStoreId(UUID.fromString(storeId))
         .orElseThrow(() -> new EntityNotFoundException(storeId + " 가게가 존재하지 않습니다."));
 
-    storeEntity.onPreRemove();
+    if(storeEntity.getDeletedAt() != null){
+      throw new IllegalArgumentException("이미 삭제된 가게입니다.");
+    }
 
-    return storeRepository.save(storeEntity);
-
+    storeRepository.delete(storeEntity);
   }
 
   /**
