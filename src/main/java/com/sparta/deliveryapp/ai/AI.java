@@ -1,5 +1,6 @@
 package com.sparta.deliveryapp.ai;
 
+import com.sparta.deliveryapp.auditing.BaseEntity;
 import com.sparta.deliveryapp.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,15 +13,19 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
+@SQLDelete(sql = "UPDATE p_ai SET deleted_at=CURRENT_TIMESTAMP WHERE ai_id=?")
+@SQLRestriction("deleted_at IS NULL")
 @AllArgsConstructor
 @Table(name = "p_ai")
-public class AI {
+public class AI extends BaseEntity {
 
   @Id
   @UuidGenerator

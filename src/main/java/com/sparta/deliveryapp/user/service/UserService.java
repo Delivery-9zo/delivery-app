@@ -1,5 +1,7 @@
 package com.sparta.deliveryapp.user.service;
 
+import com.sparta.deliveryapp.ai.AI;
+import com.sparta.deliveryapp.ai.AIRepository;
 import com.sparta.deliveryapp.user.dto.SignInRequestDto;
 import com.sparta.deliveryapp.user.dto.SignUpRequestDto;
 import com.sparta.deliveryapp.user.dto.UserResponseDto;
@@ -25,6 +27,7 @@ import java.util.Optional;
 public class UserService {
 
   private final UserRepository userRepository;
+  private final AIRepository aiRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtUtil jwtUtil;
 
@@ -90,6 +93,13 @@ public class UserService {
     }
 
     userRepository.delete(findUser);
+    findUser.onPreRemove();
+
+    // ai 데이터도 삭제
+    List<AI> listAi = aiRepository.findByUser(user);
+    if(listAi != null){
+      aiRepository.deleteAll(listAi);
+    }
 
     // TODO: 연관되어 있는 리뷰,주문,상점도 soft delete 삭제 로직 추가
   }
