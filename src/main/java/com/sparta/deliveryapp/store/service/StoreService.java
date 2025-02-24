@@ -117,6 +117,9 @@ public class StoreService {
     }
 
     storeRepository.delete(storeEntity);
+
+    storeCategoryRepository.deleteAllByStore(storeEntity);
+
   }
 
   /**
@@ -145,6 +148,8 @@ public class StoreService {
             .categories(store.getStoreCategories().stream()
                 .map(storeCategory -> storeCategory.getCategory().getCategoryName())
                 .collect(Collectors.toList()))
+            .createdAt(store.getCreatedAt())
+            .updatedAt(store.getUpdatedAt())
             .build())
         .toList();
 

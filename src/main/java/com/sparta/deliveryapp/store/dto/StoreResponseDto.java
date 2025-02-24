@@ -2,6 +2,7 @@ package com.sparta.deliveryapp.store.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import lombok.*;
 
 import java.time.LocalTime;
@@ -36,4 +37,6 @@ public class StoreResponseDto {
 
   private List<String> categories;
 
+  private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
 }

@@ -42,6 +42,8 @@ public class StoreMasterController {
   public ResponseEntity<String> deleteStore(
       @RequestParam(name = "storeId") String storeId) {
 
+    storeService.deleteStore(storeId);
+
     return ResponseEntity.ok().body("가게가 정상적으로 삭제되었습니다.");
   }
 
@@ -53,7 +55,7 @@ public class StoreMasterController {
       @PageableDefault(
           size = 10,
           page = 0,
-          sort = "createAt",
+          sort = {"createdAt", "updatedAt"},
           direction = Direction.ASC) Pageable pageable) {
 
     Page<StoreResponseDto> storeResponseDtos = storeService.findStoresByStoreName(storeName, pageable);

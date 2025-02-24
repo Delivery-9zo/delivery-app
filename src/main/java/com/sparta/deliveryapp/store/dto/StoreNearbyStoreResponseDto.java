@@ -2,6 +2,7 @@ package com.sparta.deliveryapp.store.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import lombok.*;
 
 import java.time.LocalTime;
@@ -37,4 +38,6 @@ public class StoreNearbyStoreResponseDto {
 
   private Double rating;
 
+  private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
 }

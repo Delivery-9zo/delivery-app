@@ -79,7 +79,7 @@ public class StoreController {
       @RequestParam(value = "longitude") double longitude,
       @RequestParam(value = "latitude") double latitude,
       @SortDefault.SortDefaults({
-          @SortDefault(sort = "createAt", direction = Direction.ASC),
+          @SortDefault(sort = "createdAt", direction = Direction.ASC),
           @SortDefault(sort = "distanceFromRequest", direction = Direction.ASC)
       })
       @PageableDefault(

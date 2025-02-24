@@ -28,11 +28,16 @@ public interface StoreRepository extends JpaRepository<Store, UUID>, StoreReposi
 
   Page<Store> findByStoreNameContaining(String storeName, Pageable pageable);
 
-  @Query("SELECT s FROM Store s " +
+  @Query(value = "SELECT s FROM Store s " +
       "LEFT JOIN FETCH s.storeCategories sc " +
       "LEFT JOIN FETCH sc.category c " +
-      "WHERE s.storeName LIKE %:storeName%")
+      "WHERE s.storeName LIKE %:storeName%",
+      countQuery = "SELECT COUNT(s) FROM Store s " +
+          "LEFT JOIN s.storeCategories sc " +
+          "LEFT JOIN sc.category c " +
+          "WHERE s.storeName LIKE %:storeName%")
   Page<Store> findByStoreNameContainingWithCategories(@Param("storeName") String storeName, Pageable pageable);
+
 }
 
 interface StoreRepositoryCustom {
