@@ -44,7 +44,7 @@ public class OrderItem extends BaseEntity {
     public SearchOrderItemResponseDto toSearchOrderItemResponseDto(OrderItem orderItem) {
         return SearchOrderItemResponseDto.builder()
                 .itemId(orderItem.getItemId())
-//                .menuId(orderItem.getMenuId())
+                .menuId(orderItem.getMenuId())
                 .quantity(orderItem.getQuantity())
                 .build();
     }

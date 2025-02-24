@@ -20,6 +20,13 @@ public class PaymentAllResponseDto {
 
     public PaymentAllResponseDto(UUID paymentId, UUID userId, UUID orderId, PaymentStatus paymentStatus, int paymentAmount, LocalDateTime paymentTime) {
         this.paymentList = new ArrayList<>();
-        this.paymentList.add(new Payment(paymentId, orderId, userId, paymentStatus, paymentAmount, paymentTime));
+        this.paymentList.add(Payment.builder()
+                        .paymentId(paymentId)
+                        .orderId(orderId)
+                .userId(userId)
+                .paymentStatus(paymentStatus)
+                .paymentAmount(paymentAmount)
+                .paymentTime(paymentTime)
+                .build());
     }
 }

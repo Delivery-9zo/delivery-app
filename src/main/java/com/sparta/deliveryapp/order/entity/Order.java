@@ -3,12 +3,12 @@ package com.sparta.deliveryapp.order.entity;
 import com.sparta.deliveryapp.auditing.BaseEntity;
 import com.sparta.deliveryapp.order.dto.SearchOrderItemResponseDto;
 import com.sparta.deliveryapp.order.dto.SearchOrderResponseDto;
-import com.sparta.deliveryapp.payment.dto.PaymentResponseDto;
-import com.sparta.deliveryapp.payment.entity.Payment;
 import com.sparta.deliveryapp.store.entity.Store;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
@@ -22,6 +22,8 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@SQLDelete(sql = "UPDATE p_order SET deleted_at=CURRENT_TIMESTAMP WHERE order_id=?")
+@SQLRestriction("deleted_at IS NULL")
 @Table(name = "p_order")
 public class Order extends BaseEntity {
 
@@ -33,10 +35,6 @@ public class Order extends BaseEntity {
     // 주문타입 - FACE_TO_FACE: 불필요
     @Column(name = "user_id")
     private UUID userId;
-
-    // TODO 삭제 예정
-    @Column(name = "item_id")
-    private UUID itemId;
 
     @Enumerated(value = EnumType.STRING)
     private OrderType orderType;
@@ -65,18 +63,13 @@ public class Order extends BaseEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    @OneToOne
-    @JoinColumn(name = "payment_id")
-    private Payment payment;
-
     @ManyToOne
-    @JoinColumn(name = "store_id")
+    @JoinColumn(name = "store_uuid")
     private Store store;
 
     @Builder
-    public Order(UUID userId, UUID itemId, OrderType orderType, int totalPrice, String userAddress, String orderMemo) {
+    public Order(UUID userId, OrderType orderType, int totalPrice, String userAddress, String orderMemo) {
         this.userId = userId;
-        this.itemId = itemId;
         this.orderType = orderType;
         this.orderTime = LocalDateTime.now();
         this.totalPrice = totalPrice;
@@ -85,8 +78,7 @@ public class Order extends BaseEntity {
         this.orderState = OrderState.WAIT;
     }
 
-    public SearchOrderResponseDto toSearchOrderByOrderIdResponseDto(Order order, List<SearchOrderItemResponseDto> itemList,
-                                                           PaymentResponseDto paymentResponseDto) {
+    public SearchOrderResponseDto toSearchOrderByOrderIdResponseDto(Order order, List<SearchOrderItemResponseDto> itemList) {
         return SearchOrderResponseDto.builder()
                 .orderId(order.getOrderId())
                 .userId(order.getUserId())
@@ -97,7 +89,6 @@ public class Order extends BaseEntity {
                 .orderMemo(order.getOrderMemo())
                 .orderState(order.getOrderState())
                 .itemList(itemList)
-                .paymentResponseDto(paymentResponseDto)
                 .build();
     }
 
