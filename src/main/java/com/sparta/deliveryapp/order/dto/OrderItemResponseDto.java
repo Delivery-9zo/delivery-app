@@ -12,11 +12,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class OrderItemResponseDto {
+  private UUID itemId;
   private UUID orderId;
   private UUID menuId;
   private int quantity;
 
   public OrderItemResponseDto(OrderItem orderItem) {
+    this.itemId = orderItem.getItemId();
     this.orderId = orderItem.getOrderId().getOrderId();
     this.menuId = orderItem.getMenuId().getId();
     this.quantity = orderItem.getQuantity();
