@@ -7,10 +7,13 @@ import com.sparta.deliveryapp.user.dto.UserUpdateRequestDto;
 import com.sparta.deliveryapp.user.entity.User;
 import com.sparta.deliveryapp.user.jwt.JwtUtil;
 import com.sparta.deliveryapp.user.repository.UserRepository;
+import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import com.sparta.deliveryapp.util.NullAwareBeanUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,17 +99,12 @@ public class UserService {
       throw new AccessDeniedException("사용자 정보를 수정할 권한이 없습니다.");
     }
 
-    findUser.onPreRemove();
+    String deleteBy = getCurrentUserEmail();
+    userRepository.deleteUser(deleteBy,user.getUserId());
 
-    userRepository.save(findUser);
+    // TODO: 구현해놓은 softdelete 쿼리들을 가져와서 추가하면 연관관계 소프트딜리트 삭제 구현 완료
   }
 
-  public List<UserResponseDto> getUsers() {
-    List<UserResponseDto> users = userRepository.findAll().stream()
-        .map(UserResponseDto::new).toList();
-
-    return users;
-  }
 
   public UserResponseDto getUser(String email, User user) {
 
@@ -132,4 +130,13 @@ public class UserService {
       log.info("{}개의 유저 데이터가 삭제되었습니다.", usersToDelete.size());
     }
   }
+
+  private String getCurrentUserEmail() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth != null && auth.getPrincipal() instanceof UserDetailsImpl) {
+      return ((UserDetailsImpl) auth.getPrincipal()).getEmail();
+    }
+    throw new SecurityException("No authenticated user found");
+  }
+
 }
