@@ -87,9 +87,9 @@ public class CategoryMasterController {
   @GetMapping("")
   @Operation(summary = "카테고리 검색 기능(이름 기준)", description = "등록된 카테고리 이름으로 검색하여 정보를 조회하는 API")
   public ResponseEntity<CategoryResponseDto> getCategoryByName(
-      @RequestParam(name = "id") UUID categoryId) {
+      @RequestParam(name = "name") String categoryName) {
 
-    CategoryResponseDto categoryResponseDto = categoryService.getCategoryById(categoryId);
+    CategoryResponseDto categoryResponseDto = categoryService.getCategoryById(categoryName);
 
     return ResponseEntity.ok().body(categoryResponseDto);
   }

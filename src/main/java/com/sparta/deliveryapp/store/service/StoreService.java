@@ -322,6 +322,8 @@ public class StoreService {
         .openAt(convertStringToTimestamp(storeRequestDto.getOpenAt()))
         .closeAt(convertStringToTimestamp(storeRequestDto.getCloseAt()))
         .user(userDetails.getUser())
+        .storeCoordX(existingStore.getStoreCoordX())
+        .storeCoordY(existingStore.getStoreCoordY())
         .storeCategories(existingStore.getStoreCategories())
         .build();
 
