@@ -82,7 +82,8 @@ hooks:
 ## 🗃️ ERD (Entity Relationship Diagram)
 아래는 주요 테이블 간의 관계를 나타낸 ERD입니다.
 
-![ERD](./img.png)
+![image](https://github.com/user-attachments/assets/873de1c7-7f69-4f2c-8cbc-66231a4c936e)
+
 
 
 
