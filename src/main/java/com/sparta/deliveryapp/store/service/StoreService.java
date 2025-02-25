@@ -1,12 +1,5 @@
 package com.sparta.deliveryapp.store.service;
 
-import static com.sparta.deliveryapp.commons.exception.ErrorCode.ALREADY_DELETED_STORE_ID;
-import static com.sparta.deliveryapp.commons.exception.ErrorCode.ALREADY_REGISTERED_STORE_ID;
-import static com.sparta.deliveryapp.commons.exception.ErrorCode.INVALILD_LOCATION_DATA;
-import static com.sparta.deliveryapp.commons.exception.ErrorCode.NOT_EXISTS_STORE_ID;
-import static com.sparta.deliveryapp.commons.exception.ErrorCode.NOT_EXISTS_STORE_NAME;
-import static com.sparta.deliveryapp.commons.exception.ErrorCode.STORE_NOT_FOUND;
-
 import com.sparta.deliveryapp.category.entity.Category;
 import com.sparta.deliveryapp.category.repository.CategoryRepository;
 import com.sparta.deliveryapp.commons.exception.error.CustomException;
@@ -29,14 +22,6 @@ import com.sparta.deliveryapp.store.repository.StoreCategoryRepository;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.store.util.kakaoLocal.KakaoLocalAPI;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -46,6 +31,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.*;
 
 @Slf4j
 @Service
