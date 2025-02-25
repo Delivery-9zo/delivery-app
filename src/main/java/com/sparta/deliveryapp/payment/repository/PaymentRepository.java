@@ -4,6 +4,9 @@ import com.sparta.deliveryapp.payment.entity.Payment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -14,4 +17,7 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
 
     Optional<Payment> findByOrderId(UUID orderId);
 
+    @Modifying
+    @Query("UPDATE Payment p SET p.deletedAt = current_timestamp, p.deletedBy = :deletedBy WHERE p.paymentId = :paymentId")
+    void deletePayment(@Param("deleteBy") String deletedBy, @Param("paymentId") UUID paymentId);
 }
