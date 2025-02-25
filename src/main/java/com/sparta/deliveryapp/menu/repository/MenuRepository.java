@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface MenuRepository extends JpaRepository<Menu, UUID> {
 
@@ -24,5 +25,5 @@ public interface MenuRepository extends JpaRepository<Menu, UUID> {
   @Query(nativeQuery = true,
       value = "UPDATE p_menu SET deleted_at = current_timestamp, deleted_by = :deletedBy "
           + "WHERE store_uuid = :storeId")
-  void softDeleteMenu(UUID storeId, String deletedBy);
+  void softDeleteMenu(@Param("storeId") UUID storeId, @Param("deletedBy") String deletedBy);
 }
