@@ -171,13 +171,13 @@ public class CategoryService {
     return categoryList;
   }
 
-  public CategoryResponseDto getCategoryById(UUID categoryId) {
+  public CategoryResponseDto getCategoryById(String categoryId) {
 
     if (categoryId == null) {
       throw new CustomException(NOT_EXISTS_INPUT_CATEGORY_DATA);
     }
 
-    Optional<Category> category = categoryRepository.findByCategoryId(categoryId);
+    Optional<Category> category = categoryRepository.findByCategoryName(categoryId);
 
     if (category.isEmpty()) {
       throw new CustomException(NOT_EXISTS_INPUT_CATEGORY_DATA);
