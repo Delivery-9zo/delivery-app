@@ -36,5 +36,8 @@ public class AI {
   private User user;
 
   private LocalDateTime createdAt;
+  private String createdBy;
+  private LocalDateTime deletedAt;
+  private String deletedBy;
 
 }

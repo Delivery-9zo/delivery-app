@@ -43,7 +43,7 @@ public class OrderItemService {
     Order order = orderRepository.findById(order_uuid).orElseThrow(()->
         new CustomException(ErrorCode.NOT_EXISTS_ORDER_ID));
 
-    return orderItemRepository.findByOrder(order).stream()
+    return orderItemRepository.findByOrderId(order).stream()
         .map(OrderItemResponseDto::new).toList();
   }
 

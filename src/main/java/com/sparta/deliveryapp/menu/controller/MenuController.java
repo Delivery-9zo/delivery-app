@@ -115,7 +115,7 @@ public class MenuController {
       @RequestParam(name = "storeId") UUID storeId,
       @AuthenticationPrincipal UserDetailsImpl userDetails
   ) {
-    menuService.deleteMenu(menuId, storeId, userDetails);
+    menuService.deleteMenuById(menuId, storeId, userDetails);
     return ResponseEntity
         .status(HttpStatus.OK)
         .contentType(MediaType.APPLICATION_JSON)

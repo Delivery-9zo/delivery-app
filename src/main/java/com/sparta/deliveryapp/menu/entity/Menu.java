@@ -12,13 +12,11 @@ import java.util.Objects;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Table(name = "p_menu")
-@SQLDelete(sql = "UPDATE p_menu SET deleted_at=CURRENT_TIMESTAMP WHERE menu_uuid=?")
 @SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
