@@ -1,11 +1,5 @@
 package com.sparta.deliveryapp.category.service;
 
-import static com.sparta.deliveryapp.commons.exception.ErrorCode.ALREADY_REGISTERED_CATEGORY;
-import static com.sparta.deliveryapp.commons.exception.ErrorCode.NOT_EXISTS_CATEGORY;
-import static com.sparta.deliveryapp.commons.exception.ErrorCode.NOT_EXISTS_INPUT_CATEGORY_DATA;
-import static com.sparta.deliveryapp.commons.exception.ErrorCode.REGISTERED_FAILED_CATEGORY;
-import static com.sparta.deliveryapp.commons.exception.ErrorCode.UPDATED_FAILED_CATEGORY;
-
 import com.sparta.deliveryapp.category.dto.CategoryRequestDto;
 import com.sparta.deliveryapp.category.dto.CategoryResponseDto;
 import com.sparta.deliveryapp.category.dto.CategoryUpdateRequestDto;
@@ -15,8 +9,6 @@ import com.sparta.deliveryapp.commons.exception.error.CustomException;
 import com.sparta.deliveryapp.store.repository.StoreCategoryRepository;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import jakarta.transaction.Transactional;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,6 +16,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.*;
 
 @Slf4j
 @Service

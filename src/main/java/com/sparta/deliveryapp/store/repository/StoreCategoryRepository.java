@@ -3,12 +3,13 @@ package com.sparta.deliveryapp.store.repository;
 import com.sparta.deliveryapp.store.entity.StoreCategory;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotBlank;
-import java.util.List;
-import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.UUID;
 
 public interface StoreCategoryRepository extends JpaRepository<StoreCategory, Long> {
 

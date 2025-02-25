@@ -60,7 +60,6 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
             store.updatedAt
         )
         .from(store)
-        .leftJoin(store.reviews, review)
         .where(distanceCondition)
         .groupBy(store.storeId)
         .offset(pageable.getOffset())
@@ -118,7 +117,6 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
         .from(store)
         .innerJoin(store.storeCategories, storeCategory)
         .innerJoin(storeCategory.category, category)
-        .leftJoin(store.reviews, review)
         .where(categoryCondition, geoDistance(longitude, latitude, store.storeCoordX,
             store.storeCoordY, range));
 
@@ -149,7 +147,6 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
         .from(store)
         .innerJoin(store.storeCategories, storeCategory)
         .innerJoin(storeCategory.category, category)
-        .leftJoin(store.reviews, review)
         .where(categoryCondition, distanceCondition)
         .groupBy(store.storeId, storeCategory.storeCategoryId, category.categoryId)
         .distinct() // 중복 제거

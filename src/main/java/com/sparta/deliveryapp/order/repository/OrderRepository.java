@@ -5,6 +5,9 @@ import com.sparta.deliveryapp.store.entity.Store;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,4 +23,8 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     Page<Order> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
     List<Order> findOrdersByStore(Store store, Pageable pageable);
+
+    @Modifying
+    @Query("UPDATE Order o SET o.deletedAt = current_timestamp, o.deletedBy = :deteedBy WHERE o.orderId = :orderId")
+    void deleteOrder(@Param("deleteBy") String deletedBy, @Param("orderId") UUID orderId);
 }

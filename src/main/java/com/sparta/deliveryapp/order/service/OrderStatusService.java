@@ -21,6 +21,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -74,21 +77,22 @@ public class OrderStatusService {
             throw new IllegalArgumentException("주문취소는 주문완료 후 5분 이내에만 취소 가능합니다.");
         } else {
             // 5분 이내
-            // 주문상태 CANCEL 변경
+            // 주문상태 CANCEL 변경 및 저장
             order.setOrderState(OrderState.CANCEL);
             order.setUserId(fixUserId);
-
-            // 주문 소프트 삭제 및 저장
-            order.onPreRemove();
             Order completedOrder = orderRepository.save(order);
 
-            // 주문 상세 소프트 삭제 및 저장
+            // 주문 소프트 삭제
+            String deletedBy = getCurrentUserEmail();
+
+            orderRepository.deleteOrder(deletedBy, order.getOrderId());
+
+            // 주문 상세 소프트 삭제
             for (OrderItem orderItem : orderItemsList) {
-                orderItem.onPreRemove();
-                orderItemRepository.save(orderItem);
+                orderItemRepository.deleteOrderItem(deletedBy, orderItem.getItemId());
             }
 
-            // 결제 상태 CANCEL 변경 및 저장
+            // 결제 상태 CANCEL 변경
             Payment deletedPayment = Payment.builder()
                     .userId(order.getUserId())
                     .orderId(payment.getOrderId())
@@ -98,11 +102,10 @@ public class OrderStatusService {
                     .paymentId(payment.getPaymentId())
                     .build();
             paymentRepository.save(deletedPayment);
-            // 결제 소프트 삭제 및 저장
-            deletedPayment.onPreRemove();
-            paymentRepository.save(deletedPayment);
+            // 결제 소프트 삭제
+            paymentRepository.deletePayment(deletedBy, deletedPayment.getPaymentId());
 
-            log.info("주문 취소 종료 : orderId={}", completedOrder.getOrderId());
+            log.info("주문 취소 종료 orderId={}", completedOrder.getOrderId());
 
             return completedOrder;
         }
@@ -112,7 +115,7 @@ public class OrderStatusService {
     @Transactional
     public Order deleteOrderCustomer(UUID orderId, UUID storeId, User user) {
 
-        log.info("주문 취소 시작 : orderId={}", orderId);
+        log.info("주문 취소 시작 orderId={}", orderId);
 
         Order order = orderRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 주문정보가 없습니다."));
@@ -147,21 +150,22 @@ public class OrderStatusService {
             throw new IllegalArgumentException("주문취소는 주문완료 후 5분 이내에만 취소 가능합니다.");
         } else {
             // 5분 이내
-            // 주문상태 CANCEL 변경
+            // 주문상태 CANCEL 변경 및 저장
             order.setOrderState(OrderState.CANCEL);
             order.setUserId(fixUserId);
-
-            // 주문 소프트 삭제 및 저장
-            order.onPreRemove();
             Order completedOrder = orderRepository.save(order);
 
-            // 주문 상세 소프트 삭제 및 저장
+            // 주문 소프트 삭제
+            String deletedBy = getCurrentUserEmail();
+
+            orderRepository.deleteOrder(deletedBy, order.getOrderId());
+
+            // 주문 상세 소프트 삭제
             for (OrderItem orderItem : orderItemsList) {
-                orderItem.onPreRemove();
-                orderItemRepository.save(orderItem);
+                orderItemRepository.deleteOrderItem(deletedBy, orderItem.getItemId());
             }
 
-            // 결제 상태 CANCEL 변경 및 저장
+            // 결제 상태 CANCEL 변경
             Payment deletedPayment = Payment.builder()
                     .userId(order.getUserId())
                     .orderId(payment.getOrderId())
@@ -171,9 +175,8 @@ public class OrderStatusService {
                     .paymentId(payment.getPaymentId())
                     .build();
             paymentRepository.save(deletedPayment);
-            // 결제 소프트 삭제 및 저장
-            deletedPayment.onPreRemove();
-            paymentRepository.save(deletedPayment);
+            // 결제 소프트 삭제
+            paymentRepository.deletePayment(deletedBy, deletedPayment.getPaymentId());
 
             log.info("주문 취소 종료 : orderId={}", completedOrder.getOrderId());
 
@@ -280,5 +283,13 @@ public class OrderStatusService {
         if(order.getOrderState() != OrderState.WAIT) {
             throw new IllegalArgumentException("주문완료 및 취소 상태로 주문완료가 불가능합니다.");
         }
+    }
+
+    private String getCurrentUserEmail() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if(auth != null && auth.getPrincipal() instanceof UserDetails) {
+            return ((UserDetails) auth.getPrincipal()).getUsername();
+        }
+        throw new SecurityException("No authenticated user found.");
     }
 }
