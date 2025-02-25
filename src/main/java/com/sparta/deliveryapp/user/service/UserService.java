@@ -14,6 +14,7 @@ import com.sparta.deliveryapp.order.repository.OrderRepository;
 import com.sparta.deliveryapp.payment.entity.Payment;
 import com.sparta.deliveryapp.payment.repository.PaymentRepository;
 import com.sparta.deliveryapp.review.repository.ReviewRepository;
+import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.user.dto.SignInRequestDto;
 import com.sparta.deliveryapp.user.dto.SignUpRequestDto;
 import com.sparta.deliveryapp.user.dto.UserResponseDto;
@@ -45,6 +46,7 @@ public class UserService {
   private final ReviewRepository reviewRepository;
   private final OrderItemRepository orderItemRepository;
   private final PaymentRepository paymentRepository;
+  private final StoreRepository storeRepository;
   private final JwtUtil jwtUtil;
 
 
@@ -130,9 +132,13 @@ public class UserService {
     });
 
     // 결제 삭제
-    paymentRepository.findAllByUserId(findUser.getUserId()).forEach(payment ->
-        paymentRepository.deletePayment(deleteBy, payment.getPaymentId())
-    );
+    paymentRepository.deletePaymentByUserId(deleteBy,findUser.getUserId());
+
+    // 상점 삭제
+    storeRepository.deleteStoreByUserId(deleteBy, findUser.getUserId());
+
+    // 리뷰 삭제
+    reviewRepository.deleteReviewByUser(deleteBy, findUser.getUserId());
 
     // 유저 삭제
     userRepository.deleteUser(deleteBy, user.getUserId());
