@@ -46,6 +46,7 @@ public interface StoreRepository extends JpaRepository<Store, UUID>, StoreReposi
   @Query("UPDATE Store s SET s.deletedAt = CURRENT_TIMESTAMP, s.deletedBy = :deletedBy WHERE s.storeId = :storeId")
   void deleteStoreByStoreId(@Param("deletedBy") String deletedBy, @Param("storeId") UUID storeId);
 
+  List<Store> findAllByUser(User user);
 }
 
 interface StoreRepositoryCustom {
