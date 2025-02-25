@@ -101,7 +101,7 @@ hooks:
 
 
 ## 📚 API 문서 (Swagger)
-- **Swagger**: 추후 업데이트 예정
+- **Swagger**: [API 문서](https://sparta-delivery-9zo.p-e.kr/swagger-ui/index.html)
 - **Jira Board**: [Jira 보기](https://develop-cloud.atlassian.net/jira/software/projects/SCRUM/boards/1/timeline)
 
 
