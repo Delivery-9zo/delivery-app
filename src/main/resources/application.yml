@@ -1,6 +1,6 @@
 spring:
   config:
-      import: optional:file:.env[.properties]
+    import: optional:file:.env[.properties]
   profiles:
     active: local
   datasource:
@@ -19,6 +19,10 @@ spring:
   sql:
     init:
       mode: always
+  secrets:
+    secretKey: ${SECRET_KEY:defaultSecretKey}
+  gemini:
+    secretKey: ${GEMINI_KEY:defaultSecretKey}
 ---
 spring:
   config:
@@ -42,3 +46,13 @@ spring:
     compose:
       enabled: false
 
+---
+#kakao local API KEY
+api-key:
+  url: ${KAKAO_LOCAL_URL}
+  key: ${KAKAO_LOCAL_KEY}
+
+---
+springdoc:
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
