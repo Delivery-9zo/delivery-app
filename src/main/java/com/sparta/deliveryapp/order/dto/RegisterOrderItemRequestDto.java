@@ -21,8 +21,4 @@ public class RegisterOrderItemRequestDto {
     @Schema(description = "메뉴 수량을 입력하세요.")
     private int quantity;
 
-    @Parameter(description = "메뉴 가격")
-    @Schema(description = "메뉴 가격을 입력하세요.")
-    private int price;
-
 }

@@ -81,17 +81,19 @@ public class OrderController {
 
     // 주문 등록(WAIT) -> 주문상세 메뉴를 추가하면 주문등록이 됨
     @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_MANGER', 'ROLE_OWNER')")
-    @PostMapping("/{storeId}")
+    @PostMapping("/{storeId}/{menuId}/{quantity}")
     @Operation(summary = "주문등록 기능", description = "주문메뉴를 추가하는 장바구니 담기 기능 같은 주문을 등록하는 api")
     public ResponseEntity<?> postOrder(
-            @PathVariable UUID storeId,
+            @PathVariable(name = "storeId") UUID storeId,
+            @PathVariable(name = "menuId") UUID menuId,
+            @PathVariable(name = "quantity") int quantity,
             @RequestBody RegisterOrderRequestDto registerOrderRequestDto,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         // 권한으로 고객 비대면, 매니저/오너 대면 서비스 분리
         try {
             log.info("주문 등록 컨트롤러 시작");
-            UUID orderId = orderRegisterService.postOrder(storeId, registerOrderRequestDto, userDetails.getUser());
+            UUID orderId = orderRegisterService.postOrder(storeId, menuId, quantity, registerOrderRequestDto, userDetails.getUser());
             log.info("주문 등록 컨트롤러 종료");
 
             return ResponseEntity.ok().body("주문 id = " + orderId);
