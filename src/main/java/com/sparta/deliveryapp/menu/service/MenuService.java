@@ -108,7 +108,7 @@ public class MenuService {
   }
 
   @Transactional
-  public void deleteMenu(UUID menuId, UUID storeId, UserDetailsImpl userDetails) {
+  public void deleteMenuById(UUID menuId, UUID storeId, UserDetailsImpl userDetails) {
     Store store = storeRepository.findById(storeId).orElseThrow(
         () -> new IllegalArgumentException("가게를 찾을 수 없습니다.")
     );
@@ -122,6 +122,18 @@ public class MenuService {
         .executeUpdate();
 
   }
+
+  @Transactional
+  public void deleteMenu(UUID storeId, UserDetailsImpl userDetails) {
+    Store store = storeRepository.findById(storeId).orElseThrow(
+        () -> new IllegalArgumentException("가게를 찾을 수 없습니다.")
+    );
+
+    checkStoreAccessPermission(userDetails, store);
+
+    menuRepository.softDeleteMenu(storeId, userDetails.getEmail());
+  }
+
 
   private void checkStoreAccessPermission(UserDetailsImpl userDetails, Store store) {
     if (store.isNotAssociated(userDetails.getUser())) {

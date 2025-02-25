@@ -141,7 +141,7 @@ public class StoreService {
 
     List<Menu> menus = menuRepository.findAllByStore_StoreId(storeEntity.getStoreId());
     for (Menu menu : menus) {
-      menuService.deleteMenu(menu.getId(), storeEntity.getStoreId(), userDetails);
+      menuService.deleteMenuById(menu.getId(), storeEntity.getStoreId(), userDetails);
     }
 
     Page<Review> reviews = reviewRepository.findAllByStore_StoreId(storeEntity.getStoreId(),
