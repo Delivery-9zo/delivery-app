@@ -7,7 +7,6 @@ import com.sparta.deliveryapp.menu.service.MenuService;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -43,8 +42,9 @@ public class MenuController {
 
   @Operation(summary = "메뉴 추가", description = "메뉴 정보를 전달하여 메뉴를 추가합니다.")
   @ApiResponse(responseCode = "200", description = "메뉴 추가 성공", content = @Content(
-      schema = @Schema(type = "string", example = "메뉴가 등록되었습니다.")
-  ), headers = @Header(name = "Authorization", description = "jwt 토큰을 전달하여 인증"))
+      schema = @Schema(type = "string", example = "메뉴가 등록되었습니다."),
+      mediaType = "application/json"
+  ))
   @PostMapping
   public ResponseEntity<String> postMenu(
       @RequestBody
@@ -67,8 +67,8 @@ public class MenuController {
 
   @Operation(summary = "이름으로 메뉴 조회", description = "메뉴 이름으로 가게의 메뉴를 조회합니다.")
   @ApiResponse(responseCode = "200", description = "메뉴 조회 성공",
-      content = @Content(schema = @Schema(implementation = MenuGetResponseDto.class)),
-      headers = @Header(name = "Authorization", description = "jwt 토큰을 전달하여 인증"))
+      content = @Content(schema = @Schema(implementation = MenuGetResponseDto.class),
+          mediaType = "application/json"))
   @Parameter(name = "menuName", description = "조회할 메뉴의 이름", required = true, example = "수박")
   @Parameter(name = "storeId", description = "메뉴 조회할 상점의 Id", required = true, example =
       "730320d6-cd32-4ddc-b56b-78f810d7d543")
@@ -83,10 +83,16 @@ public class MenuController {
         .body(menuService.getMenu(menuName, storeId));
   }
 
+  @Operation(summary = "가게의 모든 메뉴 조회", description = "가게의 모든 메뉴를 조회합니다.")
+  @ApiResponse(responseCode = "200", description = "메뉴 조회 성공",
+      content = @Content(mediaType = "application/json"))
+  @Parameter(name = "storeId", description = "메뉴 조회할 상점의 Id", required = true, example =
+      "730320d6-cd32-4ddc-b56b-78f810d7d543")
   @GetMapping("/{storeId}")
   public ResponseEntity<Page<MenuGetResponseDto>> getMenus(
       @PathVariable(name = "storeId") UUID storeId,
       @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC)
+      @Parameter(hidden = true)
       Pageable pageable
   ) {
     return ResponseEntity
@@ -95,11 +101,25 @@ public class MenuController {
         .body(menuService.getMenus(storeId, pageable));
   }
 
+  @Operation(summary = "메뉴 정보 수정", description = "기존 메뉴를 수정합니다.")
+  @ApiResponse(responseCode = "200", description = "메뉴 수정 성공",
+      content = @Content(schema = @Schema(type = "string", example = "메뉴가 수정되었습니다.")))
+  @Parameter(name = "storeId", description = "메뉴 조회할 상점의 Id", required = true, example =
+      "730320d6-cd32-4ddc-b56b-78f810d7d543")
+  @Parameter(name = "menuName", description = "조회할 메뉴의 이름", required = true, example = "수박")
   @PatchMapping("/{storeId}")
   public ResponseEntity<String> patchMenu(
       @PathVariable(name = "storeId") UUID storeId,
       @RequestParam(name = "menuName") String menuName,
-      @RequestBody MenuPatchRequestDto dto,
+      @RequestBody
+      @io.swagger.v3.oas.annotations.parameters.RequestBody(
+          required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = MenuPatchRequestDto.class)
+          )
+      )
+      MenuPatchRequestDto dto,
       @AuthenticationPrincipal UserDetailsImpl userDetails
   ) {
     menuService.patchMenu(menuName, storeId, dto, userDetails);
@@ -109,6 +129,12 @@ public class MenuController {
         .body("메뉴가 수정되었습니다.");
   }
 
+  @Operation(summary = "메뉴 삭제", description = "기존 메뉴를 삭제합니다.")
+  @ApiResponse(responseCode = "200", description = "메뉴 삭제 성공",
+      content = @Content(schema = @Schema(type = "string", example = "메뉴가 삭제되었습니다.")))
+  @Parameter(name = "storeId", description = "메뉴 삭제할 상점의 Id", required = true, example =
+      "730320d6-cd32-4ddc-b56b-78f810d7d543")
+  @Parameter(name = "menuName", description = "삭제할 메뉴의 이름", required = true, example = "수박")
   @DeleteMapping
   public ResponseEntity<String> deleteMenu(
       @RequestParam(name = "menuId") UUID menuId,
