@@ -25,6 +25,6 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     List<Order> findOrdersByStore(Store store, Pageable pageable);
 
     @Modifying
-    @Query("UPDATE Order o SET o.deletedAt = current_timestamp, o.deletedBy = :deteedBy WHERE o.orderId = :orderId")
-    void deleteOrder(@Param("deleteBy") String deletedBy, @Param("orderId") UUID orderId);
+    @Query("UPDATE Order o SET o.deletedAt = current_timestamp, o.deletedBy = :deletedBy WHERE o.orderId = :orderId")
+    void deleteOrder(@Param("deletedBy") String deletedBy, @Param("orderId") UUID orderId);
 }

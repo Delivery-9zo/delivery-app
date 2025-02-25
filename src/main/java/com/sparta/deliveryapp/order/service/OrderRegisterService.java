@@ -54,6 +54,7 @@ public class OrderRegisterService {
         // 주문 객체 생성 및 주문 저장
         int totalPrice = 0;
         Order order = registerOrderRequestDto.toEntity();
+        order.setUserId(user.getUserId());
         order.setOrderState(OrderState.WAIT);
         order.setStore(store);
         Order savedOrder = orderRepository.save(order);

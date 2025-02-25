@@ -41,8 +41,11 @@ public enum ErrorCode {
   // 주문 관련 에러
   NOT_EXISTS_ORDER_ID(HttpStatus.NOT_FOUND, "ORD-001", "존재하지 않는 주문 ID 입니다."),
   ORDER_STATUS_FAILED_ORDER(HttpStatus.BAD_REQUEST, "ORD-002", "주문완료 상태가 아니므로 주문취소가 불가능합니다."),
+  NOT_REGISTER_ORDER_STATUS(HttpStatus.BAD_REQUEST, "ORD-002", "주문대기 및 취소 상태로 주문완료가 불가능합니다."),
   AFTER_FIVE_ORDER_STATUS_FAILED_ORDER(HttpStatus.INTERNAL_SERVER_ERROR, "ORD-003", "주문취소는 주문완료 후 5분 이내에만 취소 가능합니다."),
   NOT_EXISTS_MENU_ID(HttpStatus.NOT_FOUND, "ORD-004", "해당 메뉴가 존재하지 않습니다."),
+  ONLY_NON_FACE_ORDER_FAILED_ORDER(HttpStatus.BAD_REQUEST, "ORD-005", "배달 주문만 결제 가능합니다. 대면 주문과 결제는 가게에 문의해주세요!"),
+  ONLY_FACE_ORDER_FAILED_ORDER(HttpStatus.BAD_REQUEST, "ORD-005", "비대면 주문과 결제는 CUSTOMER 만 가능합니다."),
 
   // 주문상세 관련 에러
   NOT_EXISTS_ITEM_ID(HttpStatus.NOT_FOUND, "ITM-001", "존재하지 않는 주문상세 ID 입니다."),
@@ -51,7 +54,11 @@ public enum ErrorCode {
   NOT_EXISTS_PAYMENT_ID(HttpStatus.NOT_FOUND, "PAY-001", "존재하지 않는 결제 ID 입니다."),
   NOT_EXISTS_PAYMENT_USER_ID(HttpStatus.NOT_FOUND, "PAY-002", "결제한 회원이 존재하지 않습니다."),
   ACCESS_DENIED_ONLY_USER_ID(HttpStatus.NOT_FOUND, "PAY_003", "본인의 결제 정보만 조회 가능합니다."),
-  NOT_SUFFICIENT_PAYMENT_AMOUNT(HttpStatus.BAD_REQUEST, "PAY_004", "결제 금액은 1원 이상이어야 합니다.");
+  NOT_SUFFICIENT_PAYMENT_AMOUNT(HttpStatus.BAD_REQUEST, "PAY_004", "결제 금액은 1원 이상이어야 합니다."),
+  NOT_PAYMENT(HttpStatus.BAD_REQUEST, "PAY_005", "결제 중 오류가 발생했습니다."),
+  NOT_PAYMENT_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PAY_006", "결제 처리 중 오류가 발생했습니다.");
+
+
 
   private final String code;
   private final String message;

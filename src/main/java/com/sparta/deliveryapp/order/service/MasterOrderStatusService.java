@@ -75,7 +75,6 @@ public class MasterOrderStatusService {
             order.setUserId(fixUserId);
             Order completedOrder = orderRepository.save(order);
 
-
             // 주문 소프트 삭제
             String deletedBy = getCurrentUserEmail();
 

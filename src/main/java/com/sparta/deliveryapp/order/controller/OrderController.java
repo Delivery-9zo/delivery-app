@@ -46,6 +46,10 @@ public class OrderController {
     @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_MANGER', 'ROLE_OWNER')")
     @DeleteMapping("/{orderId}/{storeId}")
     @Operation(summary = "주문삭제 기능", description = "주문 id로 특정 상점의 주문을 삭제하는 api")
+    @ApiResponse(responseCode = "200", description = "주문 취소 성공", content = @Content(
+            schema = @Schema(type = "string", example = "주문 및 결제가 취소되었습니다."),
+            mediaType = "application/json"
+    ))
     public ResponseEntity<String> deleteOrder(@PathVariable(name = "orderId")  UUID orderId,
                                               @PathVariable(name = "storeId") UUID storeId,
                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -55,14 +59,12 @@ public class OrderController {
                 Order deletedOrder = orderStatusService.deleteOrder(orderId, storeId, userDetails.getUser());
                 log.info("매니저,오너 - deleteOrder 컨트롤러 종료");
 
-                return ResponseEntity.ok().body(deletedOrder.getDeletedAt() + " "
-                        + deletedOrder.getUserId().toString() + "고객님의 주문 및 결제가 취소되었습니다.");
+                return ResponseEntity.ok().body("고객님의 주문 및 결제가 취소되었습니다.");
             } else {
                 Order deletedOrder = orderStatusService.deleteOrderCustomer(orderId, storeId, userDetails.getUser());
                 log.info("deleteOrder 컨트롤러 종료");
 
-                return ResponseEntity.ok().body(deletedOrder.getDeletedAt()
-                        + " 주문 및 결제가 취소되었습니다. 환불은 카드 영업일 1-3일 소요됩니다.");
+                return ResponseEntity.ok().body("주문 및 결제가 취소되었습니다. 환불은 카드 영업일 1-3일 소요됩니다.");
             }
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getStatusCode())

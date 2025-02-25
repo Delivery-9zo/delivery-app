@@ -46,8 +46,7 @@ public class MasterOrderController {
             Order deletedOrder = masterOrderStatusService.deleteOrderMaster(orderId, storeId);
             log.info("deleteOrderMaster 컨트롤러 종료");
 
-            return ResponseEntity.ok().body(deletedOrder.getDeletedAt()
-                    + " 관리자가 주문 및 결제를 취소했습니다.");
+            return ResponseEntity.ok().body("관리자가 주문 및 결제를 취소했습니다.");
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getStatusCode())
                     .body("message : " + e.getReason());
