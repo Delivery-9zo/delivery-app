@@ -2,18 +2,44 @@ volumes:
   postgres-data:
 
 services:
-  db:
-    container_name: db
-    image: postgis/postgis
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
+  app:
+    container_name: app
+    build:
+      dockerfile: Dockerfile
+      context: .
     env_file:
       - .env
     networks:
       - app_network
     ports:
-      - "5432:5432"
+      - "8080:8080"
 
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - app_network
+    depends_on:
+      - app
+      - certbot
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    networks:
+      - app_network
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
 networks:
   app_network:
