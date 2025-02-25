@@ -41,7 +41,7 @@ public enum ErrorCode {
   // 주문 관련 에러
   NOT_EXISTS_ORDER_ID(HttpStatus.NOT_FOUND, "ORD-001", "존재하지 않는 주문 ID 입니다."),
   ORDER_STATUS_FAILED_ORDER(HttpStatus.BAD_REQUEST, "ORD-002", "주문완료 상태가 아니므로 주문취소가 불가능합니다."),
-  AFTER_FIVE_ORDER_STATUS_FAILED_ORDER(HttpStatus.BAD_REQUEST, "ORD-003", "주문취소는 주문완료 후 5분 이내에만 취소 가능합니다."),
+  AFTER_FIVE_ORDER_STATUS_FAILED_ORDER(HttpStatus.INTERNAL_SERVER_ERROR, "ORD-003", "주문취소는 주문완료 후 5분 이내에만 취소 가능합니다."),
   NOT_EXISTS_MENU_ID(HttpStatus.NOT_FOUND, "ORD-004", "해당 메뉴가 존재하지 않습니다."),
 
   // 주문상세 관련 에러

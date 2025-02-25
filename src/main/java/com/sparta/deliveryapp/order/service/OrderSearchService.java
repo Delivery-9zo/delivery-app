@@ -2,7 +2,6 @@ package com.sparta.deliveryapp.order.service;
 
 import com.sparta.deliveryapp.commons.exception.ErrorCode;
 import com.sparta.deliveryapp.commons.exception.error.CustomException;
-import com.sparta.deliveryapp.order.dto.SearchOrderItemResponseDto;
 import com.sparta.deliveryapp.order.dto.SearchOrderResponseDto;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.repository.OrderRepository;
@@ -27,20 +26,17 @@ public class OrderSearchService {
     // 주문 ID - 1건 조회(CUSTOMER)
     public SearchOrderResponseDto findOrderByOrderId(UUID orderId, User user) {
 
-        Order order = orderRepository.findByOrderIdAndUserId(orderId, user.getUserId()).orElse(null);
+        //Order order = orderRepository.findByOrderIdAndUserId(orderId, user.getUserId()).orElse(null);
+        Order order = orderRepository.findByOrderId(orderId).orElseThrow(() -> new CustomException(ErrorCode.NOT_EXISTS_ORDER_ID));
 
-        // 주문 객체가 null일 경우
-        if (order == null) {
-            throw new CustomException(ErrorCode.NOT_EXISTS_ORDER_ID);
-        }
+//        // 주문 상세 데이터 조회 후 Dto로 변환
+//        List<SearchOrderItemResponseDto> itemList = order.getOrderItems().stream()
+//                .map(orderItem -> {
+//                    return orderItem.toSearchOrderItemResponseDto(orderItem);
+//                }).toList();
 
-        // 주문 상세 데이터 조회 후 Dto로 변환
-        List<SearchOrderItemResponseDto> itemList = order.getOrderItems().stream()
-                .map(orderItem -> {
-                    return orderItem.toSearchOrderItemResponseDto(orderItem);
-                }).toList();
-
-        return order.toSearchOrderByOrderIdResponseDto(order, itemList);
+//        return order.toSearchOrderByOrderIdResponseDto(order, itemList);
+        return order.toSearchOrderByOrderIdResponseDto(order);
     }
 
 
@@ -61,11 +57,12 @@ public class OrderSearchService {
                     order.getTotalPrice(),
                     order.getUserAddress(),
                     order.getOrderMemo(),
-                    order.getOrderState(),
-                    order.getOrderItems().stream()
-                            .map(orderItem -> {
-                                return orderItem.toSearchOrderItemResponseDto(orderItem);
-                            }).toList()
+                    order.getOrderState()
+//                        ,
+//                    order.getOrderItems().stream()
+//                            .map(orderItem -> {
+//                                return orderItem.toSearchOrderItemResponseDto(orderItem);
+//                            }).toList()
                 ));
     }
 
@@ -82,11 +79,12 @@ public class OrderSearchService {
                 order.getTotalPrice(),
                 order.getUserAddress(),
                 order.getOrderMemo(),
-                order.getOrderState(),
-                order.getOrderItems().stream()
-                        .map(orderItem -> {
-                            return orderItem.toSearchOrderItemResponseDto(orderItem);
-                        }).toList()
+                order.getOrderState()
+//                    ,
+//                order.getOrderItems().stream()
+//                        .map(orderItem -> {
+//                            return orderItem.toSearchOrderItemResponseDto(orderItem);
+//                        }).toList()
             ));
     }
 

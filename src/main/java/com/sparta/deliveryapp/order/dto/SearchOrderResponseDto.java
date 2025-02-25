@@ -33,7 +33,9 @@ public class SearchOrderResponseDto {
     private List<SearchOrderItemResponseDto> itemList;
 
     @Builder
-    public SearchOrderResponseDto(UUID orderId, UUID userId, OrderType orderType, LocalDateTime orderTime, int totalPrice, String userAddress, String orderMemo, OrderState orderState, List<SearchOrderItemResponseDto> itemList) {
+    public SearchOrderResponseDto(UUID orderId, UUID userId, OrderType orderType, LocalDateTime orderTime, int totalPrice, String userAddress, String orderMemo, OrderState orderState
+//            , List<SearchOrderItemResponseDto> itemList
+    ) {
         this.orderId = orderId;
         this.userId = userId;
         this.orderType = orderType;
@@ -42,7 +44,7 @@ public class SearchOrderResponseDto {
         this.userAddress = userAddress;
         this.orderMemo = orderMemo;
         this.orderState = orderState; // 추가
-        this.itemList = itemList; // 추가
+//        this.itemList = itemList; // 추가
     }
 
 }

@@ -2,7 +2,6 @@ package com.sparta.deliveryapp.order.entity;
 
 import com.sparta.deliveryapp.auditing.BaseEntity;
 import com.sparta.deliveryapp.menu.entity.Menu;
-import com.sparta.deliveryapp.order.dto.SearchOrderItemResponseDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,7 +25,7 @@ public class OrderItem extends BaseEntity {
     private UUID itemId;
 
     @ManyToOne
-    @JoinColumn(name = "order_uuid")
+    @JoinColumn(name = "order_id")
     private Order orderId;
 
     @ManyToOne
@@ -43,13 +42,13 @@ public class OrderItem extends BaseEntity {
         this.quantity = quantity;
     }
 
-    public SearchOrderItemResponseDto toSearchOrderItemResponseDto(OrderItem orderItem) {
-        return SearchOrderItemResponseDto.builder()
-                .itemId(orderItem.getItemId())
-                .menuId(orderItem.getMenuId().getId())
-                .quantity(orderItem.getQuantity())
-                .build();
-    }
+//    public SearchOrderItemResponseDto toSearchOrderItemResponseDto(OrderItem orderItem) {
+//        return SearchOrderItemResponseDto.builder()
+//                .itemId(orderItem.getItemId())
+//                .menuId(orderItem.getMenuId().getId())
+//                .quantity(orderItem.getQuantity())
+//                .build();
+//    }
 
 
 }
