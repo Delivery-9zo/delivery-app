@@ -12,7 +12,7 @@ Delivery 9zo는 **광화문 근처 음식점들의 배달 및 포장 주문 관�
 - **사용자 관리**: 고객 타입에 따른 권한 분리 (가게, 손님, 관리자)
 - **지역 관리 및 확장성**: 광화문 근처 지역을 시작으로 향후 확장이 가능하도록 설계
 
----
+
 
 ## 👥 팀원 역할분담
 | 이름   | 역할           | 담당 업무                           |
@@ -22,38 +22,38 @@ Delivery 9zo는 **광화문 근처 음식점들의 배달 및 포장 주문 관�
 | 최해인 | 백엔드 개발      | CI/CD, 리뷰, 메뉴                    |
 | 김민지 | 백엔드 개발      | 주문, 결제                          |
 
----
+
 
 ## 🔧 기술 스택
 
 ### 백엔드
-- ![Java](https://img.shields.io/badge/java-007396?style=for-the-badge&logo=OpenJDK&logoColor=white)
-- ![Spring Boot](https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
-- ![Spring Security](https://img.shields.io/badge/Spring%20Security-6DB33F?style=for-the-badge&logo=Spring%20Security&logoColor=white)
+![Java](https://img.shields.io/badge/java-007396?style=for-the-badge&logo=OpenJDK&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![Spring Security](https://img.shields.io/badge/Spring%20Security-6DB33F?style=for-the-badge&logo=Spring%20Security&logoColor=white)
 
 ### 데이터베이스
-- ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
+![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 
 ### API 문서화
-- ![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
+![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
 
 ### CI/CD 및 배포
-- ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
-- ![Nginx](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white)
-- ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=for-the-badge&logo=GitHub%20Actions&logoColor=white)
-- ![Amazon EC2](https://img.shields.io/badge/Amazon%20EC2-FF9900?style=for-the-badge&logo=Amazon%20EC2&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![Nginx](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=for-the-badge&logo=GitHub%20Actions&logoColor=white)
+![Amazon EC2](https://img.shields.io/badge/Amazon%20EC2-FF9900?style=for-the-badge&logo=Amazon%20EC2&logoColor=white)
 
 ### 협업 및 프로젝트 관리
-- ![Jira](https://img.shields.io/badge/jira-%230A0FFF.svg?style=for-the-badge&logo=jira&logoColor=white)
+![Jira](https://img.shields.io/badge/jira-%230A0FFF.svg?style=for-the-badge&logo=jira&logoColor=white)
 
 ### 빌드 및 의존성 관리
-- ![Gradle](https://img.shields.io/badge/Gradle-02303A.svg?style=for-the-badge&logo=Gradle&logoColor=white)
+![Gradle](https://img.shields.io/badge/Gradle-02303A.svg?style=for-the-badge&logo=Gradle&logoColor=white)
 
----
+
 
 ## 🚀 서비스 구성 및 실행 방법
 
-### 배포 스크립트 (`deploy.sh`)
+### 배포 스크립트 
 ```bash
 #!/usr/bin/env bash
 DEPLOY_PATH=/home/ec2-user/app/
@@ -61,7 +61,7 @@ DOCKER_COMPOSE_NAME=docker-compose.yml
 docker compose -f $DEPLOY_PATH$DOCKER_COMPOSE_NAME up --build -d
 ```
 
-### CodeDeploy 설정 (`appspec.yml`)
+### Yaml
 ```yaml
 version: 0.0
 os: linux
@@ -77,14 +77,14 @@ hooks:
       runas: root
 ```
 
----
+
 
 ## 🗃️ ERD (Entity Relationship Diagram)
 아래는 주요 테이블 간의 관계를 나타낸 ERD입니다.
 
 ![ERD](./img.png)
 
----
+
 
 ## 🗃️ 서비스 아키텍처 (Service Architecture)
 서비스 전체 아키텍처는 다음과 같습니다.
@@ -96,7 +96,7 @@ hooks:
 - **Database**: PostgreSQL
 - **CI/CD Pipeline**: GitHub Actions 및 Docker를 통한 배포 자동화
 
----
+
 
 ## 📚 API 문서 (Swagger)
 - **Notion 문서**: [API 문서 보기](https://teamsparta.notion.site/API-1982dc3ef514803ead87e44b685d748f)
