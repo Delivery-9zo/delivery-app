@@ -30,5 +30,10 @@ public interface StoreCategoryRepository extends JpaRepository<StoreCategory, Lo
   @Transactional
   @Query("UPDATE Store s SET s.deletedAt = CURRENT_TIMESTAMP, s.deletedBy = :deletedBy WHERE s.storeId = :storeId")
   List<StoreCategory> findAllByCategoryId(@NotBlank String categoryName);
+
+  @Modifying
+  @Transactional
+  @Query("UPDATE StoreCategory sc SET sc.deletedAt = CURRENT_TIMESTAMP, sc.deletedBy = :deletedBy WHERE sc = :storeCategories")
+  void deleteAllStoreCategoriesByCategoryName(List<StoreCategory> storeCategories);
 }
 
