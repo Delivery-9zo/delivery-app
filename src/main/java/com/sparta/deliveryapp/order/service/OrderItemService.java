@@ -37,7 +37,7 @@ public class OrderItemService {
     Order order = orderRepository.findById(order_uuid).orElseThrow(()->
         new IllegalArgumentException("주문이 존재하지 않습니다."));
 
-    return orderItemRepository.findByOrder(order).stream()
+    return orderItemRepository.findByOrderId(order).stream()
         .map(OrderItemResponseDto::new).toList();
   }
 

@@ -60,7 +60,7 @@ public class OrderStatusService {
         }
 
         // 주문상세 List
-        List<OrderItem> orderItemsList = orderItemRepository.findByOrder(order);
+        List<OrderItem> orderItemsList = orderItemRepository.findByOrderId(order);
 
         // 결제 paymentId = order.getPayment().getPaymentId();
         Payment payment = paymentRepository.findByOrderId(order.getOrderId())
@@ -133,7 +133,7 @@ public class OrderStatusService {
         }
 
         // 주문상세 List
-        List<OrderItem> orderItemsList = orderItemRepository.findByOrder(order);
+        List<OrderItem> orderItemsList = orderItemRepository.findByOrderId(order);
 
         // 결제 paymentId = order.getPayment().getPaymentId();
         Payment payment = paymentRepository.findByOrderId(order.getOrderId())

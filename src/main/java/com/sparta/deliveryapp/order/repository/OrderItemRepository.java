@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface OrderItemRepository extends JpaRepository<OrderItem, UUID> {
-    List<OrderItem> findByOrder(Order order);
+    List<OrderItem> findByOrderId(Order order);
 
     @Modifying
     @Query("UPDATE OrderItem i SET i.deletedAt = current_timestamp, i.deletedBy = :deletedBy WHERE i.itemId = :itemId")
