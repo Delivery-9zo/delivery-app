@@ -7,6 +7,7 @@ import static com.sparta.deliveryapp.commons.exception.ErrorCode.USER_DELETED;
 import static com.sparta.deliveryapp.commons.exception.ErrorCode.USER_NOT_FOUND;
 
 import com.sparta.deliveryapp.commons.exception.error.CustomException;
+import com.sparta.deliveryapp.menu.repository.MenuRepository;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.entity.OrderItem;
 import com.sparta.deliveryapp.order.repository.OrderItemRepository;
@@ -14,6 +15,7 @@ import com.sparta.deliveryapp.order.repository.OrderRepository;
 import com.sparta.deliveryapp.payment.entity.Payment;
 import com.sparta.deliveryapp.payment.repository.PaymentRepository;
 import com.sparta.deliveryapp.review.repository.ReviewRepository;
+import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.user.dto.SignInRequestDto;
 import com.sparta.deliveryapp.user.dto.SignUpRequestDto;
@@ -45,6 +47,7 @@ public class UserService {
   private final OrderRepository orderRepository;
   private final ReviewRepository reviewRepository;
   private final OrderItemRepository orderItemRepository;
+  private final MenuRepository menuRepository;
   private final PaymentRepository paymentRepository;
   private final StoreRepository storeRepository;
   private final JwtUtil jwtUtil;
@@ -120,9 +123,7 @@ public class UserService {
     String deleteBy = getCurrentUserEmail();
     userRepository.deleteUser(deleteBy, user.getUserId());
 
-    // TODO: 구현해놓은 softdelete 쿼리들을 가져와서 추가하면 연관관계 소프트딜리트 삭제 구현 완료
-
-    // 주문 및 주문 상세 삭제
+    // 주문 및 주문 상세 삭제 TODO: N + 1 문제 또는 쿼리 최적화 필요함
     orderRepository.findAllByUserId(findUser.getUserId()).forEach(order -> {
       orderItemRepository.findAllByOrderId(order).forEach(orderItem ->
           orderItemRepository.deleteOrderItem(deleteBy, orderItem.getItemId())
@@ -134,15 +135,18 @@ public class UserService {
     // 결제 삭제
     paymentRepository.deletePaymentByUserId(deleteBy,findUser.getUserId());
 
-    // 상점 삭제
-    storeRepository.deleteStoreByUserId(deleteBy, findUser.getUserId());
+    // 상점 메뉴 삭제
+    List<Store> storeList = storeRepository.findAllByUser(findUser);
+    for(Store store : storeList){
+      menuRepository.softDeleteMenu(store.getStoreId(),deleteBy);
+    }
+    storeRepository.deleteStoreByUserId(deleteBy,findUser.getUserId());
 
     // 리뷰 삭제
     reviewRepository.deleteReviewByUser(deleteBy, findUser.getUserId());
 
     // 유저 삭제
     userRepository.deleteUser(deleteBy, user.getUserId());
-
 
   }
 
