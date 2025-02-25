@@ -34,7 +34,8 @@ public class WebSecurityConfig {
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+      throws Exception {
     return configuration.getAuthenticationManager();
   }
 
@@ -53,10 +54,11 @@ public class WebSecurityConfig {
         // 요청에 대한 접근 권한을 설정합니다.
         .authorizeHttpRequests(authorize -> authorize
             .requestMatchers(
+                "/",
                 // Swagger 허용 경로
                 "/v3/api-docs/**",
                 "/swagger-ui/**",
-                "/swagger-ui.html"
+                "/swagger-ui/index.html"
             ).permitAll()
             // /auth/signIn 경로에 대한 접근을 허용합니다. 이 경로는 인증 없이 접근할 수 있습니다.
             .requestMatchers("/api/**").permitAll()
@@ -66,7 +68,6 @@ public class WebSecurityConfig {
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
-
 
     http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 
