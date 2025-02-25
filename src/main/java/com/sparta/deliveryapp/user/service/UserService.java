@@ -6,13 +6,11 @@ import static com.sparta.deliveryapp.commons.exception.ErrorCode.PASSWORD_NOT_MA
 import static com.sparta.deliveryapp.commons.exception.ErrorCode.USER_DELETED;
 import static com.sparta.deliveryapp.commons.exception.ErrorCode.USER_NOT_FOUND;
 
+import com.sparta.deliveryapp.ai.AIRepository;
 import com.sparta.deliveryapp.commons.exception.error.CustomException;
 import com.sparta.deliveryapp.menu.repository.MenuRepository;
-import com.sparta.deliveryapp.order.entity.Order;
-import com.sparta.deliveryapp.order.entity.OrderItem;
 import com.sparta.deliveryapp.order.repository.OrderItemRepository;
 import com.sparta.deliveryapp.order.repository.OrderRepository;
-import com.sparta.deliveryapp.payment.entity.Payment;
 import com.sparta.deliveryapp.payment.repository.PaymentRepository;
 import com.sparta.deliveryapp.review.repository.ReviewRepository;
 import com.sparta.deliveryapp.store.entity.Store;
@@ -50,6 +48,7 @@ public class UserService {
   private final MenuRepository menuRepository;
   private final PaymentRepository paymentRepository;
   private final StoreRepository storeRepository;
+  private final AIRepository aiRepository;
   private final JwtUtil jwtUtil;
 
 
@@ -145,8 +144,12 @@ public class UserService {
     // 리뷰 삭제
     reviewRepository.deleteReviewByUser(deleteBy, findUser.getUserId());
 
+    // AI 삭제
+    aiRepository.deleteAIyUser(deleteBy, findUser.getUserId());
+
     // 유저 삭제
     userRepository.deleteUser(deleteBy, user.getUserId());
+
 
   }
 
