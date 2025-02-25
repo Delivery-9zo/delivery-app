@@ -9,6 +9,7 @@ import com.sparta.deliveryapp.menu.entity.Menu;
 import com.sparta.deliveryapp.menu.repository.MenuRepository;
 import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
+import com.sparta.deliveryapp.user.entity.UserRole;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import jakarta.persistence.EntityManager;
 import java.util.UUID;
@@ -138,10 +139,12 @@ public class MenuService {
 
 
   private void checkStoreAccessPermission(UserDetailsImpl userDetails, Store store) {
+    if (userDetails.getUser().getRole() == UserRole.MASTER) {
+      return;
+    }
+
     if (store.isNotAssociated(userDetails.getUser())) {
       throw new CustomException(ErrorCode.MENU_NOT_EMPLOYEE_THIS_SHOP);
     }
   }
-
-
 }
