@@ -1,11 +1,5 @@
 package com.sparta.deliveryapp.user.service;
 
-import static com.sparta.deliveryapp.commons.exception.ErrorCode.ACCESS_DENIED;
-import static com.sparta.deliveryapp.commons.exception.ErrorCode.EMAIL_ALREADY_REGISTERED;
-import static com.sparta.deliveryapp.commons.exception.ErrorCode.PASSWORD_NOT_MATCH;
-import static com.sparta.deliveryapp.commons.exception.ErrorCode.USER_DELETED;
-import static com.sparta.deliveryapp.commons.exception.ErrorCode.USER_NOT_FOUND;
-
 import com.sparta.deliveryapp.ai.AIRepository;
 import com.sparta.deliveryapp.commons.exception.error.CustomException;
 import com.sparta.deliveryapp.menu.repository.MenuRepository;
@@ -24,9 +18,6 @@ import com.sparta.deliveryapp.user.jwt.JwtUtil;
 import com.sparta.deliveryapp.user.repository.UserRepository;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import com.sparta.deliveryapp.util.NullAwareBeanUtils;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -34,6 +25,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.*;
 
 @Service
 @Slf4j
@@ -123,13 +120,13 @@ public class UserService {
     userRepository.deleteUser(deleteBy, user.getUserId());
 
     // 주문 및 주문 상세 삭제 TODO: N + 1 문제 또는 쿼리 최적화 필요함
-    orderRepository.findAllByUserId(findUser.getUserId()).forEach(order -> {
-      orderItemRepository.findAllByOrderId(order.getOrderId()).forEach(orderItem ->
-          orderItemRepository.deleteOrderItem(deleteBy, orderItem.getItemId())
-      );
-
-      orderRepository.deleteOrder(deleteBy, order.getOrderId());
-    });
+//    orderRepository.findAllByUserId(findUser.getUserId()).forEach(order -> {
+//      orderItemRepository.findAllByOrderId(order.getOrderId()).forEach(orderItem ->
+//          orderItemRepository.deleteOrderItem(deleteBy, orderItem.getItemId())
+//      );
+//
+//      orderRepository.deleteOrder(deleteBy, order.getOrderId());
+//    });
 
     // 결제 삭제
     paymentRepository.deletePaymentByUserId(deleteBy,findUser.getUserId());

@@ -2,11 +2,12 @@ package com.sparta.deliveryapp.menu.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.UUID;
 
 @Schema(description = "메뉴 추가 요청 Request")
 public record MenuPostRequestDto(
-    @JsonProperty("store_uuid") @Schema(description = "상점 ID",
+    @JsonProperty("store_uuid") @Schema(description = "가게 ID",
         example = "58143fce-d13e-4073-b97d-73f8c9f97fb3")
     UUID storeId,
 

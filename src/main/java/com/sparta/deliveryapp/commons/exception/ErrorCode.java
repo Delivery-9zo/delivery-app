@@ -30,6 +30,15 @@ public enum ErrorCode {
   STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "S-005", "가게를 찾을 수 없습니다."),
   INVALILD_LOCATION_DATA(HttpStatus.BAD_REQUEST, "S-006", "좌표의 자릿수를 확인해주세요."),
 
+  // 메뉴 도메인 에러
+  MENU_NOT_EXISTS_STORE_ID(HttpStatus.NOT_FOUND, "M-001", "존재하지 않는 가게 ID입니다."),
+  MENU_NOT_EXISTS_MENU_ID(HttpStatus.NOT_FOUND, "M-002", "존재하지 않는 메뉴 ID입니다."),
+  MENU_NOT_EMPLOYEE_THIS_SHOP(HttpStatus.FORBIDDEN, "M-003", "이 상점에 접근 권한이 없는 사용자입니다."),
+
+  // 리뷰 도메인 에러
+  REVIEW_NOT_ORDER_SUCCESS(HttpStatus.BAD_REQUEST, "REV-001", "주문 완료된 상태에서만 리뷰를 작성할 수 있습니다."),
+  REVIEW_NOT_EXISTS_USER_ID(HttpStatus.NOT_FOUND, "REV-002", "존재하지 않는 유저 ID입니다."),
+
   //카테고리 도메인 에러
   ALREADY_REGISTERED_CATEGORY(HttpStatus.BAD_REQUEST, "C-001", "이미 존재하는 카테고리입니다."),
   REGISTERED_FAILED_CATEGORY(HttpStatus.BAD_REQUEST, "C-002", "카테고리 저장에 실패했습니다."),

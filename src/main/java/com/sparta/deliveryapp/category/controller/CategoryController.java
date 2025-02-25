@@ -3,6 +3,10 @@ package com.sparta.deliveryapp.category.controller;
 import com.sparta.deliveryapp.category.dto.CategoryResponseDto;
 import com.sparta.deliveryapp.category.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +30,33 @@ public class CategoryController {
 
   private final CategoryService categoryService;
 
+  @Operation(
+      summary = "카테고리 전체 조회 기능",
+      description = "등록된 모든 카테고리를 제공하는 API",
+      responses = {
+          @ApiResponse(
+              responseCode = "200",
+              description = "카테고리 목록 조회 성공",
+              content = @Content(
+                  mediaType = "application/json",
+                  schema = @Schema(implementation = CategoryResponseDto.class)
+              )
+          ),
+          @ApiResponse(
+              responseCode = "500",
+              description = "서버 에러",
+              content = @Content(
+                  mediaType = "application/json",
+                  examples = @ExampleObject(
+                      value = "{\n" +
+                          "  \"message\": \"서버 에러가 발생했습니다.\"\n" +
+                          "}"
+                  )
+              )
+          )
+      }
+  )
   @GetMapping("")
-  @Operation(summary = "카테고리 전체 조회 기능", description = "등록된 모든 카테고리를 제공하는 API")
   public ResponseEntity<Page<CategoryResponseDto>> getAllCategories(
       @PageableDefault(
           size = 10,
