@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
@@ -39,5 +40,8 @@ public class StoreNearbyStoreWithCategoryResponseDto {
   private Double distanceFromRequest;
 
   private Double rating;
+
+  private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
 
 }

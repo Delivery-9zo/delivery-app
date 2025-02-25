@@ -4,7 +4,6 @@ import com.sparta.deliveryapp.auditing.BaseEntity;
 import com.sparta.deliveryapp.category.entity.Category;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UuidGenerator;
 
@@ -16,7 +15,6 @@ import java.util.UUID;
 @Builder
 @Getter
 @Setter
-@SQLDelete(sql = "UPDATE p_storecategory SET deleted_at=CURRENT_TIMESTAMP WHERE storecategory_id=?")
 @SQLRestriction("deleted_at IS NULL")
 @Table(name = "p_storecategory")
 public class StoreCategory extends BaseEntity {

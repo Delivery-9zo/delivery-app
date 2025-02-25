@@ -2,6 +2,16 @@ package com.sparta.deliveryapp.store.service;
 
 import com.sparta.deliveryapp.category.entity.Category;
 import com.sparta.deliveryapp.category.repository.CategoryRepository;
+import com.sparta.deliveryapp.commons.exception.error.CustomException;
+import com.sparta.deliveryapp.menu.entity.Menu;
+import com.sparta.deliveryapp.menu.repository.MenuRepository;
+import com.sparta.deliveryapp.menu.service.MenuService;
+import com.sparta.deliveryapp.order.dto.SearchOrderResponseDto;
+import com.sparta.deliveryapp.order.entity.Order;
+import com.sparta.deliveryapp.order.repository.OrderRepository;
+import com.sparta.deliveryapp.review.entity.Review;
+import com.sparta.deliveryapp.review.repository.ReviewRepository;
+import com.sparta.deliveryapp.review.service.ReviewService;
 import com.sparta.deliveryapp.store.dto.StoreNearbyStoreResponseDto;
 import com.sparta.deliveryapp.store.dto.StoreNearbyStoreWithCategoryResponseDto;
 import com.sparta.deliveryapp.store.dto.StoreRequestDto;
@@ -12,27 +22,22 @@ import com.sparta.deliveryapp.store.repository.StoreCategoryRepository;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.store.util.kakaoLocal.KakaoLocalAPI;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
-import jakarta.persistence.EntityNotFoundException;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -43,6 +48,11 @@ public class StoreService {
   private final CategoryRepository categoryRepository;
   private final StoreCategoryRepository storeCategoryRepository;
   private final KakaoLocalAPI kakaoLocalAPI;
+  private final OrderRepository orderRepository;
+  private final MenuRepository menuRepository;
+  private final MenuService menuService;
+  private final ReviewService reviewService;
+  private final ReviewRepository reviewRepository;
 
   /**
    * 가게 정보를 받아 store 테이블에 저장하는 메서드
@@ -57,7 +67,7 @@ public class StoreService {
         storeRequestDto.getStoreName());
 
     if (storeEntity.isPresent()) {
-      throw new IllegalArgumentException("이미 존재하는 상호명입니다.");
+      throw new CustomException(ALREADY_REGISTERED_STORE_ID);
     }
 
     // 주소를 기반으로 경위도 추출
@@ -107,14 +117,30 @@ public class StoreService {
    * @param: 가게 uuid(storeId), 유저 정보(userDetails)
    */
   @Transactional
-  public Store deleteStore(String storeId) {
+  public void deleteStore(String storeId, UserDetailsImpl userDetails) {
 
     Store storeEntity = storeRepository.findByStoreId(UUID.fromString(storeId))
-        .orElseThrow(() -> new EntityNotFoundException(storeId + " 가게가 존재하지 않습니다."));
+        .orElseThrow(() -> new CustomException(NOT_EXISTS_STORE_ID));
 
-    storeEntity.onPreRemove();
+    if (storeEntity.getDeletedAt() != null) {
+      throw new CustomException(ALREADY_DELETED_STORE_ID);
+    }
 
-    return storeRepository.save(storeEntity);
+    storeRepository.deleteStoreByStoreId(getCurrentUserEmail(), storeEntity.getStoreId());
+
+    storeCategoryRepository.deleteStoreCategories(getCurrentUserEmail(),
+        storeEntity.getStoreId());
+
+    List<Menu> menus = menuRepository.findAllByStore_StoreId(storeEntity.getStoreId());
+    for (Menu menu : menus) {
+      menuService.deleteMenu(menu.getId(), storeEntity.getStoreId(), userDetails);
+    }
+
+    Page<Review> reviews = reviewRepository.findAllByStore_StoreId(storeEntity.getStoreId(),
+        Pageable.unpaged());
+    for (Review review : reviews.getContent()) {
+      reviewService.deleteReview(review.getId());
+    }
 
   }
 
@@ -130,7 +156,7 @@ public class StoreService {
         pageable);
 
     if (stores.isEmpty()) {
-      throw new NoSuchElementException("해당하는 가게가 없습니다.");
+      throw new CustomException(STORE_NOT_FOUND);
     }
 
     List<StoreResponseDto> storeResponseDtos = stores.stream()
@@ -144,6 +170,8 @@ public class StoreService {
             .categories(store.getStoreCategories().stream()
                 .map(storeCategory -> storeCategory.getCategory().getCategoryName())
                 .collect(Collectors.toList()))
+            .createdAt(store.getCreatedAt())
+            .updatedAt(store.getUpdatedAt())
             .build())
         .toList();
 
@@ -152,19 +180,19 @@ public class StoreService {
 
   public StoreResponseDto findStoresByStoreId(UUID storeId) {
     Store store = storeRepository.findByStoreId(storeId)
-        .orElseThrow(() -> new NoSuchElementException("해당하는 가게가 없습니다."));
+        .orElseThrow(() -> new CustomException(STORE_NOT_FOUND));
 
     StoreResponseDto storeResponseDto = StoreResponseDto.builder()
-            .storeId(store.getStoreId())
-            .storeName(store.getStoreName())
-            .address(store.getAddress())
-            .bRegiNum(store.getBRegiNum())
-            .openAt(store.getOpenAt())
-            .closeAt(store.getCloseAt())
-            .categories(store.getStoreCategories().stream()
-                .map(storeCategory -> storeCategory.getCategory().getCategoryName())
-                .collect(Collectors.toList()))
-            .build();
+        .storeId(store.getStoreId())
+        .storeName(store.getStoreName())
+        .address(store.getAddress())
+        .bRegiNum(store.getBRegiNum())
+        .openAt(store.getOpenAt())
+        .closeAt(store.getCloseAt())
+        .categories(store.getStoreCategories().stream()
+            .map(storeCategory -> storeCategory.getCategory().getCategoryName())
+            .collect(Collectors.toList()))
+        .build();
 
     return storeResponseDto;
   }
@@ -175,7 +203,7 @@ public class StoreService {
     final int RANGE = 3000;
 
     if (getDecimalPlaces(longitude) < 2 || getDecimalPlaces(latitude) < 2) {
-      throw new IllegalArgumentException("주어진 좌표의 자릿수가 너무 작습니다.");
+      throw new CustomException(INVALILD_LOCATION_DATA);
     }
 
     Page<StoreNearbyStoreResponseDto> nearbyStores = storeRepository.findNearbyStoresWithoutCategory(
@@ -183,7 +211,7 @@ public class StoreService {
         latitude, RANGE, pageable);
 
     if (nearbyStores.isEmpty()) {
-      throw new NoSuchElementException("근처 가게가 없습니다.");
+      throw new CustomException(STORE_NOT_FOUND);
     }
 
     return nearbyStores;
@@ -226,7 +254,7 @@ public class StoreService {
     final int RANGE = 3000;
 
     if (getDecimalPlaces(longitude) < 2 || getDecimalPlaces(latitude) < 2) {
-      throw new IllegalArgumentException("주어진 좌표의 자릿수가 너무 작습니다.");
+      throw new CustomException(INVALILD_LOCATION_DATA);
     }
 
     Page<StoreNearbyStoreWithCategoryResponseDto> nearbyStores = storeRepository.findNearbyStoresByCategories(
@@ -237,7 +265,7 @@ public class StoreService {
         pageable);
 
     if (nearbyStores.isEmpty()) {
-      throw new NoSuchElementException("카테고리에 해당하는 근처 가게가 없습니다.");
+      throw new CustomException(STORE_NOT_FOUND);
     }
 
     return nearbyStores;
@@ -248,7 +276,7 @@ public class StoreService {
 
     // 가게 유무 체크
     Store existingStore = storeRepository.findByStoreName(storeRequestDto.getStoreName())
-        .orElseThrow(() -> new NoSuchElementException("가게 정보를 찾을 수 없습니다."));
+        .orElseThrow(() -> new CustomException(NOT_EXISTS_STORE_NAME));
 
     // 카테고리 이름 리스트로 카테고리 테이블 조회(카테고리 검증)
     List<Category> categories = categoryRepository.findByCategoryNameIn(
@@ -312,7 +340,7 @@ public class StoreService {
         .orElse(null);
 
     if (userStore == null) {
-      throw new IllegalArgumentException("가게 정보를 찾을 수 없습니다.");
+      throw new CustomException(STORE_NOT_FOUND);
     }
 
     List<Category> categories = categoryRepository.findByCategoryNameIn(
@@ -356,5 +384,29 @@ public class StoreService {
     storeRepository.save(userStore);
   }
 
+
+  public Page<SearchOrderResponseDto> getOrdersByStore(String storeId, Pageable pageable) {
+    Optional<Store> store = storeRepository.findByStoreId(UUID.fromString(storeId));
+    List<Order> ordersPage = orderRepository.findOrdersByStore(store.orElse(null), pageable);
+
+    List<SearchOrderResponseDto> orderDtos = ordersPage.stream()
+        .map(order -> SearchOrderResponseDto.builder()
+            .orderId(order.getOrderId())
+            .userId(order.getUserId())
+            .orderType(order.getOrderType())
+            .orderTime(order.getOrderTime())
+            .build())
+        .collect(Collectors.toList());
+
+    return new PageImpl<>(orderDtos, pageable, ordersPage.size());
+  }
+
+  private String getCurrentUserEmail() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth != null && auth.getPrincipal() instanceof UserDetailsImpl) {
+      return ((UserDetailsImpl) auth.getPrincipal()).getEmail();
+    }
+    throw new SecurityException("No authenticated user found");
+  }
 
 }
