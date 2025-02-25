@@ -9,10 +9,14 @@ import com.sparta.deliveryapp.order.entity.OrderItem;
 import com.sparta.deliveryapp.order.repository.OrderItemRepository;
 import com.sparta.deliveryapp.order.repository.OrderRepository;
 import com.sparta.deliveryapp.util.NullAwareBeanUtils;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -68,6 +72,16 @@ public class OrderItemService {
     OrderItem orderItem = orderItemRepository.findById(itemUuid).orElseThrow(()->
         new IllegalArgumentException("주문상세 정보가 존재하지 않습니다."));
 
-    // TODO: 소프트 딜리트 삭제할 예정
+    // 소프트 삭제
+    String deletedBy = getCurrentUserEmail();
+    orderItemRepository.deleteOrderItem(deletedBy, orderItem.getItemId());
+  }
+
+  private String getCurrentUserEmail() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if(auth != null && auth.getPrincipal() instanceof UserDetails) {
+      return ((UserDetails) auth.getPrincipal()).getUsername();
+    }
+    throw new SecurityException("No authenticated user found.");
   }
 }
