@@ -50,6 +50,7 @@ public class GeminiService {
           ai.setPrompt(prompt);
           ai.setAnswer(extractTextFromResponse(reponse));
           ai.setUser(user);
+          ai.setCreatedBy(user.getEmail());
           ai.setCreatedAt(LocalDateTime.now());
           aiRepository.save(ai);
 
