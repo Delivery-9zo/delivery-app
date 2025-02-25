@@ -1,5 +1,7 @@
 package com.sparta.deliveryapp.order.service;
 
+import com.sparta.deliveryapp.commons.exception.ErrorCode;
+import com.sparta.deliveryapp.commons.exception.error.CustomException;
 import com.sparta.deliveryapp.menu.entity.Menu;
 import com.sparta.deliveryapp.menu.repository.MenuRepository;
 import com.sparta.deliveryapp.order.dto.RegisterOrderItemRequestDto;
@@ -46,7 +48,7 @@ public class OrderRegisterService {
 
         // 가게 ID로 가게 조회
         Store store = storeRepository.findByStoreId(storeId).orElseThrow(() ->
-                new IllegalArgumentException("일치하는 상점이 없습니다."));
+                new CustomException(ErrorCode.NOT_EXISTS_STORE_ID));
 
         // 메뉴 목록 조회
         List<Menu> menuList = menuRepository.findAllByStore_StoreId(store.getStoreId());
@@ -66,7 +68,7 @@ public class OrderRegisterService {
             Menu menu = menuList.stream()
                     .filter(m -> m.getId().equals(itemDto.getMenuId()))
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("해당 메뉴가 존재하지 않습니다."));
+                    .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXISTS_MENU_ID));
 
             int itemTotalPrice = Integer.parseInt(menu.getPrice().toString());
 
@@ -76,7 +78,7 @@ public class OrderRegisterService {
             // 주문 항목 저장
             OrderItem orderItem = new OrderItem(savedOrder, menu, itemDto.getQuantity());
 
-            orderItems.add(orderItem); // 주문 항목 리스트에 추가
+            orderItems.add(orderItem);
         }
 
         orderItemRepository.saveAll(orderItems);

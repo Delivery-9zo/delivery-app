@@ -1,5 +1,7 @@
 package com.sparta.deliveryapp.order.service;
 
+import com.sparta.deliveryapp.commons.exception.ErrorCode;
+import com.sparta.deliveryapp.commons.exception.error.CustomException;
 import com.sparta.deliveryapp.order.dto.UpdateOrderResponseDto;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.entity.OrderItem;
@@ -50,13 +52,13 @@ public class OrderStatusService {
         log.info("주문 취소 시작 : orderId={}", orderId);
 
         Order order = orderRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 주문정보가 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXISTS_ORDER_ID));
 
         Store store = storeRepository.findByStoreId(storeId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 가게가 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXISTS_STORE_ID));
 
         if (order.getOrderState() != OrderState.SUCCESS) {
-            throw new IllegalArgumentException("주문완료 상태가 아니므로 주문취소가 불가능합니다.");
+            throw new CustomException(ErrorCode.ORDER_STATUS_FAILED_ORDER);
         }
 
         // 주문상세 List
@@ -64,7 +66,7 @@ public class OrderStatusService {
 
         // 결제 paymentId = order.getPayment().getPaymentId();
         Payment payment = paymentRepository.findByOrderId(order.getOrderId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "일치하는 결제 내역이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXISTS_PAYMENT_ID));
 
         // 주문&결제 userId 추출
         UUID fixUserId = payment.getUserId();
@@ -74,7 +76,7 @@ public class OrderStatusService {
         LocalDateTime orderTimeFiveMinutesLater = order.getOrderTime().plusMinutes(5);
         if (now.isAfter(orderTimeFiveMinutesLater)) {
             log.error("validOrderTime 메소드 - 주문취소 불가");
-            throw new IllegalArgumentException("주문취소는 주문완료 후 5분 이내에만 취소 가능합니다.");
+            throw new CustomException(ErrorCode.AFTER_FIVE_ORDER_STATUS_FAILED_ORDER);
         } else {
             // 5분 이내
             // 주문상태 CANCEL 변경 및 저장

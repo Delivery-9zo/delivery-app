@@ -31,7 +31,7 @@ public class OrderSearchService {
 
         // 주문 객체가 null일 경우
         if (order == null) {
-            throw new CustomException(ErrorCode.ORDER_NOT_FOUND);
+            throw new CustomException(ErrorCode.NOT_EXISTS_ORDER_ID);
         }
 
         // 주문 상세 데이터 조회 후 Dto로 변환
@@ -39,9 +39,6 @@ public class OrderSearchService {
                 .map(orderItem -> {
                     return orderItem.toSearchOrderItemResponseDto(orderItem);
                 }).toList();
-
-        // 결제 정보 조회 후 Dto로 변환
-        //PaymentResponseDto paymentResponseDto = order.getPayment().toPaymentResponseDto();
 
         return order.toSearchOrderByOrderIdResponseDto(order, itemList);
     }
@@ -52,7 +49,7 @@ public class OrderSearchService {
 
         List<Order> orderList = orderRepository.findAllByUserId(user.getUserId());
         if (orderList.isEmpty()) {
-            throw new CustomException(ErrorCode.ORDER_NOT_FOUND);
+            throw new CustomException(ErrorCode.NOT_EXISTS_ORDER_ID);
         }
 
         return orderRepository.findByUserId(pageable, user.getUserId())

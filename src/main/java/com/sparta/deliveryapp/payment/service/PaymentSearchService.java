@@ -1,5 +1,7 @@
 package com.sparta.deliveryapp.payment.service;
 
+import com.sparta.deliveryapp.commons.exception.ErrorCode;
+import com.sparta.deliveryapp.commons.exception.error.CustomException;
 import com.sparta.deliveryapp.payment.dto.PaymentByUserIdResponseDto;
 import com.sparta.deliveryapp.payment.dto.PaymentResponseDto;
 import com.sparta.deliveryapp.payment.entity.Payment;
@@ -12,12 +14,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -37,24 +37,24 @@ public class PaymentSearchService {
 
         // 1. paymentId 확인
         Payment payment = paymentRepository.findById(paymentId)
-            .orElseThrow(() -> new IllegalArgumentException("일치하는 결제 내역이 없습니다."));
+            .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXISTS_PAYMENT_ID));
 
         // 2. userId 확인
         userRepository.findById(user.getUserId())
-            .orElseThrow(()-> new IllegalArgumentException("결제한 회원이 존재하지 않습니다."));
+            .orElseThrow(()-> new CustomException(ErrorCode.NOT_EXISTS_PAYMENT_USER_ID));
 
         log.info("user.getRole()={}", user.getRole());
         log.info("UserRole.CUSTOMER={}", UserRole.CUSTOMER);
         // 3. 권한 확인
         if(user.getRole() != UserRole.CUSTOMER) {
-            throw new AccessDeniedException("CUSTOMER 권한을 가진 사용자만 조회할 수 있습니다.");
+            throw new CustomException(ErrorCode.ACCESS_DENIED_ONLY_CUSTOMER);
         }
 
         // 4. 본인 결제 내역만 확인(결제 userId 와 인증객체의 userId 일치 여부)
         log.info("payment.getUserI()={}", payment.getUserId());
         log.info("user.getUserId()={}", user.getUserId());
         if(!payment.getUserId().equals(user.getUserId())) {
-            throw new NoSuchElementException("본인의 결제 정보만 조회 가능합니다.");
+            throw new CustomException(ErrorCode.ACCESS_DENIED_ONLY_USER_ID);
         }
 
         log.info(paymentId + "의 결제내역 조회 종료");
@@ -69,17 +69,17 @@ public class PaymentSearchService {
     public Page<PaymentByUserIdResponseDto> getPaymentsByUserId(UUID userId, Pageable pageable, User user) {
 
         if(user.getRole() != UserRole.CUSTOMER) {
-            throw new AccessDeniedException("CUSTOMER 권한만 결제 조회 가능합니다.");
+            throw new CustomException(ErrorCode.ACCESS_DENIED_ONLY_CUSTOMER);
         }
 
         if(!user.getUserId().equals(userId)) {
-            throw new IllegalArgumentException("사용자가 일치하지 않습니다.");
+            throw new CustomException(ErrorCode.ACCESS_DENIED_ONLY_USER_ID);
         }
 
         Page<Payment> paymentList = paymentRepository.findAllByUserIdOrderByCreatedAtDesc(userId, pageable);
 
         if (paymentList.isEmpty()) {
-            throw new NoSuchElementException("고객님의 결제 내역이 없습니다.");
+            throw new CustomException(ErrorCode.NOT_EXISTS_PAYMENT_ID);
         }
 
         List<PaymentByUserIdResponseDto> paymentResponseList = paymentList.getContent().stream()
