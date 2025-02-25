@@ -1,12 +1,13 @@
 package com.sparta.deliveryapp.store.entity;
 
 import com.sparta.deliveryapp.auditing.BaseEntity;
-import com.sparta.deliveryapp.order.entity.Order;
+import com.sparta.deliveryapp.category.entity.Category;
+import com.sparta.deliveryapp.review.entity.Review;
 import com.sparta.deliveryapp.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.UUID;
 @Builder
 @Setter
 @Getter
-@SQLRestriction("deleted_at IS NULL")
+@Where(clause = "deleted_at IS NULL")
 @Table(name = "p_store")
 public class Store extends BaseEntity {
 
@@ -65,8 +66,8 @@ public class Store extends BaseEntity {
   private List<StoreCategory> storeCategories = new ArrayList<>();
 
   @OneToMany(fetch = FetchType.LAZY)
-  @Column(name = "order_id")
-  private List<Order> orders = new ArrayList<>();
+  @Column(name = "review_uuid")
+  private List<Review> reviews = new ArrayList<>();
 
   public void addStoreCategory(StoreCategory storeCategory) {
     storeCategories.add(storeCategory);
@@ -77,5 +78,4 @@ public class Store extends BaseEntity {
     storeCategories.remove(storeCategory);
     storeCategory.setStore(null);
   }
-
 }
