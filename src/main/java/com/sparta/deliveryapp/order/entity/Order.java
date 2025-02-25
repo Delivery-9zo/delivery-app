@@ -1,7 +1,6 @@
 package com.sparta.deliveryapp.order.entity;
 
 import com.sparta.deliveryapp.auditing.BaseEntity;
-import com.sparta.deliveryapp.order.dto.SearchOrderItemResponseDto;
 import com.sparta.deliveryapp.order.dto.SearchOrderResponseDto;
 import com.sparta.deliveryapp.store.entity.Store;
 import jakarta.persistence.*;
@@ -10,8 +9,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -55,9 +52,9 @@ public class Order extends BaseEntity {
 
     @Enumerated(value = EnumType.STRING)
     private OrderState orderState;
-
-    @OneToMany(mappedBy = "orderId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OrderItem> orderItems = new ArrayList<>();
+//
+//    @OneToMany(mappedBy = "orderId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    private List<OrderItem> orderItems = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "store_uuid")
@@ -74,7 +71,9 @@ public class Order extends BaseEntity {
         this.orderState = OrderState.WAIT;
     }
 
-    public SearchOrderResponseDto toSearchOrderByOrderIdResponseDto(Order order, List<SearchOrderItemResponseDto> itemList) {
+    public SearchOrderResponseDto toSearchOrderByOrderIdResponseDto(Order order
+//            , List<SearchOrderItemResponseDto> itemList
+    ) {
         return SearchOrderResponseDto.builder()
                 .orderId(order.getOrderId())
                 .userId(order.getUserId())
@@ -84,7 +83,7 @@ public class Order extends BaseEntity {
                 .userAddress(order.getUserAddress())
                 .orderMemo(order.getOrderMemo())
                 .orderState(order.getOrderState())
-                .itemList(itemList)
+//                .itemList(itemList)
                 .build();
     }
 
