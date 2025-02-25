@@ -16,4 +16,6 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, UUID> {
     @Modifying
     @Query("UPDATE OrderItem i SET i.deletedAt = current_timestamp, i.deletedBy = :deletedBy WHERE i.itemId = :itemId")
     void deleteOrderItem(@Param("deleteBy") String deletedBy, @Param("itemId") UUID itemId);
+
+    List<OrderItem> findAllByOrderId(Order orderId);
 }
