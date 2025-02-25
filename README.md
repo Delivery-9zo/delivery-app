@@ -89,7 +89,8 @@ hooks:
 ## 🗃️ 서비스 아키텍처 (Service Architecture)
 서비스 전체 아키텍처는 다음과 같습니다.
 
-![Service Architecture](./img_1.png)
+![image](https://github.com/user-attachments/assets/528962e7-b511-49ea-9eb2-4f8720e6ef8a)
+
 
 - **API Gateway**: Nginx를 사용하여 클라이언트 요청 라우팅
 - **Application Server**: Spring Boot 애플리케이션 서버
@@ -99,7 +100,6 @@ hooks:
 
 
 ## 📚 API 문서 (Swagger)
-- **Notion 문서**: [API 문서 보기](https://teamsparta.notion.site/API-1982dc3ef514803ead87e44b685d748f)
 - **Swagger**: 추후 업데이트 예정
 - **Jira Board**: [Jira 보기](https://develop-cloud.atlassian.net/jira/software/projects/SCRUM/boards/1/timeline)
 
