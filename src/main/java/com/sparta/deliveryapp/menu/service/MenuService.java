@@ -1,5 +1,7 @@
 package com.sparta.deliveryapp.menu.service;
 
+import com.sparta.deliveryapp.commons.exception.ErrorCode;
+import com.sparta.deliveryapp.commons.exception.error.CustomException;
 import com.sparta.deliveryapp.menu.dto.MenuGetResponseDto;
 import com.sparta.deliveryapp.menu.dto.MenuPatchRequestDto;
 import com.sparta.deliveryapp.menu.dto.MenuPostRequestDto;
@@ -29,7 +31,7 @@ public class MenuService {
   @Transactional
   public void postMenu(MenuPostRequestDto dto, UserDetailsImpl userDetails) {
     Store store = storeRepository.findById(dto.storeId()).orElseThrow(
-        () -> new IllegalArgumentException("가게를 찾을 수 없습니다.")
+        () -> new CustomException(ErrorCode.MENU_NOT_EXISTS_STORE_ID)
     );
 
     checkStoreAccessPermission(userDetails, store);
@@ -47,7 +49,7 @@ public class MenuService {
   @Transactional
   public MenuGetResponseDto getMenu(String name, UUID storeId) {
     Menu menu = menuRepository.findByNameAndStore_StoreId(name, storeId).orElseThrow(
-        () -> new IllegalArgumentException("메뉴를 찾을 수 없습니다.")
+        () -> new CustomException((ErrorCode.MENU_NOT_EXISTS_MENU_ID))
     );
 
     return new MenuGetResponseDto(
@@ -78,11 +80,11 @@ public class MenuService {
   public void patchMenu(String menuName, UUID storeId, MenuPatchRequestDto dto,
       UserDetailsImpl userDetails) {
     Menu menu = menuRepository.findByNameAndStore_StoreId(menuName, storeId).orElseThrow(
-        () -> new IllegalArgumentException("메뉴를 찾을 수 없습니다.")
+        () -> new CustomException(ErrorCode.MENU_NOT_EXISTS_MENU_ID)
     );
 
     Store store = storeRepository.findById(storeId).orElseThrow(
-        () -> new IllegalArgumentException("가게를 찾을 수 없습니다.")
+        () -> new CustomException((ErrorCode.MENU_NOT_EXISTS_STORE_ID))
     );
 
     checkStoreAccessPermission(userDetails, store);
@@ -110,7 +112,7 @@ public class MenuService {
   @Transactional
   public void deleteMenuById(UUID menuId, UUID storeId, UserDetailsImpl userDetails) {
     Store store = storeRepository.findById(storeId).orElseThrow(
-        () -> new IllegalArgumentException("가게를 찾을 수 없습니다.")
+        () -> new CustomException(ErrorCode.MENU_NOT_EXISTS_STORE_ID)
     );
 
     checkStoreAccessPermission(userDetails, store);
@@ -126,7 +128,7 @@ public class MenuService {
   @Transactional
   public void deleteMenu(UUID storeId, UserDetailsImpl userDetails) {
     Store store = storeRepository.findById(storeId).orElseThrow(
-        () -> new IllegalArgumentException("가게를 찾을 수 없습니다.")
+        () -> new CustomException(ErrorCode.MENU_NOT_EXISTS_STORE_ID)
     );
 
     checkStoreAccessPermission(userDetails, store);
@@ -137,7 +139,7 @@ public class MenuService {
 
   private void checkStoreAccessPermission(UserDetailsImpl userDetails, Store store) {
     if (store.isNotAssociated(userDetails.getUser())) {
-      throw new IllegalArgumentException("이 상점에 접근 권한이 없는 사용자입니다.");
+      throw new CustomException(ErrorCode.MENU_NOT_EMPLOYEE_THIS_SHOP);
     }
   }
 

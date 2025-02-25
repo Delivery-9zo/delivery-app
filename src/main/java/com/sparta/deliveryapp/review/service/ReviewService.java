@@ -1,5 +1,7 @@
 package com.sparta.deliveryapp.review.service;
 
+import com.sparta.deliveryapp.commons.exception.ErrorCode;
+import com.sparta.deliveryapp.commons.exception.error.CustomException;
 import com.sparta.deliveryapp.order.entity.Order;
 import com.sparta.deliveryapp.order.entity.OrderState;
 import com.sparta.deliveryapp.order.repository.OrderRepository;
@@ -30,11 +32,11 @@ public class ReviewService {
     Order order = orderRepository.getReferenceById(orderId);
 
     if (order.getOrderState() != OrderState.SUCCESS) {
-      throw new IllegalArgumentException("주문 완료된 상태에서만 리뷰를 작성할 수 있습니다.");
+      throw new CustomException(ErrorCode.REVIEW_NOT_ORDER_SUCCESS);
     }
 
     User user = userRepository.findByEmail(userDetails.getEmail())
-        .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+        .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_EXISTS_USER_ID));
     Review review = Review.of(dto.comment(), order.getStore(), user, dto.image(), dto.rating());
     reviewRepository.save(review);
   }
