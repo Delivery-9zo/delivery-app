@@ -1,5 +1,7 @@
 package com.sparta.deliveryapp.payment.service;
 
+import com.sparta.deliveryapp.commons.exception.ErrorCode;
+import com.sparta.deliveryapp.commons.exception.error.CustomException;
 import com.sparta.deliveryapp.payment.dto.RegisterPaymentRequestDto;
 import com.sparta.deliveryapp.payment.dto.RegisterPaymentResponseDto;
 import com.sparta.deliveryapp.payment.entity.Payment;
@@ -8,9 +10,7 @@ import com.sparta.deliveryapp.payment.repository.PaymentRepository;
 import com.sparta.deliveryapp.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
@@ -29,7 +29,7 @@ public class PaymentService {
 
         log.info("결제 금액: {}", requestDto.getPaymentAmount());
         if(requestDto.getPaymentAmount() <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "결제 금액은 1원 이상이어야 합니다.");
+            throw new CustomException(ErrorCode.NOT_SUFFICIENT_PAYMENT_AMOUNT);
         }
 
         // 결제 등록 처리

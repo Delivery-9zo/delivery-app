@@ -1,5 +1,7 @@
 package com.sparta.deliveryapp.order.service;
 
+import com.sparta.deliveryapp.commons.exception.ErrorCode;
+import com.sparta.deliveryapp.commons.exception.error.CustomException;
 import com.sparta.deliveryapp.menu.entity.Menu;
 import com.sparta.deliveryapp.menu.repository.MenuRepository;
 import com.sparta.deliveryapp.order.dto.OrderItemRequestDto;
@@ -28,10 +30,10 @@ public class OrderItemService {
 
   public OrderItem postOrderItem(OrderItemRequestDto requestDto) {
     Menu menu = menuRepository.findById(requestDto.getMenuId()).orElseThrow(()->
-        new IllegalArgumentException("메뉴가 존재하지 않습니다."));
+        new CustomException(ErrorCode.NOT_EXISTS_MENU_ID));
 
     Order order = orderRepository.findById(requestDto.getOrderId()).orElseThrow(()->
-        new IllegalArgumentException("주문이 존재하지 않습니다."));
+        new CustomException(ErrorCode.NOT_EXISTS_ORDER_ID));
 
     OrderItem orderItem = new OrderItem(order,menu,requestDto.getQuantity());
     return orderItemRepository.save(orderItem);
@@ -39,7 +41,7 @@ public class OrderItemService {
 
   public List<OrderItemResponseDto> getOrderItems(UUID order_uuid) {
     Order order = orderRepository.findById(order_uuid).orElseThrow(()->
-        new IllegalArgumentException("주문이 존재하지 않습니다."));
+        new CustomException(ErrorCode.NOT_EXISTS_ORDER_ID));
 
     return orderItemRepository.findByOrder(order).stream()
         .map(OrderItemResponseDto::new).toList();
@@ -47,7 +49,7 @@ public class OrderItemService {
 
   public OrderItemResponseDto getOrderItem(UUID itemUuid) {
     OrderItem orderItem = orderItemRepository.findById(itemUuid).orElseThrow(()->
-        new IllegalArgumentException("주문 상세 정보가 존재하지 않습니다."));
+        new CustomException(ErrorCode.NOT_EXISTS_ITEM_ID));
 
     return new OrderItemResponseDto(orderItem);
   }
@@ -55,10 +57,10 @@ public class OrderItemService {
   public void putOrderItem(OrderItemRequestDto requestDto) {
 
     Menu menu = menuRepository.findById(requestDto.getMenuId()).orElseThrow(()->
-        new IllegalArgumentException("메뉴가 존재하지 않습니다."));
+        new CustomException(ErrorCode.NOT_EXISTS_MENU_ID));
 
     Order order = orderRepository.findById(requestDto.getOrderId()).orElseThrow(()->
-        new IllegalArgumentException("주문이 존재하지 않습니다."));
+        new CustomException(ErrorCode.NOT_EXISTS_ORDER_ID));
 
     OrderItem orderItem = new OrderItem(order,menu,requestDto.getQuantity());
 
@@ -70,7 +72,7 @@ public class OrderItemService {
 
   public void deleteOrderItem(UUID itemUuid) {
     OrderItem orderItem = orderItemRepository.findById(itemUuid).orElseThrow(()->
-        new IllegalArgumentException("주문상세 정보가 존재하지 않습니다."));
+        new CustomException(ErrorCode.NOT_EXISTS_ITEM_ID));
 
     // 소프트 삭제
     String deletedBy = getCurrentUserEmail();

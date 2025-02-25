@@ -1,5 +1,7 @@
 package com.sparta.deliveryapp.payment.service;
 
+import com.sparta.deliveryapp.commons.exception.ErrorCode;
+import com.sparta.deliveryapp.commons.exception.error.CustomException;
 import com.sparta.deliveryapp.payment.dto.PaymentAllResponseDto;
 import com.sparta.deliveryapp.payment.entity.Payment;
 import com.sparta.deliveryapp.payment.repository.PaymentRepository;
@@ -12,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -29,7 +30,7 @@ public class MasterPaymentService {
         Page<Payment> paymentList = paymentRepository.findAllByOrderByCreatedAtDesc(pageable);
 
         if(paymentList.isEmpty()) {
-            throw new NoSuchElementException("결제 내역이 없습니다.");
+            throw new CustomException(ErrorCode.NOT_EXISTS_PAYMENT_ID);
         }
 
         List<PaymentAllResponseDto> paymentResponseList = paymentList.getContent().stream()
