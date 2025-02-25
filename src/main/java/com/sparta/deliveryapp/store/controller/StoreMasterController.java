@@ -2,6 +2,7 @@ package com.sparta.deliveryapp.store.controller;
 
 import com.sparta.deliveryapp.store.dto.StoreRequestDto;
 import com.sparta.deliveryapp.store.dto.StoreResponseDto;
+import com.sparta.deliveryapp.store.dto.StoreUpdateRequestDto;
 import com.sparta.deliveryapp.store.service.StoreService;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -66,7 +67,6 @@ public class StoreMasterController {
 
     StoreResponseDto storeResponseDto = storeService.findStoresByStoreId(UUID.fromString(storeId));
 
-    //todo: 커스텀 AccessDenied 예외 처리 추가(GlobalExceptionHandler에)
     return ResponseEntity.ok().body(storeResponseDto);
   }
 
@@ -74,7 +74,7 @@ public class StoreMasterController {
   @PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
   @Operation(summary = "가게 정보 수정(마스터)", description = "가게 정보를 수정하는 API. 기존 정보와 변한 정보만 수정되어 저장.")
   public ResponseEntity<String> updateStore(
-      @RequestBody StoreRequestDto storeRequestDto,
+      @RequestBody StoreUpdateRequestDto storeRequestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
     storeService.updateStoreMaster(storeRequestDto, userDetails);

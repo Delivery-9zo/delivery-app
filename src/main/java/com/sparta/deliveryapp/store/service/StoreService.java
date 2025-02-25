@@ -16,6 +16,7 @@ import com.sparta.deliveryapp.store.dto.StoreNearbyStoreResponseDto;
 import com.sparta.deliveryapp.store.dto.StoreNearbyStoreWithCategoryResponseDto;
 import com.sparta.deliveryapp.store.dto.StoreRequestDto;
 import com.sparta.deliveryapp.store.dto.StoreResponseDto;
+import com.sparta.deliveryapp.store.dto.StoreUpdateRequestDto;
 import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.entity.StoreCategory;
 import com.sparta.deliveryapp.store.repository.StoreCategoryRepository;
@@ -272,10 +273,10 @@ public class StoreService {
   }
 
   //master 권한 가게 정보 업데이트
-  public void updateStoreMaster(StoreRequestDto storeRequestDto, UserDetailsImpl userDetails) {
+  public void updateStoreMaster(StoreUpdateRequestDto storeRequestDto, UserDetailsImpl userDetails) {
 
     // 가게 유무 체크
-    Store existingStore = storeRepository.findByStoreName(storeRequestDto.getStoreName())
+    Store existingStore = storeRepository.findByStoreId(storeRequestDto.getStoreId())
         .orElseThrow(() -> new CustomException(NOT_EXISTS_STORE_NAME));
 
     // 카테고리 이름 리스트로 카테고리 테이블 조회(카테고리 검증)
@@ -315,7 +316,7 @@ public class StoreService {
 
     // 변경할 필드만 수정
     existingStore = Store.builder()
-        .storeId(existingStore.getStoreId())
+        .storeId(storeRequestDto.getStoreId())
         .storeName(storeRequestDto.getStoreName())
         .address(storeRequestDto.getAddress())
         .bRegiNum(storeRequestDto.getBRegiNum())
@@ -333,11 +334,11 @@ public class StoreService {
 
 
   //owner 권한 가게 정보 수정
-  public void updateStore(StoreRequestDto storeRequestDto, UserDetailsImpl userDetails) {
+  public void updateStore(StoreUpdateRequestDto storeRequestDto, UserDetailsImpl userDetails) {
     // 유저 가게 정보 조회
     List<Store> storeEntity = storeRepository.findByUser(userDetails.getUser());
     Store userStore = storeEntity.stream()
-        .filter(store -> store.getStoreName().equals(storeRequestDto.getStoreName()))
+        .filter(store -> store.getStoreId().equals(storeRequestDto.getStoreId()))
         .findFirst()
         .orElse(null);
 
@@ -373,7 +374,7 @@ public class StoreService {
     newStoreCategories.forEach(userStore::addStoreCategory);
 
     userStore = Store.builder()
-        .storeId(userStore.getStoreId())
+        .storeId(storeRequestDto.getStoreId())
         .storeName(storeRequestDto.getStoreName())
         .address(storeRequestDto.getAddress())
         .bRegiNum(storeRequestDto.getBRegiNum())
