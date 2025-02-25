@@ -123,13 +123,13 @@ public class UserService {
     userRepository.deleteUser(deleteBy, user.getUserId());
 
     // 주문 및 주문 상세 삭제 TODO: N + 1 문제 또는 쿼리 최적화 필요함
-    orderRepository.findAllByUserId(findUser.getUserId()).forEach(order -> {
-      orderItemRepository.findAllByOrderId(order.getOrderId()).forEach(orderItem ->
-          orderItemRepository.deleteOrderItem(deleteBy, orderItem.getItemId())
-      );
-
-      orderRepository.deleteOrder(deleteBy, order.getOrderId());
-    });
+//    orderRepository.findAllByUserId(findUser.getUserId()).forEach(order -> {
+//      orderItemRepository.findAllByOrderId(order.getOrderId()).forEach(orderItem ->
+//          orderItemRepository.deleteOrderItem(deleteBy, orderItem.getItemId())
+//      );
+//
+//      orderRepository.deleteOrder(deleteBy, order.getOrderId());
+//    });
 
     // 결제 삭제
     paymentRepository.deletePaymentByUserId(deleteBy,findUser.getUserId());
