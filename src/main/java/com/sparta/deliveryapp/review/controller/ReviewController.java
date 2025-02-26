@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,9 +23,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "리뷰 API", description = "리뷰 CRUD 관련 API 엔드포인트")
 @RestController
@@ -40,7 +45,15 @@ public class ReviewController {
       mediaType = "application/json"
   ))
   @PostMapping("/{orderId}")
-  public ResponseEntity<String> postReview(@RequestBody ReviewPostRequestDto dto,
+  public ResponseEntity<String> postReview(
+      @io.swagger.v3.oas.annotations.parameters.RequestBody(
+          required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = ReviewPostRequestDto.class)
+          )
+      )
+      @RequestBody ReviewPostRequestDto dto,
       @PathVariable(name = "orderId") UUID orderID,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
     reviewService.postReview(dto, orderID, userDetails);
@@ -99,7 +112,11 @@ public class ReviewController {
   @Operation(summary = "가게의 리뷰 평점 조회", description = "가게의 리뷰 평점을 조회합니다.")
   @ApiResponse(responseCode = "200", description = "가게의 리뷰 평점 조회 성공", content = @Content(
       schema = @Schema(type = "number", example = "3.5"),
-      mediaType = "application/json"
+      mediaType = "application/json",
+      examples = @ExampleObject(
+          name = "페이징 처리된 리뷰 목록",
+          value = ReviewSwaggerExample.USER_REVIEW_LIST_EXAMPLE
+      )
   ))
   @Parameter(name = "storeId", description = "평점 조회할 가게 Id", required = true, example =
       "730320d6-cd32-4ddc-b56b-78f810d7d543")
