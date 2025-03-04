@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class SignInResponseDto {
 
   private String message;
-  private String token;
+  private String accessToken;
+  private String refreshToken;
 
 }

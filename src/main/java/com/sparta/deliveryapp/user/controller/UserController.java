@@ -51,15 +51,13 @@ public class UserController {
 
     checkValidationErrors(bindingResult);
 
-    String token = userService.signIn(requestDto);
 
-    // 응답 메시지와 JWT 토큰을 담은 DTO 생성
-    SignInResponseDto response = new SignInResponseDto("로그인 성공", token);
+    SignInResponseDto signInResponseDto = userService.signIn(requestDto);
 
     // 응답 반환
     return ResponseEntity.ok()
-        .header("Authorization", token)
-        .body(response);
+        .header("Authorization", signInResponseDto.getAccessToken())
+        .body(signInResponseDto);
   }
 
   @Operation(summary = "수정 기능", description = "유저정보를 수정하는 api, null 로 값을 보내주면 기존의 데이터가 유지되고 받은 값들만 변경이 가능합니다.")
