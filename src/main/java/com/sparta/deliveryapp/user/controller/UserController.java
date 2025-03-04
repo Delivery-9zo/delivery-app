@@ -97,6 +97,18 @@ public class UserController {
     return ResponseEntity.ok().header("Authorization", newToken).body("token: "+newToken);
   }
 
+  @PostMapping("/logout")
+  public ResponseEntity<String> logout(@RequestBody SignOutRequestDto requestDto) {
+    String refreshToken = requestDto.getToken();
+
+    // 로그아웃 처리
+    userService.logout(requestDto.getEmail(), refreshToken);
+
+    return ResponseEntity.ok("로그아웃 성공");
+  }
+
+
+
 
   // 공통 유효성 검사 메서드
   private void checkValidationErrors(BindingResult bindingResult) {

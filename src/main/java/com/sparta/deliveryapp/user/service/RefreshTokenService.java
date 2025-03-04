@@ -34,6 +34,12 @@ public class RefreshTokenService {
       throw new CustomException(EXPIRED_REFRESH_TOKEN);
     }
 
+    // 추가. 블랙리스트
+    // 블랙리스트 체크
+    if (isTokenBlacklisted(refreshToken)) {
+      throw new CustomException(INVALID_REFRESH_TOKEN);
+    }
+
     // 2. Redis에 저장된 리프레시 토큰 확인
     String storedRefreshToken = redisTemplate.opsForValue().get("refreshToken:" + email);
     log.info(storedRefreshToken);
@@ -46,5 +52,10 @@ public class RefreshTokenService {
     String newToken = jwtUtil.createToken(email, user.getRole());
 
     return newToken;
+  }
+
+  public boolean isTokenBlacklisted(String refreshToken) {
+    String token = refreshToken.substring(7);  // Bearer " 제거
+    return redisTemplate.hasKey("blacklist:" + token);  // 블랙리스트에 존재하면 true
   }
 }

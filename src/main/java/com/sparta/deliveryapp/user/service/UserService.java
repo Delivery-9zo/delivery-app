@@ -90,6 +90,15 @@ public class UserService {
     return new SignInResponseDto("로그인 성공",accessToken,refreshToken);
   }
 
+  // 로그아웃
+  public void logout(String email, String refreshToken) {
+    log.info("blacklist 등록");
+    redisTemplate.opsForValue().set("blacklist:" + refreshToken.substring(7), email, 7, TimeUnit.DAYS);
+    log.info("refreshToken 삭제");
+    redisTemplate.delete("refreshToken:"+email);
+  }
+
+
   @Transactional
   public void updateUser(String email, UserUpdateRequestDto requestDto, User user) {
     User findUser = userRepository.findByEmail(email)
