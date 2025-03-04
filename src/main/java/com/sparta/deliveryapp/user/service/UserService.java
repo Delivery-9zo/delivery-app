@@ -85,7 +85,7 @@ public class UserService {
 
     String accessToken = jwtUtil.createToken(user.getEmail(), user.getRole());
     String refreshToken = jwtUtil.createRefreshToken();
-    redisTemplate.opsForValue().set("refreshToken:" + user.getEmail(), refreshToken, 7, TimeUnit.DAYS);
+    redisTemplate.opsForValue().set("refreshToken:" + user.getEmail(), refreshToken.substring(7), 7, TimeUnit.DAYS);
 
     return new SignInResponseDto("로그인 성공",accessToken,refreshToken);
   }
