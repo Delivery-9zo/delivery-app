@@ -65,9 +65,11 @@ public enum ErrorCode {
   ACCESS_DENIED_ONLY_USER_ID(HttpStatus.NOT_FOUND, "PAY_003", "본인의 결제 정보만 조회 가능합니다."),
   NOT_SUFFICIENT_PAYMENT_AMOUNT(HttpStatus.BAD_REQUEST, "PAY_004", "결제 금액은 1원 이상이어야 합니다."),
   NOT_PAYMENT(HttpStatus.BAD_REQUEST, "PAY_005", "결제 중 오류가 발생했습니다."),
-  NOT_PAYMENT_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PAY_006", "결제 처리 중 오류가 발생했습니다.");
+  NOT_PAYMENT_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PAY_006", "결제 처리 중 오류가 발생했습니다."),
 
-
+  // Refresh Token
+  EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN_001", "리프레시 토큰이 만료되었거나 유효하지 않습니다."),
+  INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "TOKEN_002", "리프레시 토큰이 올바르지 않습니다.");
 
   private final String code;
   private final String message;
