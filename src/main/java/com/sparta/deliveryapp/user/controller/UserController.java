@@ -3,6 +3,7 @@ package com.sparta.deliveryapp.user.controller;
 
 import com.sparta.deliveryapp.user.dto.*;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
+import com.sparta.deliveryapp.user.service.RefreshTokenService;
 import com.sparta.deliveryapp.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,6 +29,7 @@ import java.util.Map;
 public class UserController {
 
   private final UserService userService;
+  private final RefreshTokenService refreshTokenService;
 
   @Operation(summary = "회원가입 기능", description = "회원가입 하는 api")
   @ApiResponse(responseCode = "200",description = "회원가입 성공")
@@ -86,6 +88,13 @@ public class UserController {
     String email = userDetails.getUser().getEmail();
     return userService.getUser(email, userDetails.getUser());
 
+  }
+
+  @PostMapping("/refresh-token")
+  public ResponseEntity<String> postRefreshToken(@RequestBody RefreshTokenRequestDto requestDto){
+    String newToken = refreshTokenService.refreshAccessToken(requestDto.getEmail(), requestDto.getToken());
+
+    return ResponseEntity.ok().header("Authorization", newToken).body("token: "+newToken);
   }
 
 
