@@ -12,5 +12,6 @@ import lombok.Setter;
 public class SignOutRequestDto {
 
   private String email;
-  private String token;
+  private String accessToken;
+  private String refreshToken;
 }

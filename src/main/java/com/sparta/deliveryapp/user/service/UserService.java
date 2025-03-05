@@ -17,6 +17,7 @@ import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.user.dto.SignInRequestDto;
 import com.sparta.deliveryapp.user.dto.SignInResponseDto;
+import com.sparta.deliveryapp.user.dto.SignOutRequestDto;
 import com.sparta.deliveryapp.user.dto.SignUpRequestDto;
 import com.sparta.deliveryapp.user.dto.UserResponseDto;
 import com.sparta.deliveryapp.user.dto.UserUpdateRequestDto;
@@ -91,10 +92,11 @@ public class UserService {
   }
 
   // 로그아웃
-  public void logout(String email, String refreshToken) {
+  public void logout(String email, SignOutRequestDto requestDto) {
     log.info("blacklist 등록");
-    redisTemplate.opsForValue().set("blacklist:" + refreshToken.substring(7), email, 7, TimeUnit.DAYS);
-    log.info("refreshToken 삭제");
+    redisTemplate.opsForValue().set("blacklist:" + requestDto.getAccessToken(), email, 7, TimeUnit.DAYS);
+    redisTemplate.opsForValue().set("blacklist:" + requestDto.getRefreshToken(), email, 7, TimeUnit.DAYS);
+
     redisTemplate.delete("refreshToken:"+email);
   }
 

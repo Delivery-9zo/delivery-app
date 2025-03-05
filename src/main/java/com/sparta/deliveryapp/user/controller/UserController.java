@@ -99,10 +99,9 @@ public class UserController {
 
   @PostMapping("/logout")
   public ResponseEntity<String> logout(@RequestBody SignOutRequestDto requestDto) {
-    String refreshToken = requestDto.getToken();
 
     // 로그아웃 처리
-    userService.logout(requestDto.getEmail(), refreshToken);
+    userService.logout(requestDto.getEmail(), requestDto);
 
     return ResponseEntity.ok("로그아웃 성공");
   }
