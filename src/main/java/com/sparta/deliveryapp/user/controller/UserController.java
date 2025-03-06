@@ -3,6 +3,7 @@ package com.sparta.deliveryapp.user.controller;
 
 import com.sparta.deliveryapp.user.dto.*;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
+import com.sparta.deliveryapp.user.service.RefreshTokenService;
 import com.sparta.deliveryapp.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,6 +29,7 @@ import java.util.Map;
 public class UserController {
 
   private final UserService userService;
+  private final RefreshTokenService refreshTokenService;
 
   @Operation(summary = "회원가입 기능", description = "회원가입 하는 api")
   @ApiResponse(responseCode = "200",description = "회원가입 성공")
@@ -51,15 +53,13 @@ public class UserController {
 
     checkValidationErrors(bindingResult);
 
-    String token = userService.signIn(requestDto);
 
-    // 응답 메시지와 JWT 토큰을 담은 DTO 생성
-    SignInResponseDto response = new SignInResponseDto("로그인 성공", token);
+    SignInResponseDto signInResponseDto = userService.signIn(requestDto);
 
     // 응답 반환
     return ResponseEntity.ok()
-        .header("Authorization", token)
-        .body(response);
+        .header("Authorization", signInResponseDto.getAccessToken())
+        .body(signInResponseDto);
   }
 
   @Operation(summary = "수정 기능", description = "유저정보를 수정하는 api, null 로 값을 보내주면 기존의 데이터가 유지되고 받은 값들만 변경이 가능합니다.")
@@ -89,6 +89,24 @@ public class UserController {
     return userService.getUser(email, userDetails.getUser());
 
   }
+
+  @PostMapping("/refresh-token")
+  public ResponseEntity<String> postRefreshToken(@RequestBody RefreshTokenRequestDto requestDto){
+    String newToken = refreshTokenService.refreshAccessToken(requestDto.getEmail(), requestDto.getToken());
+
+    return ResponseEntity.ok().header("Authorization", newToken).body("token: "+newToken);
+  }
+
+  @PostMapping("/logout")
+  public ResponseEntity<String> logout(@RequestBody SignOutRequestDto requestDto) {
+
+    // 로그아웃 처리
+    userService.logout(requestDto.getEmail(), requestDto);
+
+    return ResponseEntity.ok("로그아웃 성공");
+  }
+
+
 
 
   // 공통 유효성 검사 메서드

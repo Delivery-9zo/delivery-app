@@ -75,13 +75,30 @@ public class JwtUtil {
     } catch (SecurityException | MalformedJwtException | SignatureException e) {
       log.error("Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.");
     } catch (ExpiredJwtException e) {
-      log.error("Expired JWT token, 만료된 JWT token 입니다.");
+      log.warn("Expired JWT token, 만료된 JWT token 입니다. 리프레시 토큰을 확인하세요.");
+      throw e;
     } catch (UnsupportedJwtException e) {
       log.error("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.");
     } catch (IllegalArgumentException e) {
       log.error("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
     }
     return false;
+  }
+
+  // 리프레시 토큰 생성
+  public String createRefreshToken() {
+    Date date = new Date();
+
+    // 리프레시 토큰의 유효 기간을 7일로 설정 (예시)
+    long refreshTokenTime = 7 * 24 * 60 * 60 * 1000L; // 7일
+
+    return BEARER_PREFIX +
+        Jwts.builder()
+            .setSubject("refreshToken") // 리프레시 토큰의 경우, 보통 이메일을 넣지 않고 고정값을 사용
+            .setExpiration(new Date(date.getTime() + refreshTokenTime)) // 7일 뒤 만료
+            .setIssuedAt(date) // 발급일
+            .signWith(key, signatureAlgorithm)
+            .compact();
   }
 
   // 토큰에서 사용자 정보 가져오기

@@ -7,6 +7,7 @@ import com.sparta.deliveryapp.user.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -26,7 +27,8 @@ public class WebSecurityConfig {
 
   private final JwtUtil jwtUtil;
   private final UserDetailsServiceImpl userDetailsService;
-  private final AuthenticationConfiguration authenticationConfiguration;
+  private final RedisTemplate<String, String> redisTemplate;
+
 
   @Bean
   public PasswordEncoder passwordEncoder() {
@@ -41,7 +43,7 @@ public class WebSecurityConfig {
 
   @Bean
   public JwtAuthorizationFilter jwtAuthorizationFilter() {
-    return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
+    return new JwtAuthorizationFilter(jwtUtil, userDetailsService,redisTemplate);
   }
 
 

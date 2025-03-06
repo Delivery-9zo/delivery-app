@@ -65,6 +65,9 @@ dependencies {
     // hibernate-spatial
     implementation 'org.hibernate.orm:hibernate-spatial'
 
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 }
 
 // Querydsl 설정부

@@ -1,5 +1,11 @@
 package com.sparta.deliveryapp.user.service;
 
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.ACCESS_DENIED;
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.EMAIL_ALREADY_REGISTERED;
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.PASSWORD_NOT_MATCH;
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.USER_DELETED;
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.USER_NOT_FOUND;
+
 import com.sparta.deliveryapp.ai.AIRepository;
 import com.sparta.deliveryapp.commons.exception.error.CustomException;
 import com.sparta.deliveryapp.menu.repository.MenuRepository;
@@ -10,6 +16,8 @@ import com.sparta.deliveryapp.review.repository.ReviewRepository;
 import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.user.dto.SignInRequestDto;
+import com.sparta.deliveryapp.user.dto.SignInResponseDto;
+import com.sparta.deliveryapp.user.dto.SignOutRequestDto;
 import com.sparta.deliveryapp.user.dto.SignUpRequestDto;
 import com.sparta.deliveryapp.user.dto.UserResponseDto;
 import com.sparta.deliveryapp.user.dto.UserUpdateRequestDto;
@@ -18,19 +26,18 @@ import com.sparta.deliveryapp.user.jwt.JwtUtil;
 import com.sparta.deliveryapp.user.repository.UserRepository;
 import com.sparta.deliveryapp.user.security.UserDetailsImpl;
 import com.sparta.deliveryapp.util.NullAwareBeanUtils;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import static com.sparta.deliveryapp.commons.exception.ErrorCode.*;
 
 @Service
 @Slf4j
@@ -47,6 +54,7 @@ public class UserService {
   private final StoreRepository storeRepository;
   private final AIRepository aiRepository;
   private final JwtUtil jwtUtil;
+  private final RedisTemplate<String, String> redisTemplate;
 
 
   @Transactional
@@ -64,7 +72,7 @@ public class UserService {
     userRepository.save(new User(requestDto, password));
   }
 
-  public String signIn(SignInRequestDto requestDto) {
+  public SignInResponseDto signIn(SignInRequestDto requestDto) {
     User user = userRepository.findByEmail(requestDto.getEmail())
         .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
@@ -76,10 +84,22 @@ public class UserService {
       throw new CustomException(PASSWORD_NOT_MATCH);
     }
 
-    String token = jwtUtil.createToken(user.getEmail(), user.getRole());
+    String accessToken = jwtUtil.createToken(user.getEmail(), user.getRole());
+    String refreshToken = jwtUtil.createRefreshToken();
+    redisTemplate.opsForValue().set("refreshToken:" + user.getEmail(), refreshToken.substring(7), 7, TimeUnit.DAYS);
 
-    return token;
+    return new SignInResponseDto("로그인 성공",accessToken,refreshToken);
   }
+
+  // 로그아웃
+  public void logout(String email, SignOutRequestDto requestDto) {
+    log.info("blacklist 등록");
+    redisTemplate.opsForValue().set("blacklist:" + requestDto.getAccessToken(), email, 7, TimeUnit.DAYS);
+    redisTemplate.opsForValue().set("blacklist:" + requestDto.getRefreshToken(), email, 7, TimeUnit.DAYS);
+
+    redisTemplate.delete("refreshToken:"+email);
+  }
+
 
   @Transactional
   public void updateUser(String email, UserUpdateRequestDto requestDto, User user) {

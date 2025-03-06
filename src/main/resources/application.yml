@@ -23,6 +23,7 @@ spring:
     secretKey: ${SECRET_KEY:defaultSecretKey}
   gemini:
     secretKey: ${GEMINI_KEY:defaultSecretKey}
+
 ---
 spring:
   config:
@@ -56,3 +57,12 @@ api-key:
 springdoc:
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
+
+---
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST}   # Redis 서버 주소 (localhost 또는 외부 서버)
+      port: ${REDIS_PORT}   # Redis 포트 (기본적으로 6379)
+      password: ${REDIS_PASSWORD}  # Redis 서버 비밀번호 (requirepass 설정에 맞춰야 함)
+      username: ${REDIS_USERNAME}
