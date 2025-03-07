@@ -2,6 +2,7 @@ package com.sparta.deliveryapp.user.service;
 
 import static com.sparta.deliveryapp.commons.exception.ErrorCode.ACCESS_DENIED;
 import static com.sparta.deliveryapp.commons.exception.ErrorCode.EMAIL_ALREADY_REGISTERED;
+import static com.sparta.deliveryapp.commons.exception.ErrorCode.INVALID_REFRESH_TOKEN;
 import static com.sparta.deliveryapp.commons.exception.ErrorCode.PASSWORD_NOT_MATCH;
 import static com.sparta.deliveryapp.commons.exception.ErrorCode.USER_DELETED;
 import static com.sparta.deliveryapp.commons.exception.ErrorCode.USER_NOT_FOUND;
@@ -17,7 +18,6 @@ import com.sparta.deliveryapp.store.entity.Store;
 import com.sparta.deliveryapp.store.repository.StoreRepository;
 import com.sparta.deliveryapp.user.dto.SignInRequestDto;
 import com.sparta.deliveryapp.user.dto.SignInResponseDto;
-import com.sparta.deliveryapp.user.dto.SignOutRequestDto;
 import com.sparta.deliveryapp.user.dto.SignUpRequestDto;
 import com.sparta.deliveryapp.user.dto.UserResponseDto;
 import com.sparta.deliveryapp.user.dto.UserUpdateRequestDto;
@@ -92,10 +92,19 @@ public class UserService {
   }
 
   // 로그아웃
-  public void logout(String email, SignOutRequestDto requestDto) {
+  public void logout(User user, String refreshToken, String accessToken) {
+
+    String email = user.getEmail();
+
+    String checkRefreshToken = redisTemplate.opsForValue().get("refreshToken:"+email);
+    log.info(checkRefreshToken);
+    if(!checkRefreshToken.equals(refreshToken)){
+      throw new CustomException(INVALID_REFRESH_TOKEN);
+    }
+
     log.info("blacklist 등록");
-    redisTemplate.opsForValue().set("blacklist:" + requestDto.getAccessToken(), email, 7, TimeUnit.DAYS);
-    redisTemplate.opsForValue().set("blacklist:" + requestDto.getRefreshToken(), email, 7, TimeUnit.DAYS);
+    redisTemplate.opsForValue().set("blacklist:" + accessToken, email, 7, TimeUnit.DAYS);
+    redisTemplate.opsForValue().set("blacklist:" + refreshToken, email, 7, TimeUnit.DAYS);
 
     redisTemplate.delete("refreshToken:"+email);
   }
