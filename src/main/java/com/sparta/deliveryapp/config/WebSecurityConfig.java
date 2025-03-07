@@ -1,7 +1,6 @@
 package com.sparta.deliveryapp.config;
 
 
-import com.sparta.deliveryapp.commons.exception.CustomAccessDeniedHandler;
 import com.sparta.deliveryapp.commons.exception.CustomAuthenticationEntryPointHandler;
 import com.sparta.deliveryapp.user.jwt.JwtAuthorizationFilter;
 import com.sparta.deliveryapp.user.jwt.JwtUtil;
@@ -71,7 +70,6 @@ public class WebSecurityConfig {
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         ).exceptionHandling(ex -> ex
-            .accessDeniedHandler(new CustomAccessDeniedHandler()) // 인가 실패 처리
             .authenticationEntryPoint(new CustomAuthenticationEntryPointHandler()) // 인증 실패 처리
 
         );
