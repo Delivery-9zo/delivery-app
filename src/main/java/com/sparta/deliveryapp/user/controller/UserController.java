@@ -59,6 +59,7 @@ public class UserController {
     // 응답 반환
     return ResponseEntity.ok()
         .header("Authorization", signInResponseDto.getAccessToken())
+        .header("Refresh-Token", signInResponseDto.getRefreshToken())
         .body(signInResponseDto);
   }
 
@@ -98,10 +99,25 @@ public class UserController {
   }
 
   @PostMapping("/logout")
-  public ResponseEntity<String> logout(@RequestBody SignOutRequestDto requestDto) {
+  public ResponseEntity<String> logout(
+      @RequestHeader("Authorization") String accessToken,
+      @RequestHeader("Refresh-Token") String refreshToken,
+      @AuthenticationPrincipal UserDetailsImpl userDetails
+  ) {
+
+    // "Bearer " 접두사 제거
+    if (accessToken != null && accessToken.startsWith("Bearer ")) {
+      accessToken = accessToken.substring(7);
+    }
+
+    // "Bearer " 접두사 제거
+    if (refreshToken != null && refreshToken.startsWith("Bearer ")) {
+      refreshToken = refreshToken.substring(7);
+    }
+
 
     // 로그아웃 처리
-    userService.logout(requestDto.getEmail(), requestDto);
+    userService.logout(userDetails.getUser(), refreshToken, accessToken);
 
     return ResponseEntity.ok("로그아웃 성공");
   }
