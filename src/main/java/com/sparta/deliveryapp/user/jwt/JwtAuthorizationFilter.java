@@ -1,5 +1,9 @@
 package com.sparta.deliveryapp.user.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.deliveryapp.commons.dto.ErrorResponse;
+import com.sparta.deliveryapp.commons.exception.ErrorCode;
+import com.sparta.deliveryapp.commons.exception.JwtCustomException;
 import com.sparta.deliveryapp.user.security.UserDetailsServiceImpl;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -37,25 +41,19 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     String tokenValue = jwtUtil.getJwtFromHeader(req);
 
     if (StringUtils.hasText(tokenValue)) {
-
-      if (!jwtUtil.validateToken(tokenValue)) {
-        log.error("Token Error");
-        return;
-      }
-
-      Claims info = jwtUtil.getUserInfoFromToken(tokenValue);
-
-      // 블랙리스트 검증: Access Token이 블랙리스트에 있는지 확인
-      if (isTokenBlacklisted(tokenValue)) {
-        log.error("Token is blacklisted");
-        res.sendError(HttpServletResponse.SC_FORBIDDEN, "Token has been invalidated"); // 강제 로그아웃 처리
-        return;
-      }
-
       try {
+
+        jwtUtil.validateToken(tokenValue);
+        Claims info = jwtUtil.getUserInfoFromToken(tokenValue);
+
+        if (isTokenBlacklisted(tokenValue)) {
+          log.error("Token is blacklisted");
+          throw new JwtCustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
+
         setAuthentication(info.getSubject());
-      } catch (Exception e) {
-        log.error(e.getMessage());
+      } catch (JwtCustomException e) {
+        setErrorResponse(res, e.getErrorCode());
         return;
       }
     }
@@ -82,5 +80,18 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
   private boolean isTokenBlacklisted(String tokenValue) {
     // Access Token이 블랙리스트에 있는지 확인
     return redisTemplate.opsForValue().get("blacklist:" + tokenValue) != null;
+  }
+
+
+  public static void setErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
+    response.setContentType("application/json;charset=UTF-8");
+    response.setStatus(errorCode.getStatus().value());
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    // ErrorResponse 객체 생성 후 바로 변환
+    ErrorResponse errorResponse = new ErrorResponse(errorCode, errorCode.getMessage());
+    String jsonResponse = objectMapper.writeValueAsString(errorResponse);
+
+    response.getWriter().write(jsonResponse);
   }
 }

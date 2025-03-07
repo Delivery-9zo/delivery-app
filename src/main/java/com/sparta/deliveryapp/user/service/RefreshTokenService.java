@@ -30,10 +30,7 @@ public class RefreshTokenService {
 
   public String refreshAccessToken(String email, String refreshToken){
     // 1. 리프레시 토큰 유효성 검증
-    if(!jwtUtil.validateToken(refreshToken)){
-      throw new CustomException(EXPIRED_REFRESH_TOKEN);
-    }
-
+    jwtUtil.validateToken(refreshToken);
     // 추가. 블랙리스트
     // 블랙리스트 체크
     if (isTokenBlacklisted(refreshToken)) {
