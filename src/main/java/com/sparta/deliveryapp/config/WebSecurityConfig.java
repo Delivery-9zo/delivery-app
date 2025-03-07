@@ -1,6 +1,8 @@
 package com.sparta.deliveryapp.config;
 
 
+import com.sparta.deliveryapp.commons.exception.CustomAccessDeniedHandler;
+import com.sparta.deliveryapp.commons.exception.CustomAuthenticationEntryPointHandler;
 import com.sparta.deliveryapp.user.jwt.JwtAuthorizationFilter;
 import com.sparta.deliveryapp.user.jwt.JwtUtil;
 import com.sparta.deliveryapp.user.security.UserDetailsServiceImpl;
@@ -36,14 +38,15 @@ public class WebSecurityConfig {
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+      throws Exception {
     return configuration.getAuthenticationManager();
   }
 
 
   @Bean
   public JwtAuthorizationFilter jwtAuthorizationFilter() {
-    return new JwtAuthorizationFilter(jwtUtil, userDetailsService,redisTemplate);
+    return new JwtAuthorizationFilter(jwtUtil, userDetailsService, redisTemplate);
   }
 
 
@@ -67,8 +70,11 @@ public class WebSecurityConfig {
         )
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        );
+        ).exceptionHandling(ex -> ex
+            .accessDeniedHandler(new CustomAccessDeniedHandler()) // 인가 실패 처리
+            .authenticationEntryPoint(new CustomAuthenticationEntryPointHandler()) // 인증 실패 처리
 
+        );
 
     http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 
