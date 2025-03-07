@@ -1,5 +1,7 @@
 package com.sparta.deliveryapp.user.jwt;
 
+import com.sparta.deliveryapp.commons.exception.ErrorCode;
+import com.sparta.deliveryapp.commons.exception.JwtCustomException;
 import com.sparta.deliveryapp.user.entity.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -68,21 +70,22 @@ public class JwtUtil {
   }
 
   // 토큰 검증
-  public boolean validateToken(String token) {
+  public void validateToken(String token) {
     try {
       Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-      return true;
     } catch (SecurityException | MalformedJwtException | SignatureException e) {
-      log.error("Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.");
+      log.error("Invalid JWT signature, 유효하지 않은 JWT 서명 입니다.");
+      throw new JwtCustomException(ErrorCode.INVALID_TOKEN);
     } catch (ExpiredJwtException e) {
-      log.warn("Expired JWT token, 만료된 JWT token 입니다. 리프레시 토큰을 확인하세요.");
-      throw e;
+      log.warn("Expired JWT token, 만료된 JWT token 입니다.");
+      throw new JwtCustomException(ErrorCode.EXPIRED_TOKEN);
     } catch (UnsupportedJwtException e) {
       log.error("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.");
+      throw new JwtCustomException(ErrorCode.UNSUPPORTED_TOKEN);
     } catch (IllegalArgumentException e) {
       log.error("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
+      throw new JwtCustomException(ErrorCode.EMPTY_CLAIMS);
     }
-    return false;
   }
 
   // 리프레시 토큰 생성
