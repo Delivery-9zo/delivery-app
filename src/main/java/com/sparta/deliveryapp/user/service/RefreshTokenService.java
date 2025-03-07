@@ -29,9 +29,6 @@ public class RefreshTokenService {
   }
 
   public String refreshAccessToken(String email, String refreshToken){
-    // 1. 리프레시 토큰 유효성 검증
-    jwtUtil.validateToken(refreshToken);
-    // 추가. 블랙리스트
     // 블랙리스트 체크
     if (isTokenBlacklisted(refreshToken)) {
       throw new CustomException(INVALID_REFRESH_TOKEN);
@@ -52,7 +49,6 @@ public class RefreshTokenService {
   }
 
   public boolean isTokenBlacklisted(String refreshToken) {
-    String token = refreshToken.substring(7);  // Bearer " 제거
-    return redisTemplate.hasKey("blacklist:" + token);  // 블랙리스트에 존재하면 true
+    return redisTemplate.hasKey("blacklist:" + refreshToken);  // 블랙리스트에 존재하면 true
   }
 }
