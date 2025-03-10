@@ -10,17 +10,17 @@ public enum ErrorCode {
   REQUEST_PARAMETER_BIND_FAILED(HttpStatus.BAD_REQUEST, "REQ_001", "PARAMETER_BIND_FAILED"),
   NON_ZERO_PARAMETER(HttpStatus.BAD_REQUEST, "REQ_002", "파라미터로 0이 넘어오면 안됩니다."),
 
-    ITEM_SOLD_OUT(HttpStatus.NOT_FOUND, "ITEM_001", "아이템 수량이 0입니다."),
+  ITEM_SOLD_OUT(HttpStatus.NOT_FOUND, "ITEM_001", "아이템 수량이 0입니다."),
 
-    // 사용자 관련 에러
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_001", "회원이 존재하지 않습니다."),
-    USER_DELETED(HttpStatus.FORBIDDEN, "USER_002", "이 사용자는 삭제된 사용자입니다."),
-    PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, "USER_003", "비밀번호가 다릅니다."),
-    EMAIL_ALREADY_REGISTERED(HttpStatus.BAD_REQUEST, "USER_004", "이미 등록된 이메일입니다."),
+  // 사용자 관련 에러
+  USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_001", "회원이 존재하지 않습니다."),
+  USER_DELETED(HttpStatus.FORBIDDEN, "USER_002", "이 사용자는 삭제된 사용자입니다."),
+  PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, "USER_003", "비밀번호가 다릅니다."),
+  EMAIL_ALREADY_REGISTERED(HttpStatus.BAD_REQUEST, "USER_004", "이미 등록된 이메일입니다."),
 
-    // 권한 관련 에러
-    ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH_001", "사용자 정보를 수정할 권한이 없습니다."),
-    ACCESS_DENIED_ONLY_CUSTOMER(HttpStatus.FORBIDDEN, "AUTH_002", "CUSTOMER 권한을 가진 사용자만 조회 가능합니다."),
+  // 권한 관련 에러
+  ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH_001", "접근권한이 없습니다."),
+  ACCESS_DENIED_ONLY_CUSTOMER(HttpStatus.FORBIDDEN, "AUTH_002", "CUSTOMER 권한을 가진 사용자만 조회 가능합니다."),
 
   //상점 도메인 에러
   ALREADY_REGISTERED_STORE_ID(HttpStatus.BAD_REQUEST, "S-001", "이미 존재하는 가게 ID입니다."),
@@ -51,9 +51,11 @@ public enum ErrorCode {
   NOT_EXISTS_ORDER_ID(HttpStatus.NOT_FOUND, "ORD-001", "존재하지 않는 주문 ID 입니다."),
   ORDER_STATUS_FAILED_ORDER(HttpStatus.BAD_REQUEST, "ORD-002", "주문완료 상태가 아니므로 주문취소가 불가능합니다."),
   NOT_REGISTER_ORDER_STATUS(HttpStatus.BAD_REQUEST, "ORD-002", "주문대기 및 취소 상태로 주문완료가 불가능합니다."),
-  AFTER_FIVE_ORDER_STATUS_FAILED_ORDER(HttpStatus.INTERNAL_SERVER_ERROR, "ORD-003", "주문취소는 주문완료 후 5분 이내에만 취소 가능합니다."),
+  AFTER_FIVE_ORDER_STATUS_FAILED_ORDER(HttpStatus.INTERNAL_SERVER_ERROR, "ORD-003",
+      "주문취소는 주문완료 후 5분 이내에만 취소 가능합니다."),
   NOT_EXISTS_MENU_ID(HttpStatus.NOT_FOUND, "ORD-004", "해당 메뉴가 존재하지 않습니다."),
-  ONLY_NON_FACE_ORDER_FAILED_ORDER(HttpStatus.BAD_REQUEST, "ORD-005", "배달 주문만 결제 가능합니다. 대면 주문과 결제는 가게에 문의해주세요!"),
+  ONLY_NON_FACE_ORDER_FAILED_ORDER(HttpStatus.BAD_REQUEST, "ORD-005",
+      "배달 주문만 결제 가능합니다. 대면 주문과 결제는 가게에 문의해주세요!"),
   ONLY_FACE_ORDER_FAILED_ORDER(HttpStatus.BAD_REQUEST, "ORD-005", "비대면 주문과 결제는 CUSTOMER 만 가능합니다."),
 
   // 주문상세 관련 에러
@@ -69,7 +71,15 @@ public enum ErrorCode {
 
   // Refresh Token
   EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN_001", "리프레시 토큰이 만료되었거나 유효하지 않습니다."),
-  INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "TOKEN_002", "리프레시 토큰이 올바르지 않습니다.");
+  INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "TOKEN_002", "리프레시 토큰이 올바르지 않습니다."),
+
+  // Jwt 관련
+  BLACKLISTED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_005", "해당 토큰은 이미 로그아웃 처리되었습니다."),
+  INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_001", "유효하지 않은 토큰입니다."),
+  EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_002", "만료된 토큰입니다."),
+  UNSUPPORTED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_003", "지원되지 않는 토큰입니다."),
+  EMPTY_CLAIMS(HttpStatus.UNAUTHORIZED, "AUTH_004", "잘못된 토큰입니다.");
+
 
   private final String code;
   private final String message;
